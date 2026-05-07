@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { CRTOverlay } from "./components/CRTOverlay";
 import { GachaponGrid } from "./components/GachaponGrid";
 import { HelpCard } from "./components/HelpCard";
 import { ResultsTable } from "./components/ResultsTable";
@@ -117,13 +118,16 @@ export function App() {
         <h1 className="font-display text-3xl uppercase tracking-wider text-[var(--color-cream)] drop-shadow-[0_3px_0_var(--color-ink)]">
           Gambonanza Seed Finder
         </h1>
-        <ChipLink
-          href="https://github.com/bentrd/gambonanza-seedfinder"
-          target="_blank"
-          rel="noreferrer"
-        >
-          source
-        </ChipLink>
+        <div className="flex items-center gap-2">
+          <CRTOverlay />
+          <ChipLink
+            href="https://github.com/bentrd/gambonanza-seedfinder"
+            target="_blank"
+            rel="noreferrer"
+          >
+            source
+          </ChipLink>
+        </div>
       </header>
 
       <HelpCard />
