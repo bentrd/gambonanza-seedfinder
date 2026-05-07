@@ -118,7 +118,7 @@ export function App() {
           Gambonanza Seed Finder
         </h1>
         <ChipLink
-          href="https://github.com/bentrd/seedfinder-web"
+          href="https://github.com/bentrd/gambonanza-seedfinder"
           target="_blank"
           rel="noreferrer"
         >

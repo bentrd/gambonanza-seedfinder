@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import wasm from "vite-plugin-wasm";
 
 export default defineConfig({
-  base: process.env.GITHUB_PAGES === "1" ? "/seedfinder-web/" : "/",
+  base: process.env.GITHUB_PAGES === "1" ? "/gambonanza-seedfinder/" : "/",
   plugins: [react(), tailwindcss(), wasm()],
   worker: {
     format: "es",
