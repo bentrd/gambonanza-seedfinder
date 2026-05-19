@@ -16,9 +16,19 @@ export interface GachaponFilter {
   rollMax: number;
 }
 
+export interface GambitFilter {
+  /** Internal IDs (`Gambit.id`) of gambits to match. Empty = filter disabled. */
+  targets: string[];
+  /** Match within the first N gachapons opened (1..32). */
+  maxGachapons: number;
+  /** IDs the player does NOT have unlocked — removed from every gachapon pool. */
+  excludedIds: string[];
+}
+
 export interface SearchFilters {
   starter: StarterFilter;
   gachapons: GachaponFilter[];
+  gambits: GambitFilter;
 }
 
 export interface SearchProgress {

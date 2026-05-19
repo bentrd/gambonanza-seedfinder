@@ -1,0 +1,104 @@
+/**
+ * Gambit registry loaded from public/game/gambits.json (extract_gambits.py).
+ *
+ * Entries are in master `GambitsInfo` order. The `poolIndex` field is the
+ * gambit's position within its rarity tier — that's the index the WASM
+ * kernel uses for filtering.
+ */
+import type { Rarity } from "./types";
+
+export interface Gambit {
+  /** Position in master GambitsInfo (0..199). */
+  index: number;
+  /** Position within Gambits_<rarity> — what the RNG draws against. */
+  poolIndex: number;
+  /** Asset name, e.g. `Gambit_LuckyCoin`. */
+  name: string;
+  /** Internal ID used by GambitUnlockManager (e.g. `lucky-coin`). */
+  id: string;
+  rarity: Rarity;
+  focus: string[];
+  /** Sprite filename under `public/game/gambits/`, or null if extraction skipped it. */
+  sprite: string | null;
+  /** Localized display name (English), e.g. "Lucky Coin's Gambit". */
+  displayName: string;
+  /** Localized description, may include `<color>`, `<br>`, `<sprite=N>` tags. */
+  description: string;
+  /** Raw GambitName loc key (e.g. `lucky-coin_name`). */
+  nameKey: string;
+  /** Raw GambitDescription loc key (e.g. `lucky-coin_description`). */
+  descKey: string;
+}
+
+let cache: readonly Gambit[] | null = null;
+let cacheById: Map<string, Gambit> | null = null;
+let cacheByPoolIdx: Map<string, Gambit> | null = null;
+
+function base(): string {
+  return (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+}
+
+/**
+ * Idempotent — fetches `gambits.json` once and caches. Awaited by `main.tsx`
+ * during boot alongside `initRng()`.
+ */
+export async function loadGambits(): Promise<readonly Gambit[]> {
+  if (cache) return cache;
+  const res = await fetch(`${base()}/game/gambits.json`);
+  if (!res.ok) throw new Error(`failed to load gambits.json: ${res.status}`);
+  const data = (await res.json()) as Gambit[];
+  cache = data;
+  cacheById = new Map(data.map((g) => [g.id, g]));
+  cacheByPoolIdx = new Map(data.map((g) => [`${g.rarity}:${g.poolIndex}`, g]));
+  return cache;
+}
+
+/** All gambits in master order. Throws if `loadGambits()` hasn't resolved. */
+export function getGambits(): readonly Gambit[] {
+  if (!cache) throw new Error("gambits not loaded — await loadGambits() first");
+  return cache;
+}
+
+/** Lookup by internal ID (e.g. `lucky-coin`). */
+export function getGambitById(id: string): Gambit | undefined {
+  return cacheById?.get(id);
+}
+
+/** Lookup by the rarity tier + poolIndex pair the WASM kernel returns. */
+export function getGambitByPoolIndex(
+  rarity: Rarity,
+  poolIndex: number,
+): Gambit | undefined {
+  return cacheByPoolIdx?.get(`${rarity}:${poolIndex}`);
+}
+
+/** Sprite URL or null. Use this when rendering a gambit. */
+export function gambitSpriteUrl(g: Gambit): string | null {
+  if (!g.sprite) return null;
+  return `${base()}/game/gambits/${g.sprite}`;
+}
+
+/**
+ * Display name — prefers the localized `displayName` from `gambits.json`
+ * (e.g. "Lucky Coin's Gambit"). Falls back to deriving from the asset
+ * name when the localization is empty.
+ */
+export function gambitDisplayName(g: Gambit): string {
+  if (g.displayName) return g.displayName;
+  return g.name
+    .replace(/^Gambit_/, "")
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/_/g, " ");
+}
+
+/**
+ * Strip Unity rich-text tags for plain-text contexts (search match, aria
+ * labels). Replaces `<br>` with a space and removes everything else.
+ */
+export function gambitDescriptionPlain(g: Gambit): string {
+  return g.description
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}

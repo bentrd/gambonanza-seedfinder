@@ -1,13 +1,39 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CRTOverlay } from "./components/CRTOverlay";
 import { GachaponGrid } from "./components/GachaponGrid";
+import { GambitPicker } from "./components/GambitPicker";
+import { GambitUnlocksModal } from "./components/GambitUnlocksModal";
 import { HelpCard } from "./components/HelpCard";
 import { ResultsTable } from "./components/ResultsTable";
 import { SearchStatus } from "./components/SearchStatus";
 import { StarterPicker } from "./components/StarterPicker";
 import { ChipLink } from "./components/ui/Chip";
+import { defaultGambitFilter } from "./search/encode";
 import { SearchManager } from "./search/searchManager";
-import type { GachaponFilter, StarterFilter } from "./search/types";
+import type { GachaponFilter, GambitFilter, StarterFilter } from "./search/types";
+
+const EXCLUDED_LS_KEY = "gambonanza:excluded-gambits";
+
+function loadExcludedFromStorage(): string[] {
+  if (typeof localStorage === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(EXCLUDED_LS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((x) => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistExcluded(ids: readonly string[]): void {
+  if (typeof localStorage === "undefined") return;
+  try {
+    localStorage.setItem(EXCLUDED_LS_KEY, JSON.stringify(ids));
+  } catch {
+    // quota / private mode — silently ignore
+  }
+}
 
 const RESULTS_BATCH_INTERVAL = 100;
 const MAX_RESULTS_KEPT = 1000;
@@ -21,6 +47,11 @@ const initialStarter: StarterFilter = {
 export function App() {
   const [starter, setStarter] = useState<StarterFilter>(initialStarter);
   const [gachapons, setGachapons] = useState<GachaponFilter[]>([]);
+  const [gambits, setGambits] = useState<GambitFilter>(() => ({
+    ...defaultGambitFilter(),
+    excludedIds: loadExcludedFromStorage(),
+  }));
+  const [unlocksOpen, setUnlocksOpen] = useState(false);
 
   const [results, setResults] = useState<number[]>([]);
   const [active, setActive] = useState(false);
@@ -102,8 +133,8 @@ export function App() {
       },
     });
     managerRef.current = manager;
-    manager.start({ starter, gachapons });
-  }, [starter, gachapons, flushResults, scheduleFlush, stopSearch]);
+    manager.start({ starter, gachapons, gambits });
+  }, [starter, gachapons, gambits, flushResults, scheduleFlush, stopSearch]);
 
   useEffect(() => {
     return () => {
@@ -152,6 +183,15 @@ export function App() {
             }}
           />
 
+          <GambitPicker
+            value={gambits}
+            onChange={(next) => {
+              setGambits(next);
+              if (active) stopSearch();
+            }}
+            onOpenUnlocks={() => setUnlocksOpen(true)}
+          />
+
           {!active ? (
             <button
               type="button"
@@ -193,7 +233,11 @@ export function App() {
               <span className="ml-2 opacity-70">({results.length})</span>
             )}
           </span>
-          <ResultsTable seeds={results} gachaponFilters={gachapons} />
+          <ResultsTable
+            seeds={results}
+            gachaponFilters={gachapons}
+            gambitFilter={gambits}
+          />
           {results.length >= MAX_RESULTS_KEPT && (
             <p className="mt-3 text-center text-[11px] uppercase tracking-wider text-[var(--color-wine-dark)]/70">
               Showing first {MAX_RESULTS_KEPT} matches
@@ -205,6 +249,17 @@ export function App() {
       <footer className="mt-4 text-center text-[11px] uppercase tracking-wider text-[var(--color-cream)]/40">
         Fan-made companion tool. Sprites & font are property of their authors.
       </footer>
+
+      <GambitUnlocksModal
+        open={unlocksOpen}
+        excludedIds={gambits.excludedIds}
+        onChange={(excludedIds) => {
+          persistExcluded(excludedIds);
+          setGambits((g) => ({ ...g, excludedIds }));
+          if (active) stopSearch();
+        }}
+        onClose={() => setUnlocksOpen(false)}
+      />
     </div>
   );
 }

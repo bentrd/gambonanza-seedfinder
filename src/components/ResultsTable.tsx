@@ -1,16 +1,34 @@
-import { useState } from "react";
-import { gachaponRoll, rarityTier, simulateStarters } from "../rng";
+import { useMemo, useState } from "react";
+import {
+  gachaponRoll,
+  gambitDisplayName,
+  gambitSpriteUrl,
+  predictGachapon,
+  rarityTier,
+  simulateStarters,
+} from "../rng";
 import { TIER_BG } from "../rng/rarityColors";
-import type { GachaponFilter } from "../search/types";
+import { encodeExcludedIds } from "../search/encode";
+import type { GachaponFilter, GambitFilter } from "../search/types";
+import { GambitTooltip } from "./GambitTooltip";
 import { PieceIcon } from "./PieceIcon";
 import { CopyButton } from "./ui/CopyButton";
 
 interface ResultsTableProps {
   seeds: number[];
   gachaponFilters: GachaponFilter[];
+  gambitFilter: GambitFilter;
 }
 
-export function ResultsTable({ seeds, gachaponFilters }: ResultsTableProps) {
+export function ResultsTable({
+  seeds,
+  gachaponFilters,
+  gambitFilter,
+}: ResultsTableProps) {
+  const excludedBytes = useMemo(
+    () => encodeExcludedIds(gambitFilter.excludedIds),
+    [gambitFilter.excludedIds],
+  );
   if (seeds.length === 0) {
     return (
       <div className="flex h-48 items-center justify-center rounded-md bg-[var(--color-cream-soft)]/40 text-sm uppercase tracking-wider text-[var(--color-wine-dark)]/70">
@@ -46,6 +64,8 @@ export function ResultsTable({ seeds, gachaponFilters }: ResultsTableProps) {
                 key={seed}
                 seed={seed}
                 gachaponFilters={gachaponFilters}
+                gambitFilter={gambitFilter}
+                excludedBytes={excludedBytes}
                 striped={idx % 2 === 1}
               />
             ))}
@@ -59,10 +79,18 @@ export function ResultsTable({ seeds, gachaponFilters }: ResultsTableProps) {
 interface ResultRowProps {
   seed: number;
   gachaponFilters: GachaponFilter[];
+  gambitFilter: GambitFilter;
+  excludedBytes: Uint32Array;
   striped: boolean;
 }
 
-function ResultRow({ seed, gachaponFilters, striped }: ResultRowProps) {
+function ResultRow({
+  seed,
+  gachaponFilters,
+  gambitFilter,
+  excludedBytes,
+  striped,
+}: ResultRowProps) {
   const [open, setOpen] = useState(false);
   const starters = simulateStarters(seed);
   const rolls = gachaponFilters.map((g) => gachaponRoll(seed, g.wave, g.counter));
@@ -103,7 +131,11 @@ function ResultRow({ seed, gachaponFilters, striped }: ResultRowProps) {
       {open && (
         <tr className="border-t-2 border-[var(--color-cream-soft)] bg-[var(--color-cream-light)]">
           <td colSpan={gachaponFilters.length + 3} className="px-3 py-3">
-            <Inspector seed={seed} />
+            <Inspector
+              seed={seed}
+              gambitFilter={gambitFilter}
+              excludedBytes={excludedBytes}
+            />
           </td>
         </tr>
       )}
@@ -111,7 +143,100 @@ function ResultRow({ seed, gachaponFilters, striped }: ResultRowProps) {
   );
 }
 
-function Inspector({ seed }: { seed: number }) {
+function GambitPredictions({
+  seed,
+  maxGachapons,
+  targetIds,
+  excludedBytes,
+}: {
+  seed: number;
+  maxGachapons: number;
+  targetIds: Set<string>;
+  excludedBytes: Uint32Array;
+}) {
+  const preds = Array.from({ length: maxGachapons }, (_, i) =>
+    predictGachapon(seed, i, excludedBytes),
+  );
+  const poolLabel =
+    excludedBytes.length > 0
+      ? `pool excludes ${excludedBytes.length} gambit${excludedBytes.length === 1 ? "" : "s"}`
+      : "fresh-run pool";
+  return (
+    <div>
+      <div className="mb-1 font-display text-xs uppercase tracking-wider">
+        Gachapon offerings (first {maxGachapons}, {poolLabel})
+      </div>
+      <div className="space-y-1.5">
+        {preds.map((p) => (
+          <div
+            key={p.gachIdx}
+            className="flex items-center gap-2 rounded-md bg-[var(--color-cream-soft)]/40 px-2 py-1.5"
+          >
+            <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-wine-dark)]/70">
+              #{p.gachIdx + 1}
+            </span>
+            <span
+              className={`inline-flex items-center gap-1 rounded-md border-2 border-[var(--color-ink)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--color-ink)] ${TIER_BG[p.rarity]}`}
+            >
+              <span className="uppercase">{p.rarity.slice(0, 3)}</span>
+              <span>{p.rarityRoll.toString().padStart(2, " ")}</span>
+            </span>
+            <div className="flex flex-1 items-center gap-1.5">
+              {p.picks.map((g, i) => {
+                if (!g) {
+                  return (
+                    <span
+                      key={i}
+                      className="text-[10px] uppercase tracking-wider text-[var(--color-wine-dark)]/40"
+                    >
+                      —
+                    </span>
+                  );
+                }
+                const sprite = gambitSpriteUrl(g);
+                const hit = targetIds.has(g.id);
+                return (
+                  <GambitTooltip key={i} gambit={g}>
+                    <span
+                      tabIndex={0}
+                      className={`inline-flex cursor-help items-center gap-1 rounded-md border-2 px-1.5 py-0.5 ${
+                        hit
+                          ? "border-[var(--color-ink)] bg-[var(--color-yellow)] text-[var(--color-ink)] shadow-[0_2px_0_0_var(--color-ink)]"
+                          : "border-[var(--color-cream-soft)] bg-[var(--color-cream-light)] text-[var(--color-wine-dark)]"
+                      }`}
+                    >
+                      {sprite && (
+                        <img
+                          src={sprite}
+                          alt={g.name}
+                          className="pixel block h-5 w-5 object-contain"
+                          draggable={false}
+                        />
+                      )}
+                      <span className="text-[10px] uppercase tracking-wider">
+                        {gambitDisplayName(g)}
+                      </span>
+                    </span>
+                  </GambitTooltip>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Inspector({
+  seed,
+  gambitFilter,
+  excludedBytes,
+}: {
+  seed: number;
+  gambitFilter: GambitFilter;
+  excludedBytes: Uint32Array;
+}) {
   const starters = simulateStarters(seed);
   const waves = [1, 2, 3, 4, 5, 6, 7, 8];
   const counters = [0, 1, 2, 3, 4];
@@ -153,6 +278,13 @@ function Inspector({ seed }: { seed: number }) {
           ))}
         </div>
       </div>
+
+      <GambitPredictions
+        seed={seed}
+        maxGachapons={Math.max(5, gambitFilter.maxGachapons)}
+        targetIds={new Set(gambitFilter.targets)}
+        excludedBytes={excludedBytes}
+      />
 
       <div>
         <div className="mb-1 font-display text-xs uppercase tracking-wider">
