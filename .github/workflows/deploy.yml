@@ -45,7 +45,14 @@ jobs:
       - run: npm run test:wasm
       - run: npm run build:wasm
       - run: npm test
-      - run: GITHUB_PAGES=1 npm run build
+      - name: Build
+        env:
+          # Cloudflare Web Analytics site token. Public identifier — fine
+          # to expose as a repo variable. If unset the analytics script
+          # is omitted entirely (see src/analytics.ts).
+          VITE_CF_ANALYTICS_TOKEN: ${{ vars.CF_ANALYTICS_TOKEN }}
+          GITHUB_PAGES: "1"
+        run: npm run build
 
       - uses: actions/upload-pages-artifact@v3
         with:
