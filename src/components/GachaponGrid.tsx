@@ -38,7 +38,10 @@ export function GachaponGrid({ value, onChange }: GachaponGridProps) {
   };
 
   return (
-    <section className="space-y-3">
+    // Match the picker's layout pattern: flex-col h-full so the rows
+    // area can `flex-1 min-h-0 overflow-y-auto` when the user adds more
+    // rows than fit in the locked filter row height.
+    <section className="flex h-full flex-col gap-3">
       <SectionHeader
         title="Gachapon rarities"
         action={
@@ -53,7 +56,7 @@ export function GachaponGrid({ value, onChange }: GachaponGridProps) {
           No gachapon constraints. Searching by starter pieces only.
         </p>
       ) : (
-        <div className="space-y-2">
+        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-3">
           {value.map((g, i) => (
             <GachaponRow
               key={i}

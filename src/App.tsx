@@ -242,55 +242,75 @@ export function App() {
 
       <HelpCard />
 
-      <div className="grid flex-1 grid-cols-1 items-start gap-8 md:grid-cols-[420px_1fr]">
+      <div className="flex flex-1 flex-col gap-8">
         <aside className="card-window space-y-6">
           <span className="window-title">Filters</span>
 
-          <StarterPicker
-            value={starter}
-            onChange={(next) => guardFilterChange(() => setStarter(next))}
-          />
-
-          <GachaponGrid
-            value={gachapons}
-            onChange={(next) => guardFilterChange(() => setGachapons(next))}
-          />
-
-          <GambitPicker
-            value={gambits}
-            onChange={(next) => guardFilterChange(() => setGambits(next))}
-            onOpenUnlocks={() => setUnlocksOpen(true)}
-          />
-
-          {!fetching ? (
-            <button
-              type="button"
-              onClick={startSearch}
-              className="btn-green w-full text-lg uppercase"
-            >
-              Search!
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={stopSearch}
-              className="btn-wine w-full text-lg uppercase"
-            >
-              Stop
-            </button>
-          )}
-
-          {hasSearched && (
-            <SearchStatus
-              fetching={fetching}
-              exhausted={exhausted}
-              matched={matched}
-              target={target}
-              scanned={scanned}
-              rate={rate}
-              onCancel={stopSearch}
+          {/* Three filter sections side-by-side on md+; stacked on mobile.
+              The row's height is locked to the StarterPicker's natural
+              height (3 rows of square toggles ≈ 280px). Locking it here
+              instead of letting the tallest sibling dictate makes the
+              GambitPicker's scroll area kick in instead of stretching
+              the row, and keeps the layout stable as filters change. */}
+          <div className="grid gap-6 md:grid-cols-3 md:auto-rows-[280px]">
+            <StarterPicker
+              value={starter}
+              onChange={(next) => guardFilterChange(() => setStarter(next))}
             />
-          )}
+
+            <GachaponGrid
+              value={gachapons}
+              onChange={(next) => guardFilterChange(() => setGachapons(next))}
+            />
+
+            <GambitPicker
+              value={gambits}
+              onChange={(next) => guardFilterChange(() => setGambits(next))}
+              onOpenUnlocks={() => setUnlocksOpen(true)}
+            />
+          </div>
+
+          {/* Centered control strip: status card on top, Search/Stop
+              button below, both at the same ~1/3 panel width. Stacked
+              instead of side-by-side because each card has its own
+              natural height (the status is information-dense; the
+              button is chunky) — forcing them to share a row meant one
+              always looked stretched or cramped. */}
+          <div className="mx-auto flex w-full max-w-md flex-col gap-3 md:w-1/3">
+            {hasSearched ? (
+              <SearchStatus
+                fetching={fetching}
+                exhausted={exhausted}
+                matched={matched}
+                target={target}
+                scanned={scanned}
+                rate={rate}
+                onCancel={stopSearch}
+              />
+            ) : (
+              <div className="inset-row text-center text-[11px] uppercase tracking-wider text-[var(--color-wine-dark)]/60">
+                Pick filters, then hit Search.
+              </div>
+            )}
+
+            {!fetching ? (
+              <button
+                type="button"
+                onClick={startSearch}
+                className="btn-green w-full text-lg uppercase"
+              >
+                Search!
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={stopSearch}
+                className="btn-wine w-full text-lg uppercase"
+              >
+                Stop
+              </button>
+            )}
+          </div>
 
           {error && (
             <div className="rounded-lg border-2 border-[var(--color-ink)] bg-[var(--color-wine)] px-3 py-2 text-xs uppercase tracking-wider text-[var(--color-cream)]">

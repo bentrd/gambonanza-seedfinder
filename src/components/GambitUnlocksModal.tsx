@@ -147,7 +147,7 @@ export function GambitUnlocksModal({
           aria-label="search gambits"
         />
 
-        <div className="flex-1 space-y-3 overflow-y-auto rounded-md bg-[var(--color-cream-soft)]/30 p-3">
+        <div className="flex-1 space-y-3 overflow-y-auto rounded-md bg-[var(--color-cream-soft)]/30 p-3 pr-4">
           {grouped.every((g) => g.gambits.length === 0) ? (
             <p className="px-2 py-8 text-center text-[11px] uppercase tracking-wider text-[var(--color-wine-dark)]/60">
               No gambits match “{query}”

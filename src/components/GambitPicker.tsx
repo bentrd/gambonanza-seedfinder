@@ -71,7 +71,12 @@ export function GambitPicker({
   const selectedCount = value.targets.length;
 
   return (
-    <section className="space-y-3">
+    // `h-full` makes the picker fill whatever row height the grid gives
+    // it (the row is sized by the tallest sibling — usually StarterPicker
+    // — under the default `items-stretch` grid behaviour). The scroll
+    // area below uses `flex-1 min-h-0` to absorb the remaining vertical
+    // space, so the picker matches its row height instead of dictating it.
+    <section className="flex h-full flex-col gap-3">
       <SectionHeader
         title="Gambits"
         action={
@@ -103,53 +108,54 @@ export function GambitPicker({
         }
       />
 
-      <div className="space-y-2">
-        <input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="search gambits, focus tags…"
-          className="input-game w-full"
-          aria-label="search gambits"
+      <input
+        type="search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="search gambits, focus tags…"
+        className="input-game w-full"
+        aria-label="search gambits"
+      />
+
+      <div
+        className={`flex items-center gap-2 rounded-md bg-[var(--color-cream-soft)]/40 px-3 py-2 text-[11px] uppercase tracking-wider transition-opacity ${
+          selectedCount > 0
+            ? "text-[var(--color-wine-dark)]"
+            : "pointer-events-none text-[var(--color-wine-dark)]/40 opacity-60"
+        }`}
+        aria-disabled={selectedCount === 0}
+      >
+        <span>within first</span>
+        <Stepper
+          value={value.maxGachapons}
+          min={1}
+          max={32}
+          onChange={(maxGachapons) => onChange({ ...value, maxGachapons })}
         />
+        <span>gachapons</span>
+      </div>
 
-        <div
-          className={`flex items-center gap-2 rounded-md bg-[var(--color-cream-soft)]/40 px-3 py-2 text-[11px] uppercase tracking-wider transition-opacity ${
-            selectedCount > 0
-              ? "text-[var(--color-wine-dark)]"
-              : "pointer-events-none text-[var(--color-wine-dark)]/40 opacity-60"
-          }`}
-          aria-disabled={selectedCount === 0}
-        >
-          <span>within first</span>
-          <Stepper
-            value={value.maxGachapons}
-            min={1}
-            max={32}
-            onChange={(maxGachapons) => onChange({ ...value, maxGachapons })}
-          />
-          <span>gachapons</span>
-        </div>
-
-        <div className="max-h-96 space-y-3 overflow-y-auto rounded-md bg-[var(--color-cream-soft)]/30 p-2">
-          {grouped.every((g) => g.gambits.length === 0) ? (
-            <p className="px-2 py-6 text-center text-[11px] uppercase tracking-wider text-[var(--color-wine-dark)]/60">
-              No gambits match “{query}”
-            </p>
-          ) : (
-            grouped.map(({ rarity, gambits }) =>
-              gambits.length === 0 ? null : (
-                <RaritySection
-                  key={rarity}
-                  rarity={rarity}
-                  gambits={gambits}
-                  selectedSet={selectedSet}
-                  onToggle={toggle}
-                />
-              ),
-            )
-          )}
-        </div>
+      {/* `pr-3` instead of using `p-2` symmetrically — the right padding
+          has to clear the 10px scrollbar so the toggles don't sit flush
+          against it. */}
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto rounded-md bg-[var(--color-cream-soft)]/30 p-2 pr-3">
+        {grouped.every((g) => g.gambits.length === 0) ? (
+          <p className="px-2 py-6 text-center text-[11px] uppercase tracking-wider text-[var(--color-wine-dark)]/60">
+            No gambits match “{query}”
+          </p>
+        ) : (
+          grouped.map(({ rarity, gambits }) =>
+            gambits.length === 0 ? null : (
+              <RaritySection
+                key={rarity}
+                rarity={rarity}
+                gambits={gambits}
+                selectedSet={selectedSet}
+                onToggle={toggle}
+              />
+            ),
+          )
+        )}
       </div>
     </section>
   );

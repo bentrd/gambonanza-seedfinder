@@ -3,17 +3,19 @@ import {
   gachaponRoll,
   gambitDisplayName,
   gambitSpriteUrl,
-  predictGachapon,
+  predictGachaponAt,
+  predictShopTokens,
   rarityTier,
   simulateStarters,
 } from "../rng";
+import type { Gambit, ShopTokens, TokenType } from "../rng";
 import { TIER_BG } from "../rng/rarityColors";
 import { encodeExcludedIds } from "../search/encode";
 import type { GachaponFilter, GambitFilter } from "../search/types";
-import { GambitTooltip } from "./GambitTooltip";
 import { PieceIcon } from "./PieceIcon";
 import { CopyButton } from "./ui/CopyButton";
 import { RarityBadge } from "./ui/RarityBadge";
+import { CellTooltip } from "./ui/CellTooltip";
 
 interface ResultsTableProps {
   seeds: number[];
@@ -164,89 +166,6 @@ function ResultRow({
   );
 }
 
-function GambitPredictions({
-  seed,
-  maxGachapons,
-  targetIds,
-  excludedBytes,
-}: {
-  seed: number;
-  maxGachapons: number;
-  targetIds: Set<string>;
-  excludedBytes: Uint32Array;
-}) {
-  const preds = Array.from({ length: maxGachapons }, (_, i) =>
-    predictGachapon(seed, i, excludedBytes),
-  );
-  const poolLabel =
-    excludedBytes.length > 0
-      ? `pool excludes ${excludedBytes.length} gambit${excludedBytes.length === 1 ? "" : "s"}`
-      : "fresh-run pool";
-  return (
-    <div>
-      <div className="mb-1 font-display text-xs uppercase tracking-wider">
-        Gachapon offerings (first {maxGachapons}, {poolLabel})
-      </div>
-      <div className="space-y-1.5">
-        {preds.map((p) => (
-          <div
-            key={p.gachIdx}
-            className="flex items-center gap-2 rounded-md bg-[var(--color-cream-soft)]/40 px-2 py-1.5"
-          >
-            <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-wine-dark)]/70">
-              #{p.gachIdx + 1}
-            </span>
-            <RarityBadge rarity={p.rarity} size="sm" font="mono" className="gap-1">
-              <span className="uppercase">{p.rarity.slice(0, 3)}</span>
-              <span>{p.rarityRoll.toString().padStart(2, " ")}</span>
-            </RarityBadge>
-            <div className="flex flex-1 items-center gap-1.5">
-              {p.picks.map((g, i) => {
-                if (!g) {
-                  return (
-                    <span
-                      key={i}
-                      className="text-[10px] uppercase tracking-wider text-[var(--color-wine-dark)]/40"
-                    >
-                      —
-                    </span>
-                  );
-                }
-                const sprite = gambitSpriteUrl(g);
-                const hit = targetIds.has(g.id);
-                return (
-                  <GambitTooltip key={i} gambit={g}>
-                    <span
-                      tabIndex={0}
-                      className={`inline-flex cursor-help items-center gap-1 rounded-md border-2 px-1.5 py-0.5 ${
-                        hit
-                          ? "border-[var(--color-ink)] bg-[var(--color-yellow)] text-[var(--color-ink)] shadow-[0_2px_0_0_var(--color-ink)]"
-                          : "border-[var(--color-cream-soft)] bg-[var(--color-cream-light)] text-[var(--color-wine-dark)]"
-                      }`}
-                    >
-                      {sprite && (
-                        <img
-                          src={sprite}
-                          alt={g.name}
-                          className="pixel block h-5 w-5 object-contain"
-                          draggable={false}
-                        />
-                      )}
-                      <span className="text-[10px] uppercase tracking-wider">
-                        {gambitDisplayName(g)}
-                      </span>
-                    </span>
-                  </GambitTooltip>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function Inspector({
   seed,
   gambitFilter,
@@ -259,6 +178,29 @@ function Inspector({
   const starters = simulateStarters(seed);
   const waves = [1, 2, 3, 4, 5, 6, 7, 8];
   const counters = [0, 1, 2, 3, 4];
+  const shopTokens = useMemo(
+    () => predictShopTokens(seed, waves.length),
+    // `waves` is a stable literal; only seed actually changes per row.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [seed],
+  );
+  const targetIds = useMemo(
+    () => new Set(gambitFilter.targets),
+    [gambitFilter.targets],
+  );
+  /** `priorGambits[w]` = total GAMBIT slots in shops 1..w (inclusive).
+   *  A cell at (wave W, counter C) is reachable iff wave W has a
+   *  GAMBIT AND `priorGambits[W-1] >= C` (the player could have
+   *  accumulated `C` spins before arriving at W). */
+  const priorGambits = useMemo(() => {
+    const out = [0];
+    let total = 0;
+    for (const s of shopTokens) {
+      total += s.gambitCount;
+      out.push(total);
+    }
+    return out;
+  }, [shopTokens]);
 
   return (
     <div className="space-y-3 text-[var(--color-wine-dark)]">
@@ -298,26 +240,37 @@ function Inspector({
         </div>
       </div>
 
-      <GambitPredictions
-        seed={seed}
-        maxGachapons={Math.max(5, gambitFilter.maxGachapons)}
-        targetIds={new Set(gambitFilter.targets)}
-        excludedBytes={excludedBytes}
-      />
-
       <div>
-        <div className="mb-1 font-display text-xs uppercase tracking-wider">
-          Gachapon roll grid (rows = counter, cols = wave)
+        <div className="mb-1 flex items-baseline gap-3 font-display text-xs uppercase tracking-wider">
+          <span>Gachapon roll grid (rows = counter, cols = wave)</span>
+          <span className="text-[10px] normal-case text-[var(--color-wine-dark)]/60">
+            hover a cell for that wave's shop tokens · faded columns
+            have no gachapon token
+          </span>
         </div>
         <table className="font-mono text-[11px]">
           <thead>
             <tr className="text-[var(--color-wine-dark)]/70">
               <th className="px-2 text-right">c\w</th>
-              {waves.map((w) => (
-                <th key={w} className="px-2 text-right">
-                  {w}
-                </th>
-              ))}
+              {waves.map((w) => {
+                const shop = shopTokens[w - 1];
+                const hasGambit = shop?.hasGambit ?? false;
+                return (
+                  <th
+                    key={w}
+                    className={`px-2 text-right ${
+                      hasGambit ? "" : "opacity-40"
+                    }`}
+                    title={
+                      hasGambit
+                        ? `wave ${w}: gachapon token offered`
+                        : `wave ${w}: NO gachapon token — unreachable`
+                    }
+                  >
+                    {w}
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
@@ -329,13 +282,21 @@ function Inspector({
                 {waves.map((w) => {
                   const roll = gachaponRoll(seed, w, c);
                   const tier = rarityTier(roll);
+                  const shop = shopTokens[w - 1];
+                  const priorMax = priorGambits[w - 1] ?? 0;
                   return (
-                    <td
+                    <RollCell
                       key={w}
-                      className={`border border-[var(--color-cream-soft)] px-2 text-right text-[var(--color-ink)] ${TIER_BG[tier]}`}
-                    >
-                      {roll.toString().padStart(2, " ")}
-                    </td>
+                      seed={seed}
+                      wave={w}
+                      counter={c}
+                      roll={roll}
+                      tier={tier}
+                      shop={shop}
+                      priorMax={priorMax}
+                      excludedBytes={excludedBytes}
+                      targetIds={targetIds}
+                    />
                   );
                 })}
               </tr>
@@ -429,5 +390,184 @@ function SentinelRow({
         {label}
       </td>
     </tr>
+  );
+}
+
+const TOKEN_LABEL: Record<TokenType, string> = {
+  GAMBIT: "gachapon",
+  CHESS_PIECE: "wheel (piece)",
+  TILE: "pachinko (tile)",
+};
+
+interface RollCellProps {
+  seed: number;
+  wave: number;
+  counter: number;
+  roll: number;
+  tier: "COMMON" | "RARE" | "EPIC" | "LEGENDARY";
+  shop: ShopTokens | undefined;
+  /** Total GAMBIT slots in shops 1..(wave-1). The player can reach
+   *  `counter = C` at this wave only if `C ≤ priorMax`. */
+  priorMax: number;
+  /** Filter exclusion bytes — passed through to `predictGachaponAt`
+   *  so the cell's picks reflect the user's locked pool. */
+  excludedBytes: Uint32Array;
+  /** Gambit IDs the user is searching for. Cells whose picks include
+   *  any of these get a yellow highlight. */
+  targetIds: Set<string>;
+}
+
+/**
+ * A single cell in the gachapon roll grid. Renders the raw rarity
+ * roll tinted by tier, and on hover shows the wave's shop tokens
+ * (3 slots), the 3 predicted gambit picks for this exact cell, and a
+ * reachability verdict.
+ *
+ * A cell is **reachable** iff:
+ *   - this wave's shop offers ≥ 1 GAMBIT token (so a spin can happen), AND
+ *   - the player could have accumulated `counter = C` spins before
+ *     arriving here, i.e. total GAMBIT slots in shops 1..(wave−1) ≥ C.
+ *
+ * Unreachable cells are faded; reachable cells whose picks include
+ * one of the user's target gambits get a chunky yellow border so the
+ * user can scan the grid for hits.
+ */
+function RollCell({
+  seed,
+  wave,
+  counter,
+  roll,
+  tier,
+  shop,
+  priorMax,
+  excludedBytes,
+  targetIds,
+}: RollCellProps) {
+  const waveHasGambit = shop?.hasGambit ?? true;
+  const counterReachable = counter <= priorMax;
+  const reachable = waveHasGambit && counterReachable;
+
+  // Only compute picks for reachable cells — unreachable cells have
+  // no meaningful gambit data to show, and skipping the wasm call
+  // keeps the grid cheap to render.
+  const prediction = useMemo(
+    () => (reachable ? predictGachaponAt(seed, wave, counter, excludedBytes) : null),
+    [reachable, seed, wave, counter, excludedBytes],
+  );
+
+  const cellPicks: (Gambit | null)[] = prediction?.picks ?? [];
+  const hitGambit = cellPicks.find((g) => g !== null && targetIds.has(g.id)) ?? null;
+  const isTargetHit = hitGambit !== null;
+
+  const reason = !waveHasGambit
+    ? "✕ no gachapon token in this wave's shop"
+    : !counterReachable
+      ? `✕ counter ${counter} unreachable — only ${priorMax} prior spins possible`
+      : "✓ reachable at this wave / counter";
+
+  const tooltipBody = shop ? (
+    <div className="space-y-1.5">
+      <div className="font-display text-[11px] uppercase tracking-wider text-[var(--color-wine)]">
+        wave {wave} · counter {counter}
+      </div>
+
+      {/* Shop tokens — 3 slots. */}
+      <div>
+        <div className="text-[10px] uppercase tracking-wider text-[var(--color-wine-dark)]/60">
+          shop tokens
+        </div>
+        <ul className="space-y-0.5 text-[11px]">
+          {shop.slots.map((t, i) => (
+            <li key={i} className="flex items-center justify-between gap-2">
+              <span className="text-[var(--color-wine-dark)]/60">
+                slot {i + 1}
+              </span>
+              <span
+                className={`font-bold ${
+                  t === "GAMBIT"
+                    ? "text-[var(--color-wine)]"
+                    : "text-[var(--color-wine-dark)]"
+                }`}
+              >
+                {TOKEN_LABEL[t]}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Predicted gambits, if reachable. */}
+      {reachable && cellPicks.length > 0 && (
+        <div>
+          <div className="text-[10px] uppercase tracking-wider text-[var(--color-wine-dark)]/60">
+            gambit picks
+          </div>
+          <ul className="space-y-0.5 text-[11px]">
+            {cellPicks.map((g, i) =>
+              g ? (
+                <li
+                  key={i}
+                  className={`flex items-center gap-1.5 rounded-sm px-1 py-0.5 ${
+                    targetIds.has(g.id)
+                      ? "bg-[var(--color-yellow)] text-[var(--color-ink)]"
+                      : ""
+                  }`}
+                >
+                  {gambitSpriteUrl(g) && (
+                    <img
+                      src={gambitSpriteUrl(g)!}
+                      alt={g.name}
+                      className="pixel h-4 w-4 object-contain"
+                      draggable={false}
+                    />
+                  )}
+                  <span className="uppercase tracking-wider">
+                    {gambitDisplayName(g)}
+                  </span>
+                </li>
+              ) : (
+                <li key={i} className="text-[var(--color-wine-dark)]/40">
+                  —
+                </li>
+              ),
+            )}
+          </ul>
+        </div>
+      )}
+
+      <div className="text-[10px] uppercase tracking-wider text-[var(--color-wine-dark)]/50">
+        prior spins possible: {priorMax}
+      </div>
+      <div
+        className={`text-[10px] uppercase tracking-wider ${
+          reachable
+            ? "text-[var(--color-green-dark)]"
+            : "text-[var(--color-wine)]"
+        }`}
+      >
+        {reason}
+      </div>
+    </div>
+  ) : null;
+
+  // Border thickness stays 1px regardless of hit/no-hit so cell widths
+  // line up perfectly across the grid; the hit highlight is a chunky
+  // inset shadow + a bold roll digit instead.
+  return (
+    <td className="border border-[var(--color-cream-soft)] p-0">
+      <CellTooltip content={tooltipBody} width={240}>
+        <span
+          className={`block w-full px-2 py-0.5 text-right text-[var(--color-ink)] ${TIER_BG[tier]} ${
+            reachable ? "" : "opacity-30"
+          } ${
+            isTargetHit
+              ? "font-bold shadow-[inset_0_0_0_2px_var(--color-ink),inset_0_0_0_4px_var(--color-yellow)]"
+              : ""
+          }`}
+        >
+          {roll.toString().padStart(2, " ")}
+        </span>
+      </CellTooltip>
+    </td>
   );
 }

@@ -59,12 +59,18 @@ describe("WASM search_range end-to-end", () => {
     expect(hits).toContain(265473);
   });
 
-  // Matches predict_gambits.py output for seed 8308:
-  //   gach#5 (w=5,c=4) roll=96 LEGENDARY picks=[12,14,5] => contains LuckyCoin
-  // LuckyCoin has poolIndex=14, rarity=LEGENDARY(3).
-  it("matches a known seed via gambit filter (LuckyCoin within 5 gachapons)", async () => {
+  // Verifies the trajectory-aware gambit filter. For seed 2 the
+  // "spin every GAMBIT slot" trajectory's 5th spin lands at wave 7
+  // with rarity LEGENDARY (roll=90) and picks [10, 11, 14] — index 14
+  // = LuckyCoin. (Found via predict_gambits.py with trajectory mode.)
+  //
+  // Conversely, seed 8308's old diagonal hit at (W=5, C=4) is now
+  // correctly rejected: the trajectory's spin sequence for seed 8308
+  // tops out at counter=3 (4 GAMBIT slots across waves 1-8), so the
+  // 5th spin doesn't exist for that seed.
+  it("matches a known seed via gambit filter (LuckyCoin within 5 trajectory spins)", async () => {
     await loadWasm();
-    const targetWord = ((14 & 0xff) << 8) | 3;  // poolIndex=14, rarity=3
+    const targetWord = ((14 & 0xff) << 8) | 3; // poolIndex=14, rarity=LEGENDARY
     const buf = new Uint32Array(1 + 2);
     let header = 0;
     header |= 1 << 3;   // s0 any
@@ -75,9 +81,18 @@ describe("WASM search_range end-to-end", () => {
     buf[0] = header >>> 0;
     buf[1] = 1;                          // num_targets
     buf[2] = targetWord >>> 0;
+
     const out = new Uint32Array(64);
-    const found = search_range(8308, 8309, buf, out);
-    expect(Array.from(out.subarray(0, found))).toEqual([8308]);
+    expect(
+      Array.from(out.subarray(0, search_range(2, 3, buf, out))),
+    ).toEqual([2]);
+
+    // Seed 8308 should NOT match anymore — the old diagonal hit was
+    // unreachable under the trajectory.
+    const out2 = new Uint32Array(64);
+    expect(
+      Array.from(out2.subarray(0, search_range(8308, 8309, buf, out2))),
+    ).toEqual([]);
   });
 
   it("unordered match treats 3-pawn order-flips as equivalent", async () => {

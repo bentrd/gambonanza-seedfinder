@@ -12,6 +12,11 @@ const NAME_GACHAPON_COMMON: u32 = stable_string_hash_bytes(b"GACHAPON_COMMON");
 const NAME_GACHAPON_RARE: u32 = stable_string_hash_bytes(b"GACHAPON_RARE");
 const NAME_GACHAPON_EPIC: u32 = stable_string_hash_bytes(b"GACHAPON_EPIC");
 const NAME_GACHAPON_LEGENDARY: u32 = stable_string_hash_bytes(b"GACHAPON_LEGENDARY");
+const NAME_SHOP_TOKEN: u32 = stable_string_hash_bytes(b"SHOP_TOKEN");
+const NAME_SHOP_TOKEN_SECOND_PASS: u32 = stable_string_hash_bytes(b"SHOP_TOKEN_SECOND_PASS");
+const NAME_SHOP_TOKEN_ALTERNATIVES: u32 = stable_string_hash_bytes(b"SHOP_TOKEN_ALTERNATIVES");
+const NAME_SHOP_TOKEN_NEW_TILE_ALTERNATIVE: u32 =
+    stable_string_hash_bytes(b"SHOP_TOKEN_NEW_TILE_ALTERNATIVE");
 
 const GACHAPON_NAMES: [u32; 4] = [
     NAME_GACHAPON_COMMON,
@@ -227,6 +232,169 @@ fn simulate_gambit_picks(
     picks
 }
 
+/* -------------------------- Shop tokens ---------------------------------
+ *
+ * Each shop offers `m_TokenAvailableToBuy = 3` token slots (the C# field
+ * default `= 2` is stale dev-time data; the serialized scene value is 3).
+ * We ignore the +1 fourth slot from the `TokenGambit` gambit — bare
+ * fresh-run assumption.
+ *
+ * `ShopCanvas.ComputeToken` (post-tutorial branch):
+ *   for slot in 0..2:                                    // first pass: discarded
+ *       GetRandomOccurrence("SHOP_TOKEN", 0, 6)
+ *   for slot in 0..2:                                    // second pass: actual
+ *       array[slot] = m_TokenToBuy[ GetRandomOccurrence("SHOP_TOKEN_SECOND_PASS", 0, 6) ]
+ *   if both slots are the same TokenType:
+ *       slot_to_replace = GetRandomOccurrence("SHOP_TOKEN_ALTERNATIVES", 0, 2)
+ *       filtered = m_TokenToBuy.where(t.TokenType != currentType && t != NONE)
+ *       array[slot_to_replace] = filtered[ GetRandomOccurrence("SHOP_TOKEN_NEW_TILE_ALTERNATIVE", 0, filtered.len) ]
+ *
+ * The `m_TokenToBuy` array (length 6) was extracted from the ShopCanvas
+ * MonoBehaviour body — see extract_gambits.py / docs. Tutorial branch's
+ * hard-coded `[0, 3, 5]` indices serve as a sanity check that index 0
+ * is GAMBIT, 3 is CHESS_PIECE, 5 is TILE.
+ */
+const TOKEN_GAMBIT: u8 = 0;
+const TOKEN_CHESS_PIECE: u8 = 1;
+const TOKEN_TILE: u8 = 2;
+
+/// `m_TokenToBuy[i].TokenType` for i in 0..6, in PPtr order from the
+/// ShopCanvas scene component.
+const TOKEN_PREFAB_TYPES: [u8; 6] = [
+    TOKEN_GAMBIT,       // 0
+    TOKEN_CHESS_PIECE,  // 1
+    TOKEN_CHESS_PIECE,  // 2
+    TOKEN_CHESS_PIECE,  // 3
+    TOKEN_TILE,         // 4
+    TOKEN_TILE,         // 5
+];
+const TOKEN_PREFAB_COUNT: i32 = 6;
+const SHOP_TOKEN_SLOTS: u32 = 3;
+
+/// Pre-built filtered prefab lists for the "alternatives" pass. When
+/// both slots roll the same TokenType, we pick from the prefabs whose
+/// TokenType differs (and isn't NONE). Indexed by the "current" type.
+/// Each row holds (len, indices[..len]).
+struct AltsTable {
+    len: [u8; 3],
+    idx: [[u8; 6]; 3],
+}
+
+const fn build_alts() -> AltsTable {
+    let mut tbl = AltsTable {
+        len: [0; 3],
+        idx: [[0; 6]; 3],
+    };
+    let mut cur = 0u8;
+    while cur < 3 {
+        let mut n = 0u8;
+        let mut i = 0u8;
+        while (i as usize) < TOKEN_PREFAB_TYPES.len() {
+            if TOKEN_PREFAB_TYPES[i as usize] != cur {
+                tbl.idx[cur as usize][n as usize] = i;
+                n += 1;
+            }
+            i += 1;
+        }
+        tbl.len[cur as usize] = n;
+        cur += 1;
+    }
+    tbl
+}
+const ALTS: AltsTable = build_alts();
+
+/// Outcome of simulating one shop's `ComputeToken`. `types` holds the
+/// resolved TokenType for each of the 2 slots; `alts_consumed` is true
+/// when the all-same-type fallback fired (so callers can advance the
+/// shared alternatives counters).
+#[derive(Clone, Copy)]
+struct ShopTokens {
+    types: [u8; SHOP_TOKEN_SLOTS as usize],
+    alts_consumed: bool,
+}
+
+impl ShopTokens {
+    #[inline(always)]
+    fn has_gambit(&self) -> bool {
+        self.types.iter().any(|&t| t == TOKEN_GAMBIT)
+    }
+    /// Number of GAMBIT slots in this shop (0..=2 with 3 slots after the
+    /// alternatives swap). Caps the player's max spins at this wave.
+    #[inline(always)]
+    fn gambit_count(&self) -> u32 {
+        self.types.iter().filter(|&&t| t == TOKEN_GAMBIT).count() as u32
+    }
+}
+
+/// Running counter set, shared across all shops in a single run.
+#[derive(Clone, Copy, Default)]
+struct ShopCounters {
+    /// Incremented per slot of every shop, twice each.
+    first_pass: u32,
+    second_pass: u32,
+    /// Only advanced on shops where all-same-type triggers.
+    alts_slot: u32,
+    alts_replacement: u32,
+}
+
+/// Simulate one shop's `ComputeToken` post-tutorial path and return the
+/// 2 TokenType outcomes. `counters` is updated in place so the caller
+/// can chain shops sequentially without re-deriving offsets.
+#[inline(always)]
+fn simulate_shop_tokens(seed: u32, wave: i32, counters: &mut ShopCounters) -> ShopTokens {
+    // First pass (results discarded but counter advances).
+    for _ in 0..SHOP_TOKEN_SLOTS {
+        let _ = occurrence_int(seed, NAME_SHOP_TOKEN, wave, counters.first_pass, 0, TOKEN_PREFAB_COUNT);
+        counters.first_pass += 1;
+    }
+
+    let mut indices = [0u8; SHOP_TOKEN_SLOTS as usize];
+    let mut types = [0u8; SHOP_TOKEN_SLOTS as usize];
+    for slot in 0..SHOP_TOKEN_SLOTS as usize {
+        let pick = occurrence_int(seed, NAME_SHOP_TOKEN_SECOND_PASS, wave, counters.second_pass, 0, TOKEN_PREFAB_COUNT) as u8;
+        counters.second_pass += 1;
+        indices[slot] = pick;
+        types[slot] = TOKEN_PREFAB_TYPES[pick as usize];
+    }
+
+    // If all 3 slots are the same TokenType, swap one for an alternative.
+    let mut alts_consumed = false;
+    let all_same = (1..SHOP_TOKEN_SLOTS as usize).all(|i| types[i] == types[0]);
+    if all_same {
+        let current = types[0];
+        let alt_len = ALTS.len[current as usize] as i32;
+        if alt_len > 0 {
+            let target_slot = occurrence_int(
+                seed,
+                NAME_SHOP_TOKEN_ALTERNATIVES,
+                wave,
+                counters.alts_slot,
+                0,
+                SHOP_TOKEN_SLOTS as i32,
+            ) as usize;
+            counters.alts_slot += 1;
+
+            let replacement_idx = occurrence_int(
+                seed,
+                NAME_SHOP_TOKEN_NEW_TILE_ALTERNATIVE,
+                wave,
+                counters.alts_replacement,
+                0,
+                alt_len,
+            ) as usize;
+            counters.alts_replacement += 1;
+
+            let prefab_idx = ALTS.idx[current as usize][replacement_idx] as usize;
+            types[target_slot] = TOKEN_PREFAB_TYPES[prefab_idx];
+            indices[target_slot] = prefab_idx as u8;
+            alts_consumed = true;
+        }
+    }
+
+    let _ = indices; // kept for future inspector use
+    ShopTokens { types, alts_consumed }
+}
+
 // Filter wire format (u32 words):
 //   word 0: bits[0..3]=slot0_piece, [3]=slot0_any,
 //           [4..7]=slot1_piece, [7]=slot1_any,
@@ -273,6 +441,8 @@ fn matches_starters(starters: [u8; 3], filter_word: u32, unordered: bool) -> boo
 #[inline(always)]
 fn matches_gachapons(seed: u32, filters: &[u32], num: usize) -> bool {
     let base = 1usize;
+
+    // First pass: rarity + roll checks (cheap, every gachapon row).
     for i in 0..num {
         let wave = filters[base + i * 2] as i32;
         let packed = filters[base + i * 2 + 1];
@@ -286,13 +456,62 @@ fn matches_gachapons(seed: u32, filters: &[u32], num: usize) -> bool {
         let tier = rarity_tier(roll);
         if tier < tier_min || tier > tier_max { return false; }
     }
+
+    // Second pass: reachability. With 3 token slots per shop and the
+    // all-same-type alternatives swap, a shop offers 0..=2 GAMBIT
+    // tokens (3-of-a-kind always gets one swapped). So a filter row
+    // `(wave W, counter C)` is reachable iff:
+    //   - wave W's shop offers ≥ 1 GAMBIT (a spin can happen there), AND
+    //   - the sum of GAMBIT slots in waves 1..W-1 is ≥ C (the player
+    //     could have accumulated `counter = C` before arriving at W).
+    //
+    // We walk shops 1..max_wave once and build a `prior_gambits[wave]`
+    // prefix-sum (counting slots, not just shops) so per-row checks are O(1).
+    let mut max_wave: i32 = 0;
+    for i in 0..num {
+        let w = filters[base + i * 2] as i32;
+        if w > max_wave { max_wave = w; }
+    }
+    if max_wave <= 0 { return true; }
+    let mut has_gambit = [false; 65];
+    let mut prior_gambits = [0u32; 65]; // prefix sum of GAMBIT *slot* counts
+    let cap = has_gambit.len() as i32 - 1;
+    let mut counters = ShopCounters::default();
+    let mut w = 1i32;
+    while w <= max_wave && w <= cap {
+        let tokens = simulate_shop_tokens(seed, w, &mut counters);
+        has_gambit[w as usize] = tokens.has_gambit();
+        prior_gambits[w as usize] =
+            prior_gambits[(w - 1) as usize] + tokens.gambit_count();
+        w += 1;
+    }
+    for i in 0..num {
+        let wave = filters[base + i * 2] as i32;
+        let packed = filters[base + i * 2 + 1];
+        let counter = packed & 0xFF;
+        if wave <= 0 || wave > cap { return false; }
+        if !has_gambit[wave as usize] { return false; }
+        if prior_gambits[(wave - 1) as usize] < counter { return false; }
+    }
     true
 }
 
 /// True if any of the target (rarity, poolIndex) pairs appears in one of
-/// the first `max_gach` gachapons. Wave model: gachapon #N opens at wave
-/// N+1 (the existing app convention used by `defaultGachapon`). The
-/// per-rarity pool comes from `pools` (after applying user exclusions).
+/// the first `max_gach` gachapons the player can ACTUALLY spin. We
+/// walk the "spin every GAMBIT slot in order" trajectory — i.e., the
+/// player's k-th spin happens at the wave of the k-th GAMBIT slot in
+/// chronological order. A wave with 0 GAMBIT slots contributes no
+/// spins; a wave with 2 GAMBIT slots (max after the alternatives swap)
+/// contributes two consecutive counters at the same wave.
+///
+/// Replaces the old diagonal-walk (`wave = counter+1`) which falsely
+/// matched seeds whose diagonal cells happened to contain the target
+/// but were unreachable due to missing GAMBIT tokens.
+///
+/// We probe up to ~16 shops; that's more than enough to find ~32
+/// spins which is the user's max filter target.
+const TRAJECTORY_MAX_SHOPS: i32 = 32;
+
 #[inline(always)]
 fn matches_gambit_filter(
     seed: u32,
@@ -307,29 +526,40 @@ fn matches_gambit_filter(
     }
     if want_mask == 0 || max_gach == 0 { return false; }
 
+    let mut shop_counters = ShopCounters::default();
     let mut per_rarity_counter = [0u32; 4];
-    for g in 0..max_gach {
-        let wave = (g + 1) as i32;
-        let rarity_roll = occurrence_int(seed, NAME_GACHAPON_RARITY, wave, g, 0, 101);
-        let tier = rarity_tier(rarity_roll);
-        if (want_mask >> tier) & 1 == 1 {
-            let picks = simulate_gambit_picks(
-                seed,
-                wave,
-                per_rarity_counter[tier as usize],
-                tier,
-                pools,
+    let mut spins_done: u32 = 0;
+
+    let mut wave = 1i32;
+    while wave <= TRAJECTORY_MAX_SHOPS && spins_done < max_gach {
+        let tokens = simulate_shop_tokens(seed, wave, &mut shop_counters);
+        for _ in 0..tokens.gambit_count() {
+            if spins_done >= max_gach { break; }
+            let rarity_roll = occurrence_int(
+                seed, NAME_GACHAPON_RARITY, wave, spins_done, 0, 101,
             );
-            for &t in targets {
-                let tr = (t & 0x3) as u8;
-                if tr != tier { continue; }
-                let pi = ((t >> 8) & 0xFF) as u8;
-                if picks[0] == pi || picks[1] == pi || picks[2] == pi {
-                    return true;
+            let tier = rarity_tier(rarity_roll);
+            if (want_mask >> tier) & 1 == 1 {
+                let picks = simulate_gambit_picks(
+                    seed,
+                    wave,
+                    per_rarity_counter[tier as usize],
+                    tier,
+                    pools,
+                );
+                for &t in targets {
+                    let tr = (t & 0x3) as u8;
+                    if tr != tier { continue; }
+                    let pi = ((t >> 8) & 0xFF) as u8;
+                    if picks[0] == pi || picks[1] == pi || picks[2] == pi {
+                        return true;
+                    }
                 }
             }
+            per_rarity_counter[tier as usize] += 3;
+            spins_done += 1;
         }
-        per_rarity_counter[tier as usize] += 3;
+        wave += 1;
     }
     false
 }
@@ -445,6 +675,66 @@ pub fn search_paginated(
     vec![written, cursor]
 }
 
+/// Per-seed inspector for an arbitrary `(wave, counter)` cell — using
+/// the actual "spin every GAMBIT slot in order" trajectory for prior
+/// spins (so the per-rarity counter accumulation matches what the
+/// search kernel uses). This keeps cell-hover picks consistent with
+/// the filter's actual hit detection.
+///
+/// `excluded` is the same packed-word list the search kernel consumes;
+/// pass an empty slice for the full "all unlocked" pool.
+///
+/// Output: `[rarity, pick0, pick1, pick2, rarityRoll]`. `rarity` is
+/// 0..3, picks are 0..pool_size-1 or 255 if the pool ran out.
+#[wasm_bindgen(js_name = predictGachaponAt)]
+pub fn predict_gachapon_at_js(
+    seed: u32,
+    wave: u32,
+    counter: u32,
+    excluded: &[u32],
+) -> Vec<i32> {
+    let pools = if excluded.is_empty() {
+        FULL_POOLS
+    } else {
+        build_filtered_pools(excluded)
+    };
+
+    // Walk the trajectory for `counter` prior spins, accumulating
+    // per-rarity counter at each step.
+    let mut shop_counters = ShopCounters::default();
+    let mut per_rarity_counter = [0u32; 4];
+    let mut spins_done: u32 = 0;
+    let mut w = 1i32;
+    while w <= TRAJECTORY_MAX_SHOPS && spins_done < counter {
+        let tokens = simulate_shop_tokens(seed, w, &mut shop_counters);
+        for _ in 0..tokens.gambit_count() {
+            if spins_done >= counter { break; }
+            let r = occurrence_int(seed, NAME_GACHAPON_RARITY, w, spins_done, 0, 101);
+            per_rarity_counter[rarity_tier(r) as usize] += 3;
+            spins_done += 1;
+        }
+        w += 1;
+    }
+
+    let target_wave = wave as i32;
+    let rarity_roll = occurrence_int(seed, NAME_GACHAPON_RARITY, target_wave, counter, 0, 101);
+    let tier = rarity_tier(rarity_roll);
+    let picks = simulate_gambit_picks(
+        seed,
+        target_wave,
+        per_rarity_counter[tier as usize],
+        tier,
+        &pools,
+    );
+    vec![
+        tier as i32,
+        picks[0] as i32,
+        picks[1] as i32,
+        picks[2] as i32,
+        rarity_roll,
+    ]
+}
+
 /// Per-seed inspector: returns the 3 gambit pool indices for the gachapon
 /// at index `gach_idx` (0-based), under the same simplified wave model
 /// used by `matches_gambit_filter`. `excluded` is the same packed-word
@@ -511,6 +801,23 @@ pub fn simulate_starters_js(seed: u32) -> Vec<i32> {
 #[wasm_bindgen(js_name = gachaponRoll)]
 pub fn gachapon_roll_js(seed: u32, wave: i32, counter: u32) -> i32 {
     gachapon_roll(seed, wave, counter)
+}
+
+/// Per-seed shop-token inspector. Returns the token TokenTypes for
+/// every shop from wave 1 up to and including `max_wave`. Output layout:
+/// `[wave1_slot0, wave1_slot1, wave2_slot0, wave2_slot1, …]` — values
+/// are `0 = GAMBIT`, `1 = CHESS_PIECE`, `2 = TILE`.
+#[wasm_bindgen(js_name = inspectShopTokens)]
+pub fn inspect_shop_tokens_js(seed: u32, max_wave: u32) -> Vec<i32> {
+    let mut out = Vec::with_capacity((max_wave as usize) * 2);
+    let mut counters = ShopCounters::default();
+    for w in 1..=max_wave {
+        let tokens = simulate_shop_tokens(seed, w as i32, &mut counters);
+        for slot in 0..SHOP_TOKEN_SLOTS as usize {
+            out.push(tokens.types[slot] as i32);
+        }
+    }
+    out
 }
 
 #[wasm_bindgen]
@@ -628,6 +935,48 @@ mod tests {
         }
         // Common pool untouched.
         assert_eq!(pools.len[0], 68);
+    }
+
+    fn simulate_shop_sequence(seed: u32, up_to_wave: i32) -> Vec<[u8; 3]> {
+        let mut counters = ShopCounters::default();
+        let mut out = Vec::new();
+        for w in 1..=up_to_wave {
+            let r = simulate_shop_tokens(seed, w, &mut counters);
+            out.push(r.types);
+        }
+        out
+    }
+
+    // Vectors generated from predict_shop_tokens.py with 3 slots.
+    // Each entry = (seed, wave, [slot0, slot1, slot2]).
+    // TokenType: 0=GAMBIT, 1=CHESS_PIECE, 2=TILE.
+    const TOKEN_VECTORS: &[(u32, i32, [u8; 3])] = &[
+        (1,    1, [2, 2, 1]),  // TILE/TILE/CHESS — no gambit
+        (1,    2, [0, 1, 2]),  // GAMBIT/CHESS/TILE
+        (1,    5, [0, 1, 1]),  // GAMBIT/CHESS/CHESS — alts fired
+        (1,    6, [2, 0, 0]),  // TILE/GAMBIT/GAMBIT — 2 gambits!
+        (798,  2, [1, 1, 2]),  // CHESS/CHESS/TILE — alts fired
+        (798,  8, [0, 2, 1]),  // GAMBIT/TILE/CHESS
+        (8308, 2, [0, 2, 2]),  // GAMBIT/TILE/TILE
+        (8308, 4, [0, 1, 1]),  // GAMBIT/CHESS/CHESS
+    ];
+
+    #[test]
+    fn matches_python_shop_token_reference() {
+        for &(seed, wave, expected) in TOKEN_VECTORS {
+            let seq = simulate_shop_sequence(seed, wave);
+            let got = seq[wave as usize - 1];
+            assert_eq!(got, expected, "seed={} wave={}", seed, wave);
+        }
+    }
+
+    #[test]
+    fn shop_can_offer_multiple_gambits() {
+        // seed=1 wave=6 has [TILE, GAMBIT, GAMBIT] = 2 GAMBITs.
+        let seq = simulate_shop_sequence(1, 6);
+        let shop = seq[5];
+        let count = shop.iter().filter(|&&t| t == TOKEN_GAMBIT).count();
+        assert_eq!(count, 2, "expected 2 GAMBITs in seed=1 wave=6: {shop:?}");
     }
 
     #[test]
