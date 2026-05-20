@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import type { Rarity } from "../rng";
 import {
   gambitDisplayName,
   gambitSpriteUrl,
   getGambitById,
 } from "../rng";
+import { TIER_BG } from "../rng/rarityColors";
 import { GambitTooltip } from "./GambitTooltip";
 import { RarityBadge } from "./ui/RarityBadge";
 
@@ -276,6 +277,13 @@ interface MiniGridProps {
   ghost?: CellMark[];
 }
 
+/**
+ * Small explanatory grid used by the HOW IT WORKS scenarios. Rebuilt
+ * as a CSS Grid (was a <table> which auto-sized columns to content,
+ * so cells with numbers ended up wider than empty cells). Same pattern
+ * as the main RollGrid — fixed column widths, fixed row heights, hits
+ * use box-shadow rings so widths don't shift.
+ */
 function MiniGrid({
   cols,
   rows,
@@ -290,56 +298,72 @@ function MiniGrid({
 
   return (
     <div className="inline-block">
-      <table className="border-separate border-spacing-0 font-mono text-[10px]">
-        <thead>
-          <tr className="text-[var(--color-wine-dark)]/60">
-            <th className="px-1 text-right font-normal">c\w</th>
-            {Array.from({ length: cols }, (_, i) => (
-              <th key={i} className="px-1 text-center font-normal">
-                {i + 1}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {Array.from({ length: rows }, (_, r) => (
-            <tr key={r}>
-              <td className="px-1 text-right text-[var(--color-wine-dark)]/60">
-                {r}
-              </td>
-              {Array.from({ length: cols }, (_, c) => {
-                const w = c + 1;
-                const key = `${r}:${w}`;
-                const tier = tiers[r]?.[c] ?? "COMMON";
-                const pathOrder = pathIdx.get(key);
-                const isGhost = ghostKeys.has(key);
-                const isHi = key === highlightKey;
-                return (
-                  <td key={c} className="p-[2px]">
-                    <RarityBadge
-                      rarity={tier}
-                      size="cell"
-                      highlight={isHi}
-                      ghost={isGhost}
-                    >
-                      {pathOrder !== undefined && (
-                        <span className="font-display text-[10px] uppercase tracking-wider text-[var(--color-ink)]">
-                          {pathOrder + 1}
-                        </span>
-                      )}
-                      {isGhost && (
-                        <span className="font-display text-[9px] uppercase text-[var(--color-wine-dark)]/70">
-                          ✕
-                        </span>
-                      )}
-                    </RarityBadge>
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div
+        className="inline-grid gap-1 font-mono text-[10px]"
+        style={{
+          gridTemplateColumns: `1.5rem repeat(${cols}, 2.25rem)`,
+          gridAutoRows: "1.75rem",
+        }}
+      >
+        {/* Header row */}
+        <div className="flex items-center justify-end pr-0.5 text-[var(--color-wine-dark)]/60">
+          c\w
+        </div>
+        {Array.from({ length: cols }, (_, i) => (
+          <div
+            key={i}
+            className="flex items-center justify-center text-[var(--color-wine-dark)]/60"
+          >
+            {i + 1}
+          </div>
+        ))}
+
+        {/* Body rows */}
+        {Array.from({ length: rows }, (_, r) => (
+          <Fragment key={r}>
+            <div className="flex items-center justify-end pr-0.5 text-[var(--color-wine-dark)]/60">
+              {r}
+            </div>
+            {Array.from({ length: cols }, (_, c) => {
+              const w = c + 1;
+              const key = `${r}:${w}`;
+              const tier = tiers[r]?.[c] ?? "COMMON";
+              const pathOrder = pathIdx.get(key);
+              const isGhost = ghostKeys.has(key);
+              const isHi = key === highlightKey;
+
+              // Outer-ring shadows so cell widths stay exactly equal
+              // regardless of highlight state. Path cells (numbered)
+              // also get the lifted look so the play path stands out.
+              const isPath = pathOrder !== undefined;
+              const boxShadow = isHi
+                ? "0 0 0 2px var(--color-ink), 0 2px 0 2px var(--color-ink)"
+                : isPath
+                  ? "0 0 0 2px var(--color-ink), 0 2px 0 2px var(--color-ink)"
+                  : "inset 0 0 0 1px rgba(90, 34, 48, 0.15)";
+
+              return (
+                <div
+                  key={c}
+                  className={`flex items-center justify-center rounded-sm ${TIER_BG[tier]} ${isGhost ? "opacity-30" : ""}`}
+                  style={{ boxShadow }}
+                >
+                  {pathOrder !== undefined && (
+                    <span className="font-display text-[10px] uppercase tracking-wider text-[var(--color-ink)]">
+                      {pathOrder + 1}
+                    </span>
+                  )}
+                  {isGhost && !isPath && (
+                    <span className="font-display text-[9px] uppercase text-[var(--color-wine-dark)]/70">
+                      ✕
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </Fragment>
+        ))}
+      </div>
       {(path.length > 0 || ghost.length > 0) && (
         <div className="mt-1 space-y-0.5 text-[10px] text-[var(--color-wine-dark)]/70">
           {path.map((p, i) =>
