@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
   gachaponRoll,
   gambitDisplayName,
@@ -8,7 +8,7 @@ import {
   rarityTier,
   simulateStarters,
 } from "../rng";
-import type { Gambit, ShopTokens, TokenType } from "../rng";
+import type { Gambit, Rarity, ShopTokens, TokenType } from "../rng";
 import { TIER_BG } from "../rng/rarityColors";
 import { encodeExcludedIds } from "../search/encode";
 import type { GachaponFilter, GambitFilter } from "../search/types";
@@ -63,6 +63,14 @@ export function ResultsTable({
             <tr>
               <th className="px-3 py-2 text-left">Seed</th>
               <th className="px-3 py-2 text-left">Starters</th>
+              <th className="px-3 py-2 text-left">
+                <span className="block font-display lowercase">
+                  trajectory
+                </span>
+                <span className="block font-mono text-[10px] normal-case opacity-80">
+                  first 5 spins
+                </span>
+              </th>
               {gachaponFilters.map((g, i) => (
                 <th key={i} className="px-2 py-2 text-left">
                   <span className="block font-display lowercase">
@@ -88,7 +96,7 @@ export function ResultsTable({
               />
             ))}
             <SentinelRow
-              colSpan={gachaponFilters.length + 3}
+              colSpan={gachaponFilters.length + 4}
               fetching={fetching}
               exhausted={exhausted}
               hasResults={seeds.length > 0}
@@ -136,6 +144,9 @@ function ResultRow({
             ))}
           </span>
         </td>
+        <td className="px-3 py-2">
+          <TrajectoryPreview seed={seed} count={5} />
+        </td>
         {rolls.map((roll, i) => {
           const tier = rarityTier(roll);
           return (
@@ -153,7 +164,7 @@ function ResultRow({
       </tr>
       {open && (
         <tr className="border-t-2 border-[var(--color-cream-soft)] bg-[var(--color-cream-light)]">
-          <td colSpan={gachaponFilters.length + 3} className="px-3 py-3">
+          <td colSpan={gachaponFilters.length + 4} className="px-3 py-3">
             <Inspector
               seed={seed}
               gambitFilter={gambitFilter}
@@ -215,94 +226,50 @@ function Inspector({
         <CopyButton value={seed.toString()} />
       </div>
 
-      <div>
-        <div className="mb-1 font-display text-xs uppercase tracking-wider">
-          Starter rolls
-        </div>
-        <div className="grid grid-cols-3 gap-2 text-xs">
-          {starters.map((s, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-2 rounded-md border-2 border-[var(--color-ink)] bg-[var(--color-cream)] px-2 py-1.5 font-mono"
-            >
-              <span className="uppercase tracking-wider text-[var(--color-wine-dark)]/70">
-                slot {i + 1}
-              </span>
-              <span>
-                lo={s.lo} num={s.num.toString().padStart(2, " ")}
-              </span>
-              <PieceIcon piece={s.piece} variant="w" size={20} />
-              <span className="uppercase text-[var(--color-wine)]">
-                {s.piece}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <div className="mb-1 flex items-baseline gap-3 font-display text-xs uppercase tracking-wider">
-          <span>Gachapon roll grid (rows = counter, cols = wave)</span>
-          <span className="text-[10px] normal-case text-[var(--color-wine-dark)]/60">
-            hover a cell for that wave's shop tokens · faded columns
-            have no gachapon token
-          </span>
-        </div>
-        <table className="font-mono text-[11px]">
-          <thead>
-            <tr className="text-[var(--color-wine-dark)]/70">
-              <th className="px-2 text-right">c\w</th>
-              {waves.map((w) => {
-                const shop = shopTokens[w - 1];
-                const hasGambit = shop?.hasGambit ?? false;
-                return (
-                  <th
-                    key={w}
-                    className={`px-2 text-right ${
-                      hasGambit ? "" : "opacity-40"
-                    }`}
-                    title={
-                      hasGambit
-                        ? `wave ${w}: gachapon token offered`
-                        : `wave ${w}: NO gachapon token — unreachable`
-                    }
-                  >
-                    {w}
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {counters.map((c) => (
-              <tr key={c}>
-                <td className="px-2 text-right text-[var(--color-wine-dark)]/70">
-                  {c}
-                </td>
-                {waves.map((w) => {
-                  const roll = gachaponRoll(seed, w, c);
-                  const tier = rarityTier(roll);
-                  const shop = shopTokens[w - 1];
-                  const priorMax = priorGambits[w - 1] ?? 0;
-                  return (
-                    <RollCell
-                      key={w}
-                      seed={seed}
-                      wave={w}
-                      counter={c}
-                      roll={roll}
-                      tier={tier}
-                      shop={shop}
-                      priorMax={priorMax}
-                      excludedBytes={excludedBytes}
-                      targetIds={targetIds}
-                    />
-                  );
-                })}
-              </tr>
+      {/* Two-column layout: starter rolls stack vertically on the left,
+          the gachapon roll grid takes the bulk of the width on the
+          right. `items-stretch` + `flex-1` on each piece card makes
+          the starter column match the grid's height — pieces share
+          the vertical space evenly. Stacks on small screens. */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-stretch">
+        <div className="flex flex-col gap-2 md:w-56">
+          <div className="font-display text-xs uppercase tracking-wider">
+            Starter rolls
+          </div>
+          <div className="flex flex-1 flex-col gap-2">
+            {starters.map((s, i) => (
+              <div
+                key={i}
+                className="flex flex-1 items-center gap-3 rounded-md border-2 border-[var(--color-ink)] bg-[var(--color-cream)] px-3 py-2 font-mono text-xs"
+              >
+                <PieceIcon piece={s.piece} variant="w" size={36} />
+                <div className="flex flex-col leading-tight">
+                  <span className="font-display text-[10px] uppercase tracking-wider text-[var(--color-wine-dark)]/60">
+                    slot {i + 1}
+                  </span>
+                  <span className="font-display text-sm uppercase text-[var(--color-wine)]">
+                    {s.piece}
+                  </span>
+                  <span className="text-[10px] text-[var(--color-wine-dark)]/60">
+                    lo={s.lo} num={s.num.toString().padStart(2, " ")}
+                  </span>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+        </div>
+
+        <div className="flex-1">
+          <RollGrid
+            seed={seed}
+            waves={waves}
+            counters={counters}
+            shopTokens={shopTokens}
+            priorGambits={priorGambits}
+            excludedBytes={excludedBytes}
+            targetIds={targetIds}
+          />
+        </div>
       </div>
     </div>
   );
@@ -399,6 +366,218 @@ const TOKEN_LABEL: Record<TokenType, string> = {
   TILE: "pachinko (tile)",
 };
 
+/**
+ * Inline trajectory preview rendered in each result row. Shows the
+ * first `count` reachable gachapon spins as tier-coloured roll chips
+ * — gives the user a quick visual quality scan without expanding the
+ * row. Empty placeholder slots fill the column when the trajectory
+ * has fewer than `count` spins.
+ */
+function TrajectoryPreview({
+  seed,
+  count = 5,
+}: {
+  seed: number;
+  count?: number;
+}) {
+  const shopTokens = useMemo(() => predictShopTokens(seed, 16), [seed]);
+  const spins = useMemo(() => {
+    const out: { shop: number; counter: number; tier: Rarity; roll: number }[] = [];
+    let counter = 0;
+    for (const shop of shopTokens) {
+      for (let i = 0; i < shop.gambitCount; i++) {
+        const roll = gachaponRoll(seed, shop.wave, counter);
+        out.push({
+          shop: shop.wave,
+          counter,
+          tier: rarityTier(roll),
+          roll,
+        });
+        counter++;
+        if (out.length >= count) break;
+      }
+      if (out.length >= count) break;
+    }
+    return out;
+  }, [seed, shopTokens, count]);
+
+  return (
+    <div className="inline-flex items-center gap-1">
+      {spins.map((s) => (
+        <CellTooltip
+          key={s.counter}
+          width={180}
+          content={
+            <div className="space-y-0.5">
+              <div className="font-display text-[11px] uppercase tracking-wider text-[var(--color-wine)]">
+                spin #{s.counter + 1}
+              </div>
+              <div className="text-[10px] text-[var(--color-wine-dark)]/70">
+                shop {s.shop} · roll {s.roll} · {s.tier.toLowerCase()}
+              </div>
+            </div>
+          }
+        >
+          <RarityBadge
+            rarity={s.tier}
+            size="sm"
+            font="mono"
+            className="cursor-help"
+          >
+            {s.roll.toString().padStart(2, " ")}
+          </RarityBadge>
+        </CellTooltip>
+      ))}
+      {Array.from({ length: Math.max(0, count - spins.length) }).map((_, i) => (
+        <span
+          key={`empty-${i}`}
+          className="inline-flex h-5 min-w-[2rem] items-center justify-center rounded-md border border-[var(--color-cream-soft)] font-mono text-[10px] text-[var(--color-wine-dark)]/30"
+          title="no spin reachable"
+        >
+          —
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Gachapon roll-grid display — rebuilt as a CSS Grid so every cell is
+ * guaranteed to be the same size (the old `<table>` auto-sized columns
+ * to their text content, which made "100" wider than "4").
+ *
+ * Layout: a header row (shop indices 1..N) followed by `counters.length`
+ * rows of `RollCell`s. The first column is a "spin #" label.
+ *
+ * Visual hierarchy:
+ *  - **Shop number header** is faded for shops with no GAMBIT token.
+ *  - **Unreachable cells** (wave has no GAMBIT, or counter exceeds the
+ *    prior spin budget) are dimmed to opacity-30 with neutral tint.
+ *  - **Trajectory cells** — the actual `(shop, counter)` pairs the
+ *    player reaches under spin-every — get a chunky outer ring so the
+ *    user can read off "this is what would actually happen".
+ *  - **Target hits** — trajectory cells whose picks include one of the
+ *    user's selected gambits — get an extra yellow inset accent.
+ */
+interface RollGridProps {
+  seed: number;
+  waves: readonly number[];
+  counters: readonly number[];
+  shopTokens: readonly ShopTokens[];
+  priorGambits: readonly number[];
+  excludedBytes: Uint32Array;
+  targetIds: Set<string>;
+}
+
+function RollGrid({
+  seed,
+  waves,
+  counters,
+  shopTokens,
+  priorGambits,
+  excludedBytes,
+  targetIds,
+}: RollGridProps) {
+  // Build the set of trajectory cells `"shop:counter"` for spin-every.
+  // Counter advances per GAMBIT slot, so a shop with 2 GAMBITs
+  // contributes two consecutive counters at the same shop.
+  const trajectory = useMemo(() => {
+    const set = new Set<string>();
+    let counter = 0;
+    for (const shop of shopTokens) {
+      for (let i = 0; i < shop.gambitCount; i++) {
+        set.add(`${shop.wave}:${counter}`);
+        counter++;
+      }
+    }
+    return set;
+  }, [shopTokens]);
+
+  // grid-template-columns: a narrow label column + one equal-width
+  // track per shop. Using `grid` rather than `<table>` so cell widths
+  // come from the template, not from content. `flex flex-col h-full`
+  // on the wrapper + `flex-1` + auto-rows-fr on the grid itself makes
+  // the grid stretch to fill the parent column's height (so it visually
+  // matches the starter-pieces column when both sit in an items-stretch
+  // flex row).
+  const cols = waves.length;
+  return (
+    <div className="flex h-full flex-col gap-2">
+      <div className="flex items-baseline gap-3 font-display text-xs uppercase tracking-wider">
+        <span>Gachapon rolls</span>
+        <span className="text-[10px] normal-case text-[var(--color-wine-dark)]/60">
+          rows = spin counter · cols = shop · hover for shop tokens + picks
+        </span>
+      </div>
+
+      <div
+        className="grid w-fit flex-1 gap-1.5 rounded-md border-2 border-[var(--color-ink)] bg-[var(--color-cream-light)] p-2 text-[11px]"
+        style={{
+          gridTemplateColumns: `2.25rem repeat(${cols}, 2.75rem)`,
+          gridAutoRows: "minmax(1.75rem, 1fr)",
+        }}
+      >
+        {/* Header row */}
+        <div className="px-1 pb-1 text-center font-display text-[10px] uppercase tracking-wider text-[var(--color-wine-dark)]/60">
+          shop
+        </div>
+        {waves.map((w) => {
+          const shop = shopTokens[w - 1];
+          const hasGambit = shop?.hasGambit ?? false;
+          return (
+            <div
+              key={w}
+              className={`pb-1 text-center font-display text-[12px] uppercase tracking-wider ${
+                hasGambit
+                  ? "text-[var(--color-wine)]"
+                  : "text-[var(--color-wine-dark)]/30"
+              }`}
+              title={
+                hasGambit
+                  ? `shop ${w}: gachapon token offered`
+                  : `shop ${w}: no gachapon token — unreachable`
+              }
+            >
+              {w}
+            </div>
+          );
+        })}
+
+        {/* Body rows — one per counter value */}
+        {counters.map((c) => (
+          <Fragment key={c}>
+            <div className="flex items-center justify-center font-display text-[10px] uppercase tracking-wider text-[var(--color-wine-dark)]/60">
+              #{c}
+            </div>
+            {waves.map((w) => {
+              const roll = gachaponRoll(seed, w, c);
+              const tier = rarityTier(roll);
+              const shop = shopTokens[w - 1];
+              const priorMax = priorGambits[w - 1] ?? 0;
+              const onTrajectory = trajectory.has(`${w}:${c}`);
+              return (
+                <RollCell
+                  key={`${w}-${c}`}
+                  seed={seed}
+                  wave={w}
+                  counter={c}
+                  roll={roll}
+                  tier={tier}
+                  shop={shop}
+                  priorMax={priorMax}
+                  excludedBytes={excludedBytes}
+                  targetIds={targetIds}
+                  onTrajectory={onTrajectory}
+                />
+              );
+            })}
+          </Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 interface RollCellProps {
   seed: number;
   wave: number;
@@ -415,6 +594,10 @@ interface RollCellProps {
   /** Gambit IDs the user is searching for. Cells whose picks include
    *  any of these get a yellow highlight. */
   targetIds: Set<string>;
+  /** True if `(wave, counter)` is the player's natural spin position
+   *  under the spin-every-GAMBIT trajectory. Cells on the trajectory
+   *  get a chunkier border so the user sees the actual play path. */
+  onTrajectory: boolean;
 }
 
 /**
@@ -442,6 +625,7 @@ function RollCell({
   priorMax,
   excludedBytes,
   targetIds,
+  onTrajectory,
 }: RollCellProps) {
   const waveHasGambit = shop?.hasGambit ?? true;
   const counterReachable = counter <= priorMax;
@@ -550,24 +734,38 @@ function RollCell({
     </div>
   ) : null;
 
-  // Border thickness stays 1px regardless of hit/no-hit so cell widths
-  // line up perfectly across the grid; the hit highlight is a chunky
-  // inset shadow + a bold roll digit instead.
+  // Cell is a fixed-size div in the parent CSS Grid. All cells use a
+  // 1px border so widths align exactly; visual difference comes from
+  // box-shadow / background only.
+  //
+  //   base       — tier-tinted background (faded if unreachable)
+  //   trajectory — subtle 1px wine inset shadow ("the player would
+  //                reach this cell"). No outer border change so the
+  //                cell can't be confused with a hit.
+  //   hit        — chunky 2px ink border replacement via outer ring
+  //                shadow + 3px yellow inset + 2px drop shadow + bold.
+  //                ONLY applies to cells whose 3 picks include a
+  //                target gambit; cell rarity must match a target's.
+  const boxShadow = isTargetHit
+    ? "0 0 0 2px var(--color-ink), inset 0 0 0 3px var(--color-yellow), 0 2px 0 2px var(--color-ink)"
+    : onTrajectory && reachable
+      ? "inset 0 0 0 1px var(--color-wine)"
+      : "none";
+
   return (
-    <td className="border border-[var(--color-cream-soft)] p-0">
-      <CellTooltip content={tooltipBody} width={240}>
-        <span
-          className={`block w-full px-2 py-0.5 text-right text-[var(--color-ink)] ${TIER_BG[tier]} ${
-            reachable ? "" : "opacity-30"
-          } ${
-            isTargetHit
-              ? "font-bold shadow-[inset_0_0_0_2px_var(--color-ink),inset_0_0_0_4px_var(--color-yellow)]"
-              : ""
-          }`}
-        >
-          {roll.toString().padStart(2, " ")}
-        </span>
-      </CellTooltip>
-    </td>
+    <CellTooltip
+      content={tooltipBody}
+      width={240}
+      triggerClassName="block h-full"
+    >
+      <div
+        className={`flex h-full min-h-[1.75rem] w-full items-center justify-center rounded-sm font-mono tabular-nums text-[var(--color-ink)] ${TIER_BG[tier]} ${
+          reachable ? "" : "bg-[var(--color-cream-soft)]/40 opacity-40"
+        } ${isTargetHit ? "font-bold" : ""}`}
+        style={{ boxShadow }}
+      >
+        {roll}
+      </div>
+    </CellTooltip>
   );
 }

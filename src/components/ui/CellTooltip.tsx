@@ -8,6 +8,10 @@ interface CellTooltipProps {
   children: ReactNode;
   /** Approx width hint for clamping math. Defaults to 200. */
   width?: number;
+  /** Override the wrapper element's classes — useful when the trigger
+   *  needs to be a block-level element (e.g. a CSS Grid cell). Defaults
+   *  to `inline-flex` which works for inline triggers. */
+  triggerClassName?: string;
 }
 
 const VIEWPORT_MARGIN = 8;
@@ -25,6 +29,7 @@ export function CellTooltip({
   content,
   children,
   width = 200,
+  triggerClassName = "inline-flex",
 }: CellTooltipProps) {
   const triggerRef = useRef<HTMLSpanElement | null>(null);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
@@ -85,7 +90,7 @@ export function CellTooltip({
   return (
     <span
       ref={triggerRef}
-      className="inline-flex"
+      className={triggerClassName}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
       onFocusCapture={() => setOpen(true)}
