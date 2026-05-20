@@ -239,6 +239,27 @@ fn simulate_gambit_picks(
  * We ignore the +1 fourth slot from the `TokenGambit` gambit — bare
  * fresh-run assumption.
  *
+ * Two subtleties worth flagging — both bugs in our first port that the
+ * decompiled code does *not* match the obvious reading of:
+ *
+ *  1. The saved & spawned tokens come from the FIRST pass (`array3`),
+ *     not the second pass. The second pass overwrites `array`/`array2`
+ *     locally, but `DataManager.Data.Tokens = array3` at the end and
+ *     `SpawnToken` instantiates `m_TokenToBuy[array3[i]]`. So second
+ *     pass + alternatives are essentially counter-advancing dead code
+ *     w.r.t. the visible result — we still simulate them to keep the
+ *     downstream counters in sync, but only the first pass populates
+ *     `types`.
+ *
+ *  2. `GetRandomOccurrence` reads `DataManager.Data.CurrentWave` (the
+ *     saved field), not the live `ChessDataManager.m_CurrentWave`.
+ *     `HandleShopSave` syncs the saved field from the live one — but
+ *     it runs *after* `ComputeToken` in `ShopCanvas.OnEnable`. So shop
+ *     N's `ComputeToken` reads the previous shop's saved wave value,
+ *     i.e. `wave = N − 1` for the hash. The gachapon hash (which fires
+ *     much later, when the player clicks a GAMBIT token) reads the
+ *     post-sync value, i.e. `wave = N`.
+ *
  * `ShopCanvas.ComputeToken` (post-tutorial branch):
  *   for slot in 0..2:                                    // first pass: discarded
  *       GetRandomOccurrence("SHOP_TOKEN", 0, 6)
@@ -337,61 +358,83 @@ struct ShopCounters {
     alts_replacement: u32,
 }
 
-/// Simulate one shop's `ComputeToken` post-tutorial path and return the
-/// 2 TokenType outcomes. `counters` is updated in place so the caller
-/// can chain shops sequentially without re-deriving offsets.
+/// Simulate one shop's `ComputeToken` post-tutorial path. Returns the
+/// 3 TokenType outcomes the player will actually see. `shop_index` is
+/// 1-indexed (shop 1 = first shop after the first WIN); internally we
+/// hash with `wave = shop_index − 1` because `ComputeToken` runs before
+/// `HandleShopSave` syncs the saved CurrentWave.
+///
+/// `counters` is updated in place so the caller can chain shops
+/// sequentially — the alternatives counters in particular advance
+/// conditionally on the second-pass result of each shop.
 #[inline(always)]
-fn simulate_shop_tokens(seed: u32, wave: i32, counters: &mut ShopCounters) -> ShopTokens {
-    // First pass (results discarded but counter advances).
-    for _ in 0..SHOP_TOKEN_SLOTS {
-        let _ = occurrence_int(seed, NAME_SHOP_TOKEN, wave, counters.first_pass, 0, TOKEN_PREFAB_COUNT);
-        counters.first_pass += 1;
-    }
+fn simulate_shop_tokens(
+    seed: u32,
+    shop_index: i32,
+    counters: &mut ShopCounters,
+) -> ShopTokens {
+    let rng_wave = shop_index - 1;
 
-    let mut indices = [0u8; SHOP_TOKEN_SLOTS as usize];
+    // First pass: results SAVED to Data.Tokens (array3) — these are the
+    // tokens the player actually sees in the shop.
     let mut types = [0u8; SHOP_TOKEN_SLOTS as usize];
     for slot in 0..SHOP_TOKEN_SLOTS as usize {
-        let pick = occurrence_int(seed, NAME_SHOP_TOKEN_SECOND_PASS, wave, counters.second_pass, 0, TOKEN_PREFAB_COUNT) as u8;
-        counters.second_pass += 1;
-        indices[slot] = pick;
+        let pick = occurrence_int(
+            seed, NAME_SHOP_TOKEN, rng_wave, counters.first_pass, 0, TOKEN_PREFAB_COUNT,
+        ) as u8;
+        counters.first_pass += 1;
         types[slot] = TOKEN_PREFAB_TYPES[pick as usize];
     }
 
-    // If all 3 slots are the same TokenType, swap one for an alternative.
+    // Second pass: results overwrite `array`/`array2` in the C# code
+    // but NOT `array3`, so they don't change the spawned tokens. We
+    // still need them because the alternatives check below is gated on
+    // the second-pass result being all-same-type.
+    let mut second_pass_types = [0u8; SHOP_TOKEN_SLOTS as usize];
+    for slot in 0..SHOP_TOKEN_SLOTS as usize {
+        let pick = occurrence_int(
+            seed,
+            NAME_SHOP_TOKEN_SECOND_PASS,
+            rng_wave,
+            counters.second_pass,
+            0,
+            TOKEN_PREFAB_COUNT,
+        ) as u8;
+        counters.second_pass += 1;
+        second_pass_types[slot] = TOKEN_PREFAB_TYPES[pick as usize];
+    }
+
+    // Alternatives — also doesn't touch the visible tokens, but
+    // advances `alts_slot` + `alts_replacement` counters conditionally.
     let mut alts_consumed = false;
-    let all_same = (1..SHOP_TOKEN_SLOTS as usize).all(|i| types[i] == types[0]);
+    let all_same = (1..SHOP_TOKEN_SLOTS as usize)
+        .all(|i| second_pass_types[i] == second_pass_types[0]);
     if all_same {
-        let current = types[0];
+        let current = second_pass_types[0];
         let alt_len = ALTS.len[current as usize] as i32;
         if alt_len > 0 {
-            let target_slot = occurrence_int(
+            let _ = occurrence_int(
                 seed,
                 NAME_SHOP_TOKEN_ALTERNATIVES,
-                wave,
+                rng_wave,
                 counters.alts_slot,
                 0,
                 SHOP_TOKEN_SLOTS as i32,
-            ) as usize;
+            );
             counters.alts_slot += 1;
-
-            let replacement_idx = occurrence_int(
+            let _ = occurrence_int(
                 seed,
                 NAME_SHOP_TOKEN_NEW_TILE_ALTERNATIVE,
-                wave,
+                rng_wave,
                 counters.alts_replacement,
                 0,
                 alt_len,
-            ) as usize;
+            );
             counters.alts_replacement += 1;
-
-            let prefab_idx = ALTS.idx[current as usize][replacement_idx] as usize;
-            types[target_slot] = TOKEN_PREFAB_TYPES[prefab_idx];
-            indices[target_slot] = prefab_idx as u8;
             alts_consumed = true;
         }
     }
 
-    let _ = indices; // kept for future inspector use
     ShopTokens { types, alts_consumed }
 }
 
@@ -947,36 +990,37 @@ mod tests {
         out
     }
 
-    // Vectors generated from predict_shop_tokens.py with 3 slots.
-    // Each entry = (seed, wave, [slot0, slot1, slot2]).
+    // Vectors generated from predict_shop_tokens.py with the corrected
+    // model (first-pass = visible, wave = shop − 1). Each entry =
+    // (seed, shop_index, [slot0, slot1, slot2]).
     // TokenType: 0=GAMBIT, 1=CHESS_PIECE, 2=TILE.
     const TOKEN_VECTORS: &[(u32, i32, [u8; 3])] = &[
-        (1,    1, [2, 2, 1]),  // TILE/TILE/CHESS — no gambit
-        (1,    2, [0, 1, 2]),  // GAMBIT/CHESS/TILE
-        (1,    5, [0, 1, 1]),  // GAMBIT/CHESS/CHESS — alts fired
-        (1,    6, [2, 0, 0]),  // TILE/GAMBIT/GAMBIT — 2 gambits!
-        (798,  2, [1, 1, 2]),  // CHESS/CHESS/TILE — alts fired
-        (798,  8, [0, 2, 1]),  // GAMBIT/TILE/CHESS
-        (8308, 2, [0, 2, 2]),  // GAMBIT/TILE/TILE
-        (8308, 4, [0, 1, 1]),  // GAMBIT/CHESS/CHESS
+        // seed 2107291 shop 1 = [TILE,TILE,TILE] — the user-reported
+        // in-game observation that exposed the off-by-one fix.
+        (2107291, 1, [2, 2, 2]),
+        (2107291, 3, [1, 0, 1]),  // CHESS/GAMBIT/CHESS
+        (798,     1, [0, 1, 0]),  // GAMBIT/CHESS/GAMBIT — 2 gambits
+        (798,     7, [0, 1, 1]),  // GAMBIT/CHESS/CHESS
+        (8308,    1, [0, 2, 2]),  // GAMBIT/TILE/TILE
+        (8308,    2, [1, 2, 0]),  // CHESS/TILE/GAMBIT
     ];
 
     #[test]
     fn matches_python_shop_token_reference() {
-        for &(seed, wave, expected) in TOKEN_VECTORS {
-            let seq = simulate_shop_sequence(seed, wave);
-            let got = seq[wave as usize - 1];
-            assert_eq!(got, expected, "seed={} wave={}", seed, wave);
+        for &(seed, shop, expected) in TOKEN_VECTORS {
+            let seq = simulate_shop_sequence(seed, shop);
+            let got = seq[shop as usize - 1];
+            assert_eq!(got, expected, "seed={} shop={}", seed, shop);
         }
     }
 
     #[test]
     fn shop_can_offer_multiple_gambits() {
-        // seed=1 wave=6 has [TILE, GAMBIT, GAMBIT] = 2 GAMBITs.
-        let seq = simulate_shop_sequence(1, 6);
-        let shop = seq[5];
+        // seed=798 shop 1 = [GAMBIT, CHESS_PIECE, GAMBIT] = 2 GAMBITs.
+        let seq = simulate_shop_sequence(798, 1);
+        let shop = seq[0];
         let count = shop.iter().filter(|&&t| t == TOKEN_GAMBIT).count();
-        assert_eq!(count, 2, "expected 2 GAMBITs in seed=1 wave=6: {shop:?}");
+        assert_eq!(count, 2, "expected 2 GAMBITs in seed=798 shop=1: {shop:?}");
     }
 
     #[test]
