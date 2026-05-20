@@ -3,13 +3,25 @@ import { ChipButton } from "./ui/Chip";
 
 const STORAGE_KEY = "gambonanza.crt.intensity";
 const DEFAULT_INTENSITY = 0.6;
+const MOBILE_DEFAULT_INTENSITY = 0;
+
+/** True on touch/phone-class viewports — used to default the CRT off so
+ *  it doesn't drain battery or fight with limited screen real estate.
+ *  Users can still re-enable from the chip. */
+function isMobileTouch(): boolean {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return false;
+  }
+  return window.matchMedia("(hover: none) and (max-width: 640px)").matches;
+}
 
 function readStoredIntensity(): number {
-  if (typeof window === "undefined") return DEFAULT_INTENSITY;
+  const fallback = isMobileTouch() ? MOBILE_DEFAULT_INTENSITY : DEFAULT_INTENSITY;
+  if (typeof window === "undefined") return fallback;
   const raw = window.localStorage.getItem(STORAGE_KEY);
-  if (raw === null) return DEFAULT_INTENSITY;
+  if (raw === null) return fallback;
   const parsed = Number.parseFloat(raw);
-  if (!Number.isFinite(parsed)) return DEFAULT_INTENSITY;
+  if (!Number.isFinite(parsed)) return fallback;
   return Math.min(1, Math.max(0, parsed));
 }
 

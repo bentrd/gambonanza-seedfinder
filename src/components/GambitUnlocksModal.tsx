@@ -103,7 +103,7 @@ export function GambitUnlocksModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-40 flex items-center justify-center p-4"
+      className="fixed inset-0 z-40 flex items-center justify-center p-2 sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="gambit-unlocks-title"
@@ -207,7 +207,7 @@ function RaritySection({
           {unlockedHere} / {gambits.length}
         </span>
       </div>
-      <div className="grid grid-cols-10 gap-1.5">
+      <div className="grid grid-cols-6 gap-1.5 sm:grid-cols-8 md:grid-cols-10">
         {gambits.map((g) => (
           <UnlockToggle
             key={g.id}

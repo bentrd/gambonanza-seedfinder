@@ -55,56 +55,243 @@ export function ResultsTable({
 
   // Even with 0 results, when a search has started we still render the
   // shell so the user sees the "no matches" sentinel.
+  //
+  // Two render paths: a compact `<table>` for `sm+` (the dense desktop
+  // layout) and a vertical card list for narrower viewports (each result
+  // becomes its own card, no horizontal scroll). They share `ResultRow`
+  // sub-components — the wrapper element changes, not the cell contents.
   return (
-    <div className="overflow-hidden rounded-lg border-2 border-[var(--color-ink)]">
-      <div className="max-h-[70vh] overflow-y-auto">
-        <table className="w-full text-sm text-[var(--color-wine-dark)]">
-          <thead className="sticky top-0 z-10 bg-[var(--color-wine)] text-[11px] uppercase tracking-wider text-[var(--color-cream)] shadow-[0_2px_0_0_var(--color-ink)]">
-            <tr>
-              <th className="px-3 py-2 text-left">Seed</th>
-              <th className="px-3 py-2 text-left">Starters</th>
-              <th className="px-3 py-2 text-left">
-                <span className="block font-display lowercase">
-                  trajectory
-                </span>
-                <span className="block font-mono text-[10px] normal-case opacity-80">
-                  first 5 spins
-                </span>
-              </th>
-              {gachaponFilters.map((g, i) => (
-                <th key={i} className="px-2 py-2 text-left">
+    <>
+      {/* Mobile: stacked card list. */}
+      <div className="max-h-[70vh] space-y-2 overflow-y-auto pr-1 sm:hidden">
+        {seeds.map((seed, idx) => (
+          <ResultCard
+            key={seed}
+            seed={seed}
+            gachaponFilters={gachaponFilters}
+            gambitFilter={gambitFilter}
+            excludedBytes={excludedBytes}
+            striped={idx % 2 === 1}
+          />
+        ))}
+        <SentinelBlock
+          fetching={fetching}
+          exhausted={exhausted}
+          hasResults={seeds.length > 0}
+          onLoadMore={onLoadMore}
+        />
+      </div>
+
+      {/* Desktop: dense table. */}
+      <div className="hidden overflow-hidden rounded-lg border-2 border-[var(--color-ink)] sm:block">
+        <div className="max-h-[70vh] overflow-y-auto">
+          <table className="w-full text-sm text-[var(--color-wine-dark)]">
+            <thead className="sticky top-0 z-10 bg-[var(--color-wine)] text-[11px] uppercase tracking-wider text-[var(--color-cream)] shadow-[0_2px_0_0_var(--color-ink)]">
+              <tr>
+                <th className="px-3 py-2 text-left">Seed</th>
+                <th className="px-3 py-2 text-left">Starters</th>
+                <th className="px-3 py-2 text-left">
                   <span className="block font-display lowercase">
-                    gach #{i + 1}
+                    trajectory
                   </span>
                   <span className="block font-mono text-[10px] normal-case opacity-80">
-                    w{g.wave} c{g.counter}
+                    first 5 spins
                   </span>
                 </th>
+                {gachaponFilters.map((g, i) => (
+                  <th key={i} className="px-2 py-2 text-left">
+                    <span className="block font-display lowercase">
+                      gach #{i + 1}
+                    </span>
+                    <span className="block font-mono text-[10px] normal-case opacity-80">
+                      w{g.wave} c{g.counter}
+                    </span>
+                  </th>
+                ))}
+                <th className="w-8"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {seeds.map((seed, idx) => (
+                <ResultRow
+                  key={seed}
+                  seed={seed}
+                  gachaponFilters={gachaponFilters}
+                  gambitFilter={gambitFilter}
+                  excludedBytes={excludedBytes}
+                  striped={idx % 2 === 1}
+                />
               ))}
-              <th className="w-8"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {seeds.map((seed, idx) => (
-              <ResultRow
-                key={seed}
-                seed={seed}
-                gachaponFilters={gachaponFilters}
-                gambitFilter={gambitFilter}
-                excludedBytes={excludedBytes}
-                striped={idx % 2 === 1}
+              <SentinelRow
+                colSpan={gachaponFilters.length + 4}
+                fetching={fetching}
+                exhausted={exhausted}
+                hasResults={seeds.length > 0}
+                onLoadMore={onLoadMore}
               />
-            ))}
-            <SentinelRow
-              colSpan={gachaponFilters.length + 4}
-              fetching={fetching}
-              exhausted={exhausted}
-              hasResults={seeds.length > 0}
-              onLoadMore={onLoadMore}
-            />
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
+    </>
+  );
+}
+
+interface ResultCardProps {
+  seed: number;
+  gachaponFilters: GachaponFilter[];
+  gambitFilter: GambitFilter;
+  excludedBytes: Uint32Array;
+  striped: boolean;
+}
+
+/**
+ * Mobile-only card variant of `ResultRow`. Shows the same data as the
+ * desktop table but stacked vertically so nothing overflows a 360px
+ * viewport. The expanded state reuses the same `Inspector` as the table.
+ */
+function ResultCard({
+  seed,
+  gachaponFilters,
+  gambitFilter,
+  excludedBytes,
+  striped,
+}: ResultCardProps) {
+  const [open, setOpen] = useState(false);
+  const starters = simulateStarters(seed);
+  const rolls = gachaponFilters.map((g) => gachaponRoll(seed, g.wave, g.counter));
+
+  return (
+    <div
+      className={`overflow-hidden rounded-lg border-2 border-[var(--color-ink)] bg-[var(--color-cream)] ${
+        striped ? "bg-[var(--color-cream-light)]/70" : ""
+      }`}
+    >
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="block w-full cursor-pointer text-left"
+        aria-expanded={open}
+      >
+        <div className="flex items-center justify-between gap-2 px-3 pt-2">
+          <span className="font-mono text-[var(--color-wine)]">{seed}</span>
+          <span className="inline-flex items-end gap-1">
+            {starters.map((s, i) => (
+              <PieceIcon key={i} piece={s.piece} variant="w" size={22} />
+            ))}
+          </span>
+          <span
+            aria-hidden="true"
+            className="inline-flex h-8 w-8 items-center justify-center text-base font-bold text-[var(--color-wine)]"
+          >
+            {open ? "−" : "+"}
+          </span>
+        </div>
+        <div className="px-3 pb-2 pt-1">
+          <div className="flex flex-wrap items-center gap-1">
+            <TrajectoryPreview seed={seed} count={5} />
+          </div>
+        </div>
+        {rolls.length > 0 && (
+          <div className="grid grid-cols-2 gap-1.5 px-3 pb-3">
+            {rolls.map((roll, i) => {
+              const tier = rarityTier(roll);
+              return (
+                <div
+                  key={i}
+                  className="flex items-center justify-between gap-2 rounded-md bg-[var(--color-cream-soft)]/40 px-2 py-1"
+                >
+                  <span className="font-display text-[10px] uppercase tracking-wider text-[var(--color-wine-dark)]/70">
+                    gach #{i + 1}
+                  </span>
+                  <RarityBadge rarity={tier} size="md" font="mono" className="gap-1">
+                    <span className="uppercase">{tier.slice(0, 3)}</span>
+                    <span>{roll.toString().padStart(2, " ")}</span>
+                  </RarityBadge>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </button>
+      {open && (
+        <div className="border-t-2 border-[var(--color-cream-soft)] bg-[var(--color-cream-light)] px-3 py-3">
+          <Inspector
+            seed={seed}
+            gambitFilter={gambitFilter}
+            excludedBytes={excludedBytes}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+interface SentinelBlockProps {
+  fetching: boolean;
+  exhausted: boolean;
+  hasResults: boolean;
+  onLoadMore: () => void;
+}
+
+/**
+ * Mobile-card-list equivalent of `SentinelRow`. Same IntersectionObserver
+ * logic, rendered as a `<div>` block instead of a `<tr>` so it can live
+ * outside a `<table>`.
+ */
+function SentinelBlock({
+  fetching,
+  exhausted,
+  hasResults,
+  onLoadMore,
+}: SentinelBlockProps) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const fetchingRef = useRef(fetching);
+  const exhaustedRef = useRef(exhausted);
+  const onLoadMoreRef = useRef(onLoadMore);
+  useEffect(() => { fetchingRef.current = fetching; }, [fetching]);
+  useEffect(() => { exhaustedRef.current = exhausted; }, [exhausted]);
+  useEffect(() => { onLoadMoreRef.current = onLoadMore; }, [onLoadMore]);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (
+            entry.isIntersecting &&
+            !fetchingRef.current &&
+            !exhaustedRef.current
+          ) {
+            onLoadMoreRef.current();
+          }
+        }
+      },
+      { rootMargin: "0px 0px 200px 0px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  const label = exhausted
+    ? hasResults
+      ? "scanned every seed — no more matches"
+      : "no matches anywhere in the seed space"
+    : fetching
+      ? "scanning for more matches…"
+      : hasResults
+        ? "scroll for more"
+        : "halted — refine filters or scroll to retry";
+
+  return (
+    <div
+      ref={ref}
+      className={`rounded-lg border-2 border-[var(--color-ink)] bg-[var(--color-cream)] px-3 py-3 text-center text-[11px] uppercase tracking-wider text-[var(--color-wine-dark)]/70 ${
+        fetching ? "animate-pulse" : ""
+      }`}
+    >
+      {label}
     </div>
   );
 }
@@ -158,8 +345,13 @@ function ResultRow({
             </td>
           );
         })}
-        <td className="px-2 py-2 text-center text-sm font-bold text-[var(--color-wine)]">
-          {open ? "−" : "+"}
+        <td className="px-2 py-2 text-center align-middle">
+          <span
+            aria-hidden="true"
+            className="inline-flex h-9 w-9 items-center justify-center text-sm font-bold text-[var(--color-wine)]"
+          >
+            {open ? "−" : "+"}
+          </span>
         </td>
       </tr>
       {open && (
@@ -259,7 +451,7 @@ function Inspector({
           </div>
         </div>
 
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <RollGrid
             seed={seed}
             waves={waves}
@@ -420,18 +612,18 @@ function TrajectoryPreview({
         >
           <RarityBadge
             rarity={s.tier}
-            size="sm"
+            size="track"
             font="mono"
             className="cursor-help"
           >
-            {s.roll.toString().padStart(2, " ")}
+            {s.roll}
           </RarityBadge>
         </CellTooltip>
       ))}
       {Array.from({ length: Math.max(0, count - spins.length) }).map((_, i) => (
         <span
           key={`empty-${i}`}
-          className="inline-flex h-5 min-w-[2rem] items-center justify-center rounded-md border border-[var(--color-cream-soft)] font-mono text-[10px] text-[var(--color-wine-dark)]/30"
+          className="inline-flex h-5 w-9 items-center justify-center rounded-md border-2 border-[var(--color-cream-soft)] font-mono text-[10px] text-[var(--color-wine-dark)]/30"
           title="no spin reachable"
         >
           —
@@ -511,10 +703,16 @@ function RollGrid({
       </div>
 
       <div
-        className="grid w-fit flex-1 gap-1.5 rounded-md border-2 border-[var(--color-ink)] bg-[var(--color-cream-light)] p-2 text-[11px]"
+        className="grid w-full flex-1 gap-1 rounded-md border-2 border-[var(--color-ink)] bg-[var(--color-cream-light)] p-1.5 text-[10px] sm:gap-1.5 sm:p-2 sm:text-[11px]"
         style={{
-          gridTemplateColumns: `2.25rem repeat(${cols}, 2.75rem)`,
-          gridAutoRows: "minmax(1.75rem, 1fr)",
+          // Fluid cell columns (`minmax(0, 1fr)`) make the grid always
+          // fit its container width — no horizontal scroll on mobile,
+          // and at desktop the cells expand back to roughly the
+          // previous 2.75rem feel because the flex parent gives them
+          // plenty of room. The label column is a fixed-ish clamp so
+          // the spin-counter labels stay legible.
+          gridTemplateColumns: `clamp(1rem, 5vw, 2.25rem) repeat(${cols}, minmax(0, 1fr))`,
+          gridAutoRows: "minmax(1.5rem, 1fr)",
         }}
       >
         {/* Header row */}
@@ -742,12 +940,14 @@ function RollCell({
   //   trajectory — subtle 1px wine inset shadow ("the player would
   //                reach this cell"). No outer border change so the
   //                cell can't be confused with a hit.
-  //   hit        — chunky 2px ink border replacement via outer ring
-  //                shadow + 3px yellow inset + 2px drop shadow + bold.
+  //   hit        — chunky 2px ink ring + 2px drop shadow + bold. No
+  //                inset tint: the cell stays its own tier colour so
+  //                the highlight reads as "stand out" without falsely
+  //                implying legendary (yellow) or any other rarity.
   //                ONLY applies to cells whose 3 picks include a
   //                target gambit; cell rarity must match a target's.
   const boxShadow = isTargetHit
-    ? "0 0 0 2px var(--color-ink), inset 0 0 0 3px var(--color-yellow), 0 2px 0 2px var(--color-ink)"
+    ? "0 0 0 2px var(--color-ink), 0 2px 0 2px var(--color-ink)"
     : onTrajectory && reachable
       ? "inset 0 0 0 1px var(--color-wine)"
       : "none";

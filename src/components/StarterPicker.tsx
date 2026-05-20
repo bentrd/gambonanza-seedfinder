@@ -52,11 +52,16 @@ function SlotRow({ value, onChange }: SlotRowProps) {
             className="flex aspect-square flex-1 items-center justify-center"
           >
             {opt === "ANY" ? (
-              <span className="font-display text-sm uppercase tracking-wider">
+              <span className="font-display text-xs uppercase tracking-wider sm:text-sm">
                 any
               </span>
             ) : (
-              <PieceIcon piece={opt} variant="w" size={36} />
+              <PieceIcon
+                piece={opt}
+                variant="w"
+                size={null}
+                className="h-6 sm:h-9"
+              />
             )}
           </PixelToggle>
         ))}

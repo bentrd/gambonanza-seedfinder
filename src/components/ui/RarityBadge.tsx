@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { Tier } from "../../rng/rarityColors";
 import { TIER_BG, TIER_TEXT } from "../../rng/rarityColors";
 
-type Size = "xs" | "sm" | "md" | "cell";
+type Size = "xs" | "sm" | "md" | "cell" | "track";
 type Variant = "chip" | "inline";
 type Font = "display" | "mono";
 
@@ -14,7 +14,10 @@ interface RarityBadgeProps
    *  - `xs` 9px (tooltip header)
    *  - `sm` 10px (default — section labels, in-text tags)
    *  - `md` 11px (row chips with compound content)
-   *  - `cell` fixed 28×36 grid cell used by the help-card MiniGrid */
+   *  - `cell` fixed 28×36 grid cell used by the help-card MiniGrid
+   *  - `track` fixed 20×36 chip used by trajectory rows — every chip
+   *    has the same footprint regardless of digit count so the row
+   *    stays a clean grid. */
   size?: Size;
   /** Border style. `chip` = chunky 2px ink (default), `inline` = light wine border for in-text usage. */
   variant?: Variant;
@@ -31,10 +34,11 @@ interface RarityBadgeProps
 }
 
 const SIZE_CLASSES: Record<Size, string> = {
-  xs:   "px-1.5 py-0.5 text-[9px]",
-  sm:   "px-2 py-0.5 text-[10px]",
-  md:   "px-2 py-1 text-[11px]",
-  cell: "h-7 w-9 text-[10px]",
+  xs:    "px-1.5 py-0.5 text-[9px]",
+  sm:    "px-2 py-0.5 text-[10px]",
+  md:    "px-2 py-1 text-[11px]",
+  cell:  "h-7 w-9 text-[10px]",
+  track: "h-5 w-9 px-0 text-[10px] tabular-nums",
 };
 
 const VARIANT_CLASSES: Record<Variant, string> = {

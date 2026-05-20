@@ -1,5 +1,5 @@
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
-import type { ReactNode } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import type { PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { Gambit } from "../rng";
 import { gambitDisplayName } from "../rng";
@@ -29,6 +29,45 @@ export function GambitTooltip({ gambit, children }: GambitTooltipProps) {
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
+  /** Tracks whether the current open-state was triggered by a touch.
+   *  Mouse hover-out should close, but a touch-open should stay until
+   *  the user explicitly taps outside. */
+  const stickyTouchRef = useRef(false);
+
+  const handlePointerEnter = (e: ReactPointerEvent) => {
+    if (e.pointerType === "touch") return;
+    setOpen(true);
+  };
+  const handlePointerLeave = (e: ReactPointerEvent) => {
+    if (e.pointerType === "touch") return;
+    if (stickyTouchRef.current) return;
+    setOpen(false);
+  };
+  const handlePointerDown = (e: ReactPointerEvent) => {
+    if (e.pointerType !== "touch") return;
+    // Don't preventDefault — the underlying button (gambit toggle) still
+    // needs its click to fire. We're only toggling the tooltip.
+    setOpen((prev) => {
+      stickyTouchRef.current = !prev;
+      return !prev;
+    });
+  };
+
+  // Outside-tap dismissal while sticky.
+  useEffect(() => {
+    if (!open || !stickyTouchRef.current) return;
+    const onDown = (e: PointerEvent) => {
+      const t = triggerRef.current;
+      const p = tooltipRef.current;
+      const target = e.target as Node | null;
+      if (target && t?.contains(target)) return;
+      if (target && p?.contains(target)) return;
+      setOpen(false);
+      stickyTouchRef.current = false;
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [open]);
 
   const place = useCallback(() => {
     const trigger = triggerRef.current;
@@ -90,10 +129,13 @@ export function GambitTooltip({ gambit, children }: GambitTooltipProps) {
     <span
       ref={triggerRef}
       className="inline-flex"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
+      onPointerDown={handlePointerDown}
       onFocusCapture={() => setOpen(true)}
-      onBlurCapture={() => setOpen(false)}
+      onBlurCapture={() => {
+        if (!stickyTouchRef.current) setOpen(false);
+      }}
     >
       {children}
       {open &&

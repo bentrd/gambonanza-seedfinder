@@ -1,5 +1,5 @@
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
-import type { ReactNode } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import type { PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 interface CellTooltipProps {
@@ -35,6 +35,41 @@ export function CellTooltip({
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
+  /** Touch-opened tooltips stay open until tap-outside; mouse-opened ones
+   *  close on pointer leave. */
+  const stickyTouchRef = useRef(false);
+
+  const handlePointerEnter = (e: ReactPointerEvent) => {
+    if (e.pointerType === "touch") return;
+    setOpen(true);
+  };
+  const handlePointerLeave = (e: ReactPointerEvent) => {
+    if (e.pointerType === "touch") return;
+    if (stickyTouchRef.current) return;
+    setOpen(false);
+  };
+  const handlePointerDown = (e: ReactPointerEvent) => {
+    if (e.pointerType !== "touch") return;
+    setOpen((prev) => {
+      stickyTouchRef.current = !prev;
+      return !prev;
+    });
+  };
+
+  useEffect(() => {
+    if (!open || !stickyTouchRef.current) return;
+    const onDown = (e: PointerEvent) => {
+      const t = triggerRef.current;
+      const p = tooltipRef.current;
+      const target = e.target as Node | null;
+      if (target && t?.contains(target)) return;
+      if (target && p?.contains(target)) return;
+      setOpen(false);
+      stickyTouchRef.current = false;
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [open]);
 
   const place = useCallback(() => {
     const trigger = triggerRef.current;
@@ -91,10 +126,13 @@ export function CellTooltip({
     <span
       ref={triggerRef}
       className={triggerClassName}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
+      onPointerDown={handlePointerDown}
       onFocusCapture={() => setOpen(true)}
-      onBlurCapture={() => setOpen(false)}
+      onBlurCapture={() => {
+        if (!stickyTouchRef.current) setOpen(false);
+      }}
     >
       {children}
       {open &&

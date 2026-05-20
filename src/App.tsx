@@ -223,9 +223,16 @@ export function App() {
   }, []);
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-7xl flex-col gap-7 px-6 py-10">
-      <header className="flex items-end justify-between gap-4">
-        <h1 className="font-display text-3xl uppercase tracking-wider text-[var(--color-cream)] drop-shadow-[0_3px_0_var(--color-ink)]">
+    <div
+      className="mx-auto flex min-h-screen max-w-7xl flex-col gap-4 px-3 py-4 sm:gap-7 sm:px-6 sm:py-10"
+      style={{
+        paddingLeft: "max(0.75rem, env(safe-area-inset-left))",
+        paddingRight: "max(0.75rem, env(safe-area-inset-right))",
+        paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
+      }}
+    >
+      <header className="flex flex-wrap items-end justify-between gap-3 sm:gap-4">
+        <h1 className="font-display text-xl uppercase tracking-wider text-[var(--color-cream)] drop-shadow-[0_3px_0_var(--color-ink)] sm:text-3xl">
           Gambonanza Seed Finder
         </h1>
         <div className="flex items-center gap-2">
@@ -242,7 +249,7 @@ export function App() {
 
       <HelpCard />
 
-      <div className="flex flex-1 flex-col gap-8">
+      <div className="flex flex-1 flex-col gap-5 sm:gap-8">
         <aside className="card-window space-y-6">
           <span className="window-title">Filters</span>
 
@@ -252,7 +259,7 @@ export function App() {
               instead of letting the tallest sibling dictate makes the
               GambitPicker's scroll area kick in instead of stretching
               the row, and keeps the layout stable as filters change. */}
-          <div className="grid gap-6 md:grid-cols-3 md:auto-rows-[280px]">
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-3 md:auto-rows-[280px]">
             <StarterPicker
               value={starter}
               onChange={(next) => guardFilterChange(() => setStarter(next))}

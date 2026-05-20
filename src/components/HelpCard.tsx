@@ -26,7 +26,7 @@ export function HelpCard() {
   }
 
   return (
-    <aside className="card-cream space-y-5 p-5 text-sm text-[var(--color-wine-dark)]">
+    <aside className="card-cream space-y-5 p-4 text-sm text-[var(--color-wine-dark)] sm:p-5">
       <header className="flex items-baseline justify-between">
         <h2 className="font-display text-lg uppercase tracking-wider">
           Reading the predictions
@@ -159,7 +159,7 @@ function Scenarios() {
       <h3 className="font-display text-xs uppercase tracking-wider">
         Walk-throughs
       </h3>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
         <Scenario
           title="Spin every shop"
           desc="One gachapon per wave, never skip. Each spin steps one cell down-right — you trace a diagonal."
@@ -403,7 +403,9 @@ function Scenario({ title, desc, grid }: ScenarioProps) {
       <div className="font-display text-[12px] uppercase tracking-wider text-[var(--color-wine)]">
         {title}
       </div>
-      <MiniGrid {...grid} />
+      <div className="overflow-x-auto">
+        <MiniGrid {...grid} />
+      </div>
       <p className="text-[11px] leading-snug text-[var(--color-wine-dark)]/85">
         {desc}
       </p>

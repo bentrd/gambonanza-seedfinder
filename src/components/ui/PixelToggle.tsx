@@ -22,7 +22,7 @@ export function PixelToggle({
     <button
       type={type}
       {...rest}
-      className={`cursor-pointer rounded-md border-2 border-[var(--color-ink)] transition-transform active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40 ${
+      className={`cursor-pointer touch-manipulation rounded-md border-2 border-[var(--color-ink)] transition-transform active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40 ${
         active ? ACTIVE_CLASS : IDLE_CLASS
       } ${className}`}
     >

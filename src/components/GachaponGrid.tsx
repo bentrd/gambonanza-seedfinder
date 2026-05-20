@@ -140,7 +140,7 @@ function GachaponRow({ index, filter, onChange, onRemove }: GachaponRowProps) {
 
       {advancedOpen && (
         <div className="border-t border-[var(--color-wine-dark)]/15 pt-3">
-          <div className="grid grid-cols-[68px_1fr_auto] items-center gap-x-3 gap-y-2">
+          <div className="grid grid-cols-[56px_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-2 sm:grid-cols-[68px_minmax(0,1fr)_auto] sm:gap-x-3">
             <span className="font-display text-[11px] uppercase tracking-wider text-[var(--color-wine-dark)]/80">
               wave
             </span>

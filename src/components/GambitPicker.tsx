@@ -118,7 +118,7 @@ export function GambitPicker({
       />
 
       <div
-        className={`flex items-center gap-2 rounded-md bg-[var(--color-cream-soft)]/40 px-3 py-2 text-[11px] uppercase tracking-wider transition-opacity ${
+        className={`flex flex-wrap items-center gap-2 rounded-md bg-[var(--color-cream-soft)]/40 px-3 py-2 text-[11px] uppercase tracking-wider transition-opacity ${
           selectedCount > 0
             ? "text-[var(--color-wine-dark)]"
             : "pointer-events-none text-[var(--color-wine-dark)]/40 opacity-60"
@@ -182,7 +182,7 @@ function RaritySection({
           {gambits.length}
         </span>
       </div>
-      <div className="grid grid-cols-8 gap-1.5">
+      <div className="grid grid-cols-7 gap-1.5 sm:grid-cols-8">
         {gambits.map((g) => (
           <GambitToggle
             key={g.id}
@@ -216,7 +216,7 @@ function GambitToggle({ gambit, active, onClick }: GambitToggleProps) {
           <img
             src={sprite}
             alt={gambit.name}
-            className="pixel block h-9 w-9 object-contain"
+            className="pixel block h-7 w-7 object-contain sm:h-9 sm:w-9"
             draggable={false}
           />
         ) : (

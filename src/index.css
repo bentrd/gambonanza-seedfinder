@@ -57,6 +57,15 @@ body,
   width: 10px;
   height: 10px;
 }
+/* Thinner scrollbars on coarse-pointer / touch devices — the regular 10px
+   bars eat too much space inside narrow filter panes on phones, and the
+   thumb is irrelevant when there's no mouse to grab it. */
+@media (hover: none) and (pointer: coarse) {
+  *::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+}
 *::-webkit-scrollbar-track {
   background: rgba(184, 142, 92, 0.18);
   border-radius: 6px;
@@ -101,13 +110,18 @@ body {
   background-attachment: fixed;
   color: var(--color-cream);
   font-family: var(--font-sans);
-  font-size: 18px;
+  font-size: 16px;
   letter-spacing: 0.4px;
   -webkit-font-smoothing: none;
   font-smooth: never;
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
+}
+@media (min-width: 640px) {
+  body {
+    font-size: 18px;
+  }
 }
 
 button,
@@ -346,7 +360,8 @@ img.pixel {
 }
 
 /* Big window panel (like the in-game SETTINGS modal). The wine-band title
-   is rendered as a separate child centered on top. */
+   is rendered as a separate child centered on top. Padding tightens on
+   mobile so the title pill doesn't crowd narrow phones. */
 @utility card-window {
   position: relative;
   background-color: var(--color-cream);
@@ -354,7 +369,12 @@ img.pixel {
   border: 3px solid var(--color-ink);
   border-radius: 12px;
   box-shadow: 0 5px 0 0 var(--color-ink);
-  padding: 28px 22px 22px;
+  padding: 22px 14px 16px;
+}
+@media (min-width: 640px) {
+  .card-window {
+    padding: 28px 22px 22px;
+  }
 }
 
 /* Inset row inside a window — slightly darker cream "track" */
@@ -380,23 +400,35 @@ img.pixel {
   font-size: 13px;
 }
 
-/* Title pill that protrudes from the top of a window */
+/* Title pill that protrudes from the top of a window. Shrinks on mobile
+   so it doesn't overflow narrow cards — the nowrap behaviour is desktop-
+   only. */
 @utility window-title {
   position: absolute;
-  top: -22px;
+  top: -18px;
   left: 50%;
   transform: translateX(-50%);
+  max-width: calc(100% - 24px);
   background-color: var(--color-cream);
   color: var(--color-wine);
   border: 3px solid var(--color-ink);
   border-radius: 10px;
   box-shadow: 0 4px 0 0 var(--color-ink);
-  padding: 6px 22px;
+  padding: 4px 14px;
   font-family: var(--font-display);
-  letter-spacing: 1.6px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
-  font-size: 18px;
-  white-space: nowrap;
+  font-size: 14px;
+  text-align: center;
+}
+@media (min-width: 640px) {
+  .window-title {
+    top: -22px;
+    padding: 6px 22px;
+    letter-spacing: 1.6px;
+    font-size: 18px;
+    white-space: nowrap;
+  }
 }
 
 /* Stepper button (chevrons) */
@@ -503,5 +535,39 @@ img.pixel {
   .crt-overlay,
   .crt-overlay::before {
     animation: none;
+  }
+}
+
+/* On phones the viewport is small enough that the CRT vignette + the
+   ::after inset shadow eat the whole page instead of just framing the
+   corners. Drastically thin the dark edges so the content area stays
+   readable while the scanlines/colour grille still come through. */
+@media (max-width: 640px) {
+  .crt-overlay {
+    background-image:
+      repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.35) 0px,
+        rgba(0, 0, 0, 0.35) 1px,
+        transparent 1px,
+        transparent 3px
+      ),
+      repeating-linear-gradient(
+        to right,
+        rgba(255, 0, 0, 0.05) 0px,
+        rgba(0, 255, 0, 0.05) 1px,
+        rgba(0, 0, 255, 0.05) 2px,
+        transparent 3px
+      ),
+      radial-gradient(
+        ellipse 110% 95% at 50% 50%,
+        transparent 80%,
+        rgba(0, 0, 0, 0.22) 100%
+      );
+  }
+  .crt-overlay::after {
+    box-shadow:
+      inset 0 0 24px 4px rgba(0, 0, 0, 0.22),
+      inset 0 0 60px 18px rgba(58, 21, 33, 0.18);
   }
 }
