@@ -105,6 +105,26 @@ img.pixel {
    Game-style components
    ============================================================ */
 
+/* Rainbow per-character "hola" wave used by gambit description
+   <rainb> tags. Each char gets staggered animation-delay so the
+   crest moves left → right through the word.                    */
+@keyframes rainb-bop {
+  0%, 100% { transform: translateY(0); }
+  40%      { transform: translateY(-3px); }
+}
+.rainb-char {
+  display: inline-block;
+  font-weight: 700;
+  animation: rainb-bop 0.9s ease-in-out infinite;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rainb-char {
+    animation: none;
+  }
+}
+
+
 @utility card-cream {
   background-color: var(--color-cream);
   color: var(--color-wine-dark);

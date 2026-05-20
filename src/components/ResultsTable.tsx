@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   gachaponRoll,
   gambitDisplayName,
@@ -13,23 +13,37 @@ import type { GachaponFilter, GambitFilter } from "../search/types";
 import { GambitTooltip } from "./GambitTooltip";
 import { PieceIcon } from "./PieceIcon";
 import { CopyButton } from "./ui/CopyButton";
+import { RarityBadge } from "./ui/RarityBadge";
 
 interface ResultsTableProps {
   seeds: number[];
   gachaponFilters: GachaponFilter[];
   gambitFilter: GambitFilter;
+  /** Worker is currently scanning a batch. Disables the sentinel trigger. */
+  fetching: boolean;
+  /** No more seeds left to scan — sentinel becomes terminal. */
+  exhausted: boolean;
+  /** Whether any search has been initiated yet (empty results before first run vs after). */
+  hasSearched: boolean;
+  /** Callback when the sentinel scrolls into view (request the next batch). */
+  onLoadMore: () => void;
 }
 
 export function ResultsTable({
   seeds,
   gachaponFilters,
   gambitFilter,
+  fetching,
+  exhausted,
+  hasSearched,
+  onLoadMore,
 }: ResultsTableProps) {
   const excludedBytes = useMemo(
     () => encodeExcludedIds(gambitFilter.excludedIds),
     [gambitFilter.excludedIds],
   );
-  if (seeds.length === 0) {
+
+  if (seeds.length === 0 && !hasSearched) {
     return (
       <div className="flex h-48 items-center justify-center rounded-md bg-[var(--color-cream-soft)]/40 text-sm uppercase tracking-wider text-[var(--color-wine-dark)]/70">
         Set your filters and hit Search.
@@ -37,6 +51,8 @@ export function ResultsTable({
     );
   }
 
+  // Even with 0 results, when a search has started we still render the
+  // shell so the user sees the "no matches" sentinel.
   return (
     <div className="overflow-hidden rounded-lg border-2 border-[var(--color-ink)]">
       <div className="max-h-[70vh] overflow-y-auto">
@@ -69,6 +85,13 @@ export function ResultsTable({
                 striped={idx % 2 === 1}
               />
             ))}
+            <SentinelRow
+              colSpan={gachaponFilters.length + 3}
+              fetching={fetching}
+              exhausted={exhausted}
+              hasResults={seeds.length > 0}
+              onLoadMore={onLoadMore}
+            />
           </tbody>
         </table>
       </div>
@@ -115,12 +138,10 @@ function ResultRow({
           const tier = rarityTier(roll);
           return (
             <td key={i} className="px-2 py-2">
-              <span
-                className={`inline-flex items-center gap-1 rounded-md border-2 border-[var(--color-ink)] px-2 py-0.5 font-mono text-[11px] text-[var(--color-ink)] ${TIER_BG[tier]}`}
-              >
+              <RarityBadge rarity={tier} size="md" font="mono" className="gap-1">
                 <span className="uppercase">{tier.slice(0, 3)}</span>
                 <span>{roll.toString().padStart(2, " ")}</span>
-              </span>
+              </RarityBadge>
             </td>
           );
         })}
@@ -175,12 +196,10 @@ function GambitPredictions({
             <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-wine-dark)]/70">
               #{p.gachIdx + 1}
             </span>
-            <span
-              className={`inline-flex items-center gap-1 rounded-md border-2 border-[var(--color-ink)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--color-ink)] ${TIER_BG[p.rarity]}`}
-            >
+            <RarityBadge rarity={p.rarity} size="sm" font="mono" className="gap-1">
               <span className="uppercase">{p.rarity.slice(0, 3)}</span>
               <span>{p.rarityRoll.toString().padStart(2, " ")}</span>
-            </span>
+            </RarityBadge>
             <div className="flex flex-1 items-center gap-1.5">
               {p.picks.map((g, i) => {
                 if (!g) {
@@ -325,5 +344,90 @@ function Inspector({
         </table>
       </div>
     </div>
+  );
+}
+
+interface SentinelRowProps {
+  colSpan: number;
+  fetching: boolean;
+  exhausted: boolean;
+  hasResults: boolean;
+  onLoadMore: () => void;
+}
+
+/**
+ * Bottom row of the results table — drives the "infinite scroll"
+ * pagination. An IntersectionObserver watches the row; when it scrolls
+ * into view AND we're idle (not fetching) AND there's more seed space
+ * to scan, it requests the next batch.
+ *
+ * Also acts as the status line at the bottom of the table:
+ *   - fetching   → "scanning for more…" with a subtle pulse
+ *   - exhausted  → "no more matches in the seed space"
+ *   - empty + ¬exhausted → "halted — refine filters or scroll to retry"
+ *   - empty + exhausted  → "no matches anywhere"
+ */
+function SentinelRow({
+  colSpan,
+  fetching,
+  exhausted,
+  hasResults,
+  onLoadMore,
+}: SentinelRowProps) {
+  const ref = useRef<HTMLTableRowElement | null>(null);
+  // Latest values via refs so the observer callback doesn't need to
+  // re-bind every render (the observer survives prop changes).
+  const fetchingRef = useRef(fetching);
+  const exhaustedRef = useRef(exhausted);
+  const onLoadMoreRef = useRef(onLoadMore);
+  useEffect(() => { fetchingRef.current = fetching; }, [fetching]);
+  useEffect(() => { exhaustedRef.current = exhausted; }, [exhausted]);
+  useEffect(() => { onLoadMoreRef.current = onLoadMore; }, [onLoadMore]);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (
+            entry.isIntersecting &&
+            !fetchingRef.current &&
+            !exhaustedRef.current
+          ) {
+            onLoadMoreRef.current();
+          }
+        }
+      },
+      { rootMargin: "0px 0px 200px 0px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  const label = exhausted
+    ? hasResults
+      ? "scanned every seed — no more matches"
+      : "no matches anywhere in the seed space"
+    : fetching
+      ? "scanning for more matches…"
+      : hasResults
+        ? "scroll for more"
+        : "halted — refine filters or scroll to retry";
+
+  return (
+    <tr
+      ref={ref}
+      className={`border-t-2 border-[var(--color-cream-soft)] ${
+        fetching ? "animate-pulse" : ""
+      }`}
+    >
+      <td
+        colSpan={colSpan}
+        className="px-3 py-3 text-center text-[11px] uppercase tracking-wider text-[var(--color-wine-dark)]/70"
+      >
+        {label}
+      </td>
+    </tr>
   );
 }

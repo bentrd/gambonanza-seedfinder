@@ -6,8 +6,8 @@ import {
   gambitSpriteUrl,
   getGambitById,
 } from "../rng";
-import { TIER_BG } from "../rng/rarityColors";
 import { GambitTooltip } from "./GambitTooltip";
+import { RarityBadge } from "./ui/RarityBadge";
 
 export function HelpCard() {
   const [open, setOpen] = useState(false);
@@ -316,24 +316,23 @@ function MiniGrid({
                 const isHi = key === highlightKey;
                 return (
                   <td key={c} className="p-[2px]">
-                    <div
-                      className={`relative flex h-7 w-9 items-center justify-center rounded-sm border ${
-                        isHi
-                          ? "border-2 border-[var(--color-ink)] shadow-[0_2px_0_0_var(--color-ink)]"
-                          : "border-[var(--color-wine-dark)]/15"
-                      } ${TIER_BG[tier]} ${isGhost ? "opacity-30" : ""}`}
+                    <RarityBadge
+                      rarity={tier}
+                      size="cell"
+                      highlight={isHi}
+                      ghost={isGhost}
                     >
                       {pathOrder !== undefined && (
-                        <span className="absolute inset-0 flex items-center justify-center font-display text-[10px] uppercase tracking-wider text-[var(--color-ink)]">
+                        <span className="font-display text-[10px] uppercase tracking-wider text-[var(--color-ink)]">
                           {pathOrder + 1}
                         </span>
                       )}
                       {isGhost && (
-                        <span className="absolute inset-0 flex items-center justify-center font-display text-[9px] uppercase text-[var(--color-wine-dark)]/70">
+                        <span className="font-display text-[9px] uppercase text-[var(--color-wine-dark)]/70">
                           ✕
                         </span>
                       )}
-                    </div>
+                    </RarityBadge>
                   </td>
                 );
               })}
@@ -430,11 +429,9 @@ function Code({ children }: { children: ReactNode }) {
 
 function Band({ r, children }: { r: Rarity; children: ReactNode }) {
   return (
-    <span
-      className={`inline-block rounded-sm border border-[var(--color-wine-dark)]/20 px-1.5 py-0 font-display text-[10px] uppercase tracking-wider text-[var(--color-ink)] ${TIER_BG[r]}`}
-    >
+    <RarityBadge rarity={r} size="sm" variant="inline">
       {children}
-    </span>
+    </RarityBadge>
   );
 }
 

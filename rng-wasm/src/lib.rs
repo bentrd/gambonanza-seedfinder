@@ -334,14 +334,25 @@ fn matches_gambit_filter(
     false
 }
 
-#[wasm_bindgen]
-pub fn search_range(
+/// Inner search loop, shared by `search_range` and `search_paginated`.
+/// Iterates seeds in [seed_start, seed_end), writes matches to `out_buf`
+/// up to the per-call `match_cap`, and returns `(matches_written,
+/// next_seed_to_scan)` — the second value is the resume cursor for the
+/// paginated entry point.
+///
+/// `seed_end == 0` is a sentinel meaning "no upper bound" — keep
+/// scanning until the cursor wraps off the top of the u32 space.
+/// (Necessary because the seed space is 2^32 which doesn't fit in u32,
+/// so JS can't pass the true upper bound through wasm-bindgen.)
+#[inline(always)]
+fn search_inner(
     seed_start: u32,
     seed_end: u32,
     filters: &[u32],
     out_buf: &mut [u32],
-) -> u32 {
-    if filters.is_empty() { return 0; }
+    match_cap: u32,
+) -> (u32, u32) {
+    if filters.is_empty() { return (0, seed_start); }
     let f0 = filters[0];
     let unordered = (f0 >> 12) & 1 != 0;
     let has_gambit = (f0 >> 13) & 1 != 0;
@@ -373,10 +384,13 @@ pub fn search_range(
         FULL_POOLS
     };
 
-    let cap = out_buf.len();
-    let mut written = 0usize;
+    let buf_cap = out_buf.len() as u32;
+    let cap = if match_cap == 0 { buf_cap } else { match_cap.min(buf_cap) };
+    let bounded = seed_end != 0;
+    let mut written: u32 = 0;
     let mut seed = seed_start;
-    while seed < seed_end && written < cap {
+    while written < cap {
+        if bounded && seed >= seed_end { break; }
         let starters = simulate_starters(seed);
         if matches_starters(starters, f0, unordered) {
             let pass_gach = num_gach == 0 || matches_gachapons(seed, filters, num_gach);
@@ -384,15 +398,51 @@ pub fn search_range(
                 let pass_gambit = !has_gambit
                     || matches_gambit_filter(seed, gambit_max, gambit_targets, &pools);
                 if pass_gambit {
-                    out_buf[written] = seed;
+                    out_buf[written as usize] = seed;
                     written += 1;
                 }
             }
         }
         seed = seed.wrapping_add(1);
-        if seed == 0 && seed_start != 0 { break; } // u32 wraparound guard
+        if seed == 0 && seed_start != 0 {
+            // u32 wraparound — we've finished the entire seed space.
+            return (written, 0);
+        }
     }
-    written as u32
+    (written, seed)
+}
+
+/// Full-range scan. Returns number of matches written to `out_buf`. The
+/// `out_buf` size is the only cap. Existing callers (the vitest suite)
+/// continue to use this entry point.
+#[wasm_bindgen]
+pub fn search_range(
+    seed_start: u32,
+    seed_end: u32,
+    filters: &[u32],
+    out_buf: &mut [u32],
+) -> u32 {
+    let (written, _) = search_inner(seed_start, seed_end, filters, out_buf, 0);
+    written
+}
+
+/// Paginated scan — stops once either `out_buf` fills OR `match_cap`
+/// matches have been written, whichever comes first. Returns a 2-element
+/// vec `[matches_written, resume_cursor]`. `resume_cursor` is the next
+/// seed to scan (== `seed_end` if the range was exhausted; == `0` if the
+/// scan walked off the top of the u32 space).
+#[wasm_bindgen]
+pub fn search_paginated(
+    seed_start: u32,
+    seed_end: u32,
+    filters: &[u32],
+    out_buf: &mut [u32],
+    match_cap: u32,
+) -> Vec<u32> {
+    let (written, cursor) = search_inner(
+        seed_start, seed_end, filters, out_buf, match_cap,
+    );
+    vec![written, cursor]
 }
 
 /// Per-seed inspector: returns the 3 gambit pool indices for the gachapon

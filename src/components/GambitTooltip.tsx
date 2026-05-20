@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { Gambit } from "../rng";
 import { gambitDisplayName } from "../rng";
-import { TIER_BG } from "../rng/rarityColors";
+import { RarityBadge } from "./ui/RarityBadge";
 
 interface GambitTooltipProps {
   gambit: Gambit;
@@ -115,11 +115,7 @@ export function GambitTooltip({ gambit, children }: GambitTooltipProps) {
               <span className="font-display text-[12px] uppercase tracking-wider text-[var(--color-wine)]">
                 {name}
               </span>
-              <span
-                className={`inline-block rounded-md border-2 border-[var(--color-ink)] px-1.5 py-0 font-display text-[9px] uppercase tracking-wider text-[var(--color-ink)] ${TIER_BG[gambit.rarity]}`}
-              >
-                {gambit.rarity.toLowerCase()}
-              </span>
+              <RarityBadge rarity={gambit.rarity} size="xs" />
             </div>
             <div className="whitespace-pre-line text-[var(--color-wine-dark)]/95">
               {renderUnityRichText(gambit.description)}
@@ -132,12 +128,19 @@ export function GambitTooltip({ gambit, children }: GambitTooltipProps) {
 }
 
 /**
- * Minimal renderer for the Unity rich-text tags that appear in gambit
- * descriptions:
+ * Renderer for the Unity / TextMeshPro rich-text tags that appear in
+ * gambit descriptions. Handles the union actually observed across all
+ * 200 gambits:
  *
- *   <br>                 → newline (rendered via whitespace-pre-line)
- *   <color=X>…</color>   → highlighted span
- *   <sprite=N>           → small bracketed "icon" placeholder
+ *   <br>                  → newline (rendered via whitespace-pre-line)
+ *   <sprite=N>            → small "icon" placeholder
+ *   <color=X>…</color>    → bolded wine span (X is a palette glyph)
+ *   <rainb l=…>…</rainb>  → rainbow gradient text (PROMOTE callouts)
+ *   <wave>…</wave>        → emphasised callout (TMP would animate it)
+ *   <shake>…</shake>      → emphasised callout
+ *   <i>…</i>              → italic
+ *
+ * Anything else falls through as literal text.
  */
 function renderUnityRichText(src: string): ReactNode[] {
   const out: ReactNode[] = [];
@@ -154,50 +157,190 @@ function renderUnityRichText(src: string): ReactNode[] {
     if (tag.kind === "br") {
       out.push("\n");
       i = tag.end;
-    } else if (tag.kind === "color-open") {
-      const close = src.indexOf("</color>", tag.end);
+    } else if (tag.kind === "sprite") {
+      // <sprite=N> — render the matching TMP atlas icon (extracted to
+      // public/game/tmp-icons/<N>.png by extract_gambits.py).
+      const idxMatch = src.slice(tag.start, tag.end).match(/sprite=(\d+)/i);
+      const idx = idxMatch ? parseInt(idxMatch[1], 10) : -1;
+      out.push(<SpriteIcon key={`s${key++}`} idx={idx} />);
+      i = tag.end;
+    } else {
+      // paired tag — find matching `</name>` and recurse on the inner.
+      const closeTag = `</${tag.name}>`;
+      const close = src.toLowerCase().indexOf(closeTag, tag.end);
       if (close === -1) {
         out.push(src.slice(tag.end));
         break;
       }
       const inner = src.slice(tag.end, close);
       out.push(
-        <span key={`c${key++}`} className="font-bold text-[var(--color-wine)]">
+        <PairedSpan key={`p${key++}`} name={tag.name}>
           {renderUnityRichText(inner)}
-        </span>,
+        </PairedSpan>,
       );
-      i = close + "</color>".length;
-    } else {
-      out.push(
-        <span
-          key={`s${key++}`}
-          className="mx-0.5 inline-block rounded-sm bg-[var(--color-cream-soft)] px-1 text-[9px] uppercase tracking-wider text-[var(--color-wine-dark)]/60"
-        >
-          icon
-        </span>,
-      );
-      i = tag.end;
+      i = close + closeTag.length;
     }
   }
   return out;
 }
 
+const PAIRED_TAGS = new Set(["color", "rainb", "wave", "shake", "i"]);
+
 type Tag =
   | { kind: "br"; start: number; end: number }
-  | { kind: "color-open"; start: number; end: number }
-  | { kind: "sprite"; start: number; end: number };
+  | { kind: "sprite"; start: number; end: number }
+  | { kind: "paired"; name: string; start: number; end: number };
 
 function nextTag(src: string, from: number): Tag | null {
-  const re = /<(br\s*\/?|color=[^>]*|sprite=[^>]*)>/gi;
+  // Matches any tag: <name>, <name=…>, <name attr=…>, <name/>. We tolerate
+  // `=` directly after the name (e.g. <color=ß>, <sprite=7>) and arbitrary
+  // attribute soup up to the closing `>`.
+  const re = /<([a-zA-Z][a-zA-Z0-9]*)[^>]*>/g;
   re.lastIndex = from;
-  const m = re.exec(src);
-  if (!m) return null;
-  const body = m[1].toLowerCase();
-  if (body.startsWith("br")) {
-    return { kind: "br", start: m.index, end: m.index + m[0].length };
+  while (true) {
+    const m = re.exec(src);
+    if (!m) return null;
+    const name = m[1].toLowerCase();
+    const start = m.index;
+    const end = m.index + m[0].length;
+    if (name === "br") return { kind: "br", start, end };
+    if (name === "sprite") return { kind: "sprite", start, end };
+    if (PAIRED_TAGS.has(name)) return { kind: "paired", name, start, end };
+    // Unknown tag — skip silently and keep scanning so we don't render the
+    // literal text. Closing tags (e.g. </color>) fall here too; the matching
+    // paired branch above eats them via indexOf on the close-tag string.
+    re.lastIndex = end;
   }
-  if (body.startsWith("color=")) {
-    return { kind: "color-open", start: m.index, end: m.index + m[0].length };
+}
+
+function PairedSpan({
+  name,
+  children,
+}: {
+  name: string;
+  children: ReactNode;
+}) {
+  switch (name) {
+    case "color":
+      return (
+        <span className="font-bold text-[var(--color-wine)]">{children}</span>
+      );
+    case "rainb":
+      return <RainbowBop>{children}</RainbowBop>;
+    case "wave":
+    case "shake":
+      return (
+        <span className="font-bold text-[var(--color-wine-light)]">
+          {children}
+        </span>
+      );
+    case "i":
+      return <em>{children}</em>;
+    default:
+      return <>{children}</>;
   }
-  return { kind: "sprite", start: m.index, end: m.index + m[0].length };
+}
+
+// Roughly evenly-spaced ROYGBIV hues. Hand-tuned so each char in a short
+// word (e.g. "PROMOTION", 9 chars) gets visibly different colors without
+// looking electric.
+const RAINBOW_HUES = [
+  "#e53935", // red
+  "#f4801f", // orange
+  "#f4c530", // yellow
+  "#7fb857", // green
+  "#3aa0bf", // teal
+  "#5e6cd6", // indigo
+  "#a35bd6", // violet
+];
+
+/**
+ * Renders Unity `<rainb>` content as a per-character animation: rainbow
+ * fill + a staggered vertical "hola" bop wave. Children are expected to
+ * be plain strings (true for every gambit in our data); any non-string
+ * node renders inline unchanged at the same point in the sequence.
+ */
+function RainbowBop({ children }: { children: ReactNode }) {
+  // Flatten children to a sequence of (str | ReactNode) and count chars
+  // so the bop wave stays continuous across the whole content.
+  const nodes: ReactNode[] = [];
+  let charIdx = 0;
+  const items = Array.isArray(children) ? children : [children];
+  for (const item of items) {
+    if (typeof item === "string" || typeof item === "number") {
+      const s = String(item);
+      for (let k = 0; k < s.length; k++) {
+        const ch = s[k];
+        if (ch === " " || ch === " ") {
+          // Spaces don't need spans, but still advance the wave so the
+          // crest visually "passes over" them.
+          nodes.push(ch);
+          charIdx++;
+          continue;
+        }
+        nodes.push(
+          <span
+            key={`rb${charIdx}`}
+            className="rainb-char"
+            style={{
+              color: RAINBOW_HUES[charIdx % RAINBOW_HUES.length],
+              animationDelay: `${charIdx * 60}ms`,
+            }}
+          >
+            {ch}
+          </span>,
+        );
+        charIdx++;
+      }
+    } else {
+      nodes.push(item);
+    }
+  }
+  return <span className="inline">{nodes}</span>;
+}
+
+// Native pixel dimensions of each TMP atlas sprite (from the extracted
+// PNGs). Used to compute the inline icon's width while pinning its
+// height — same approach as PieceIcon — so nothing renders stretched.
+const TMP_SPRITE_DIMS: Record<number, { w: number; h: number }> = {
+  0:  { w: 250, h: 273 },  // BLESS tile
+  1:  { w: 250, h: 273 },  // GOLDEN tile
+  2:  { w: 250, h: 273 },  // PROTECTIVE tile
+  3:  { w: 250, h: 273 },  // TRAP tile
+  4:  { w: 209, h: 253 },  // unused (Mouse)
+  5:  { w: 185, h: 206 },  // PAWN
+  6:  { w: 185, h: 228 },  // ROOK
+  7:  { w: 207, h: 239 },  // KNIGHT
+  8:  { w: 184, h: 282 },  // BISHOP
+  9:  { w: 206, h: 218 },  // KING
+  10: { w: 249, h: 228 },  // QUEEN
+  11: { w: 143, h: 284 },  // THREATEN ('!')
+  12: { w: 251, h: 273 },  // PHANTOM
+  13: { w: 249, h: 272 },  // unused
+};
+
+const TMP_ICON_HEIGHT = 18; // px
+
+function SpriteIcon({ idx }: { idx: number }) {
+  const dim = TMP_SPRITE_DIMS[idx];
+  if (!dim) {
+    return (
+      <span className="mx-0.5 inline-block rounded-sm bg-[var(--color-cream-soft)] px-1 text-[9px] uppercase tracking-wider text-[var(--color-wine-dark)]/60">
+        ?{idx}
+      </span>
+    );
+  }
+  const base = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+  const h = TMP_ICON_HEIGHT;
+  const w = Math.round((dim.w / dim.h) * h);
+  return (
+    <img
+      src={`${base}/game/tmp-icons/${idx}.png`}
+      alt=""
+      width={w}
+      height={h}
+      className="pixel mx-0.5 inline-block align-text-bottom"
+      draggable={false}
+    />
+  );
 }

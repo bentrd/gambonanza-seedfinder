@@ -7,7 +7,7 @@ import { defaultGachapon } from "../search/encode";
 import { ChipButton } from "./ui/Chip";
 import { IconButton } from "./ui/IconButton";
 import { InfoTooltip } from "./ui/InfoTooltip";
-import { RarityChip } from "./ui/RarityChip";
+import { RarityBadge } from "./ui/RarityBadge";
 import { SectionHeader } from "./ui/SectionHeader";
 import { Stepper } from "./ui/Stepper";
 import { TrashIcon } from "./ui/TrashIcon";
@@ -107,14 +107,14 @@ function GachaponRow({ index, filter, onChange, onRemove }: GachaponRowProps) {
         </span>
         <div className="flex flex-wrap gap-1">
           {TIER_OPTIONS.map((o) => (
-            <RarityChip
+            <RarityBadge
               key={o.value}
-              tier={o.value}
+              rarity={o.value}
               active={o.value === currentTier}
               onClick={() => setTier(o.value)}
             >
               {o.label}
-            </RarityChip>
+            </RarityBadge>
           ))}
         </div>
       </div>

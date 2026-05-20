@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CRTOverlay } from "./components/CRTOverlay";
+import { FilterChangeConfirmModal } from "./components/FilterChangeConfirmModal";
 import { GachaponGrid } from "./components/GachaponGrid";
 import { GambitPicker } from "./components/GambitPicker";
 import { GambitUnlocksModal } from "./components/GambitUnlocksModal";
@@ -10,9 +11,16 @@ import { StarterPicker } from "./components/StarterPicker";
 import { ChipLink } from "./components/ui/Chip";
 import { defaultGambitFilter } from "./search/encode";
 import { SearchManager } from "./search/searchManager";
-import type { GachaponFilter, GambitFilter, StarterFilter } from "./search/types";
+import type {
+  GachaponFilter,
+  GambitFilter,
+  StarterFilter,
+} from "./search/types";
 
 const EXCLUDED_LS_KEY = "gambonanza:excluded-gambits";
+const RESET_WARN_LS_KEY = "gambonanza:skip-reset-warning";
+const RESULTS_FLUSH_INTERVAL_MS = 100;
+const BATCH_SIZE = 100;
 
 function loadExcludedFromStorage(): string[] {
   if (typeof localStorage === "undefined") return [];
@@ -35,9 +43,20 @@ function persistExcluded(ids: readonly string[]): void {
   }
 }
 
-const RESULTS_BATCH_INTERVAL = 100;
-const MAX_RESULTS_KEPT = 1000;
-const DEFAULT_WORKER_COUNT = 4;
+function loadSkipResetWarning(): boolean {
+  if (typeof localStorage === "undefined") return false;
+  return localStorage.getItem(RESET_WARN_LS_KEY) === "1";
+}
+
+function persistSkipResetWarning(skip: boolean): void {
+  if (typeof localStorage === "undefined") return;
+  try {
+    if (skip) localStorage.setItem(RESET_WARN_LS_KEY, "1");
+    else localStorage.removeItem(RESET_WARN_LS_KEY);
+  } catch {
+    // ignore
+  }
+}
 
 const initialStarter: StarterFilter = {
   slots: ["QUEEN", "QUEEN", "QUEEN"],
@@ -53,36 +72,45 @@ export function App() {
   }));
   const [unlocksOpen, setUnlocksOpen] = useState(false);
 
+  // --- search state ---
   const [results, setResults] = useState<number[]>([]);
-  const [active, setActive] = useState(false);
-  const [scanned, setScanned] = useState(0);
+  const [hasSearched, setHasSearched] = useState(false);
+  /** True between a `start`/`requestNext` call and the matching `paused`/`exhausted`. */
+  const [fetching, setFetching] = useState(false);
+  const [exhausted, setExhausted] = useState(false);
   const [matched, setMatched] = useState(0);
-  const [total, setTotal] = useState(0);
+  const [scanned, setScanned] = useState(0);
+  const [target, setTarget] = useState(0);
   const [rate, setRate] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
+  // --- filter-change confirmation modal ---
+  const [pendingChange, setPendingChange] = useState<(() => void) | null>(null);
+  const [skipResetWarning, setSkipResetWarning] = useState<boolean>(
+    loadSkipResetWarning,
+  );
+
+  // --- refs ---
   const managerRef = useRef<SearchManager | null>(null);
   const resultBufferRef = useRef<number[]>([]);
   const flushTimerRef = useRef<number | null>(null);
   const startTimeRef = useRef(0);
 
+  /** Drain `resultBufferRef` into `results` state on a debounced timer. */
   const flushResults = useCallback(() => {
     flushTimerRef.current = null;
     if (resultBufferRef.current.length === 0) return;
     const incoming = resultBufferRef.current;
     resultBufferRef.current = [];
-    setResults((prev) => {
-      const merged = prev.concat(incoming);
-      if (merged.length > MAX_RESULTS_KEPT) {
-        return merged.slice(0, MAX_RESULTS_KEPT);
-      }
-      return merged;
-    });
+    setResults((prev) => prev.concat(incoming));
   }, []);
 
   const scheduleFlush = useCallback(() => {
     if (flushTimerRef.current !== null) return;
-    flushTimerRef.current = window.setTimeout(flushResults, RESULTS_BATCH_INTERVAL);
+    flushTimerRef.current = window.setTimeout(
+      flushResults,
+      RESULTS_FLUSH_INTERVAL_MS,
+    );
   }, [flushResults]);
 
   const stopSearch = useCallback(() => {
@@ -93,7 +121,7 @@ export function App() {
       flushTimerRef.current = null;
     }
     flushResults();
-    setActive(false);
+    setFetching(false);
   }, [flushResults]);
 
   const startSearch = useCallback(() => {
@@ -103,38 +131,89 @@ export function App() {
     setError(null);
     setScanned(0);
     setMatched(0);
-    setTotal(0);
+    setTarget(BATCH_SIZE);
     setRate(0);
+    setExhausted(false);
+    setHasSearched(true);
+    setFetching(true);
     startTimeRef.current = performance.now();
-    setActive(true);
 
     const manager = new SearchManager({
-      workerCount: DEFAULT_WORKER_COUNT,
+      batchSize: BATCH_SIZE,
       onResult: (seeds) => {
-        if (resultBufferRef.current.length < MAX_RESULTS_KEPT) {
-          resultBufferRef.current.push(...seeds);
-          scheduleFlush();
-        }
+        resultBufferRef.current.push(...seeds);
+        scheduleFlush();
       },
-      onProgress: (s, m, t) => {
-        setScanned(s);
-        setMatched(m);
-        setTotal(t);
+      onProgress: (state) => {
+        setMatched(state.matched);
+        setScanned(state.scanned);
+        setTarget(state.target);
         const elapsed = (performance.now() - startTimeRef.current) / 1000;
-        setRate(elapsed > 0 ? s / elapsed : 0);
+        setRate(elapsed > 0 ? state.scanned / elapsed : 0);
       },
-      onDone: () => {
+      onPaused: () => {
         flushResults();
-        setActive(false);
+        setFetching(false);
+      },
+      onExhausted: () => {
+        flushResults();
+        setExhausted(true);
+        setFetching(false);
       },
       onError: (msg) => {
         setError(msg);
-        setActive(false);
+        setFetching(false);
       },
     });
     managerRef.current = manager;
     manager.start({ starter, gachapons, gambits });
   }, [starter, gachapons, gambits, flushResults, scheduleFlush, stopSearch]);
+
+  const requestMore = useCallback(() => {
+    if (!managerRef.current || exhausted || fetching) return;
+    setFetching(true);
+    startTimeRef.current = performance.now();
+    managerRef.current.requestNext();
+  }, [exhausted, fetching]);
+
+  // --- filter change guard ---
+  /**
+   * Wraps an arbitrary filter mutation in a confirmation gate. If a
+   * search has already produced results, we ask the user before
+   * blowing the table away. The "never show again" flag in
+   * localStorage bypasses the modal entirely.
+   */
+  const guardFilterChange = useCallback(
+    (apply: () => void) => {
+      const hasState = hasSearched && (results.length > 0 || fetching);
+      if (!hasState || skipResetWarning) {
+        apply();
+        if (managerRef.current) {
+          // A search was running or finished — drop it so the user gets a
+          // fresh batch on next "Search!" click.
+          stopSearch();
+          setHasSearched(false);
+          setResults([]);
+          setMatched(0);
+          setScanned(0);
+          setTarget(0);
+          setExhausted(false);
+        }
+        return;
+      }
+      setPendingChange(() => () => {
+        apply();
+        stopSearch();
+        setHasSearched(false);
+        setResults([]);
+        setMatched(0);
+        setScanned(0);
+        setTarget(0);
+        setExhausted(false);
+      });
+    },
+    [hasSearched, results.length, fetching, skipResetWarning, stopSearch],
+  );
 
   useEffect(() => {
     return () => {
@@ -169,30 +248,21 @@ export function App() {
 
           <StarterPicker
             value={starter}
-            onChange={(next) => {
-              setStarter(next);
-              if (active) stopSearch();
-            }}
+            onChange={(next) => guardFilterChange(() => setStarter(next))}
           />
 
           <GachaponGrid
             value={gachapons}
-            onChange={(next) => {
-              setGachapons(next);
-              if (active) stopSearch();
-            }}
+            onChange={(next) => guardFilterChange(() => setGachapons(next))}
           />
 
           <GambitPicker
             value={gambits}
-            onChange={(next) => {
-              setGambits(next);
-              if (active) stopSearch();
-            }}
+            onChange={(next) => guardFilterChange(() => setGambits(next))}
             onOpenUnlocks={() => setUnlocksOpen(true)}
           />
 
-          {!active ? (
+          {!fetching ? (
             <button
               type="button"
               onClick={startSearch}
@@ -210,14 +280,17 @@ export function App() {
             </button>
           )}
 
-          <SearchStatus
-            active={active}
-            scanned={scanned}
-            matched={matched}
-            total={total}
-            rate={rate}
-            onCancel={stopSearch}
-          />
+          {hasSearched && (
+            <SearchStatus
+              fetching={fetching}
+              exhausted={exhausted}
+              matched={matched}
+              target={target}
+              scanned={scanned}
+              rate={rate}
+              onCancel={stopSearch}
+            />
+          )}
 
           {error && (
             <div className="rounded-lg border-2 border-[var(--color-ink)] bg-[var(--color-wine)] px-3 py-2 text-xs uppercase tracking-wider text-[var(--color-cream)]">
@@ -237,12 +310,11 @@ export function App() {
             seeds={results}
             gachaponFilters={gachapons}
             gambitFilter={gambits}
+            fetching={fetching}
+            exhausted={exhausted}
+            hasSearched={hasSearched}
+            onLoadMore={requestMore}
           />
-          {results.length >= MAX_RESULTS_KEPT && (
-            <p className="mt-3 text-center text-[11px] uppercase tracking-wider text-[var(--color-wine-dark)]/70">
-              Showing first {MAX_RESULTS_KEPT} matches
-            </p>
-          )}
         </main>
       </div>
 
@@ -255,10 +327,25 @@ export function App() {
         excludedIds={gambits.excludedIds}
         onChange={(excludedIds) => {
           persistExcluded(excludedIds);
-          setGambits((g) => ({ ...g, excludedIds }));
-          if (active) stopSearch();
+          guardFilterChange(() =>
+            setGambits((g) => ({ ...g, excludedIds })),
+          );
         }}
         onClose={() => setUnlocksOpen(false)}
+      />
+
+      <FilterChangeConfirmModal
+        open={pendingChange !== null}
+        skipNextTime={skipResetWarning}
+        onSkipNextTimeChange={(next) => {
+          setSkipResetWarning(next);
+          persistSkipResetWarning(next);
+        }}
+        onConfirm={() => {
+          pendingChange?.();
+          setPendingChange(null);
+        }}
+        onCancel={() => setPendingChange(null)}
       />
     </div>
   );

@@ -7,10 +7,10 @@ import {
   gambitSpriteUrl,
   getGambits,
 } from "../rng";
-import { TIER_BG } from "../rng/rarityColors";
 import { GambitTooltip } from "./GambitTooltip";
 import { ChipButton } from "./ui/Chip";
 import { PixelToggle } from "./ui/PixelToggle";
+import { RarityBadge } from "./ui/RarityBadge";
 
 interface GambitUnlocksModalProps {
   open: boolean;
@@ -202,11 +202,7 @@ function RaritySection({
   return (
     <div className="space-y-1.5">
       <div className="flex items-center gap-2 px-1">
-        <span
-          className={`inline-block rounded-md border-2 border-[var(--color-ink)] px-2 py-0.5 font-display text-[10px] uppercase tracking-wider text-[var(--color-ink)] ${TIER_BG[rarity]}`}
-        >
-          {rarity.toLowerCase()}
-        </span>
+        <RarityBadge rarity={rarity} size="sm" />
         <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-wine-dark)]/60">
           {unlockedHere} / {gambits.length}
         </span>
