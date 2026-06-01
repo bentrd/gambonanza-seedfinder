@@ -15,6 +15,7 @@ async function loadWasm(): Promise<void> {
 
 const NO_GAMBITS = {
   targets: [] as string[],
+  matchMode: "any" as const,
   maxGachapons: 5,
   excludedIds: [] as string[],
 };

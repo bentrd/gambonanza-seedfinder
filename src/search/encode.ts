@@ -53,6 +53,7 @@ export function encodeFilters(filters: SearchFilters): Uint32Array {
     if (w !== null) gambitTargets.push(w);
   }
   const hasGambit = gambitTargets.length > 0;
+  const gambitMatchAll = filters.gambits.matchMode === "all";
   const gambitSectionLen = hasGambit ? 1 + gambitTargets.length : 0;
 
   const excluded: number[] = [];
@@ -79,6 +80,7 @@ export function encodeFilters(filters: SearchFilters): Uint32Array {
   header |= (filters.starter.unordered ? 1 : 0) << 12;
   header |= (hasGambit ? 1 : 0) << 13;
   header |= (hasExcl ? 1 : 0) << 14;
+  header |= (hasGambit && gambitMatchAll ? 1 : 0) << 15;
   header |= (numGach & 0xff) << 16;
   if (hasGambit) {
     const maxGach = clamp(filters.gambits.maxGachapons, 1, 32);
@@ -120,7 +122,7 @@ export function encodeFilters(filters: SearchFilters): Uint32Array {
 }
 
 export function defaultGambitFilter(): GambitFilter {
-  return { targets: [], maxGachapons: 5, excludedIds: [] };
+  return { targets: [], matchMode: "any", maxGachapons: 5, excludedIds: [] };
 }
 
 function clamp(v: number, lo: number, hi: number): number {

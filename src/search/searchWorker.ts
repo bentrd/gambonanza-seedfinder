@@ -16,6 +16,12 @@ const U32_RANGE = 0x100000000;
  *  end of the u32 space". The Rust kernel handles this explicitly. */
 const NO_END: number = 0;
 const PROGRESS_INTERVAL_MS = 150;
+/**
+ * Bound each WASM scan call so restrictive filters still yield progress.
+ * Without this, a no-hit stretch can keep Rust inside one unbounded call
+ * for millions/billions of seeds, leaving the UI stuck at "0 scanned".
+ */
+const SCAN_CHUNK_SIZE = 262_144;
 
 const ctx = self as unknown as DedicatedWorkerGlobalScope;
 
@@ -97,7 +103,13 @@ async function runBatch(targetTotal: number): Promise<void> {
 
   while (s.matched < targetTotal && !s.exhausted && !stopRequested) {
     const remaining = targetTotal - s.matched;
-    const r = search_paginated(s.cursor, NO_END, s.filters, out, remaining);
+    const r = search_paginated(
+      s.cursor,
+      nextChunkEnd(s.cursor),
+      s.filters,
+      out,
+      remaining,
+    );
     const written = r[0];
     const nextCursor = r[1];
     const scannedNow = computeScanned(s.cursor, nextCursor);
@@ -151,6 +163,11 @@ async function runBatch(targetTotal: number): Promise<void> {
  * Scanned-seed count for a single kernel call. Handles the rare case
  * where the cursor wraps to 0 after sweeping the whole u32 space.
  */
+function nextChunkEnd(cursor: number): number {
+  const end = cursor + SCAN_CHUNK_SIZE;
+  return end >= U32_RANGE ? NO_END : end >>> 0;
+}
+
 function computeScanned(prevCursor: number, nextCursor: number): number {
   if (nextCursor === 0 && prevCursor !== 0) {
     return U32_RANGE - prevCursor;

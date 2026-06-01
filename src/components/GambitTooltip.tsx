@@ -109,10 +109,7 @@ export function GambitTooltip({ gambit, children }: GambitTooltipProps) {
   }, []);
 
   useLayoutEffect(() => {
-    if (!open) {
-      setPos(null);
-      return;
-    }
+    if (!open) return;
     place();
     const onMove = () => place();
     window.addEventListener("scroll", onMove, true);

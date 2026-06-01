@@ -84,13 +84,13 @@ export function ResultsTable({
 
       {/* Desktop: dense table. */}
       <div className="hidden overflow-hidden rounded-lg border-2 border-[var(--color-ink)] sm:block">
-        <div className="max-h-[70vh] overflow-y-auto">
-          <table className="w-full text-sm text-[var(--color-wine-dark)]">
+        <div className="max-h-[70vh] overflow-y-auto overflow-x-hidden">
+          <table className="w-full table-fixed text-sm text-[var(--color-wine-dark)]">
             <thead className="sticky top-0 z-10 bg-[var(--color-wine)] text-[11px] uppercase tracking-wider text-[var(--color-cream)] shadow-[0_2px_0_0_var(--color-ink)]">
               <tr>
-                <th className="px-3 py-2 text-left">Seed</th>
-                <th className="px-3 py-2 text-left">Starters</th>
-                <th className="px-3 py-2 text-left">
+                <th className="w-28 px-3 py-2 text-left">Seed</th>
+                <th className="w-28 px-3 py-2 text-left">Starters</th>
+                <th className="w-64 px-3 py-2 text-left">
                   <span className="block font-display lowercase">
                     trajectory
                   </span>
@@ -108,7 +108,7 @@ export function ResultsTable({
                     </span>
                   </th>
                 ))}
-                <th className="w-8"></th>
+                <th className="w-12"></th>
               </tr>
             </thead>
             <tbody>
@@ -218,6 +218,7 @@ function ResultCard({
         <div className="border-t-2 border-[var(--color-cream-soft)] bg-[var(--color-cream-light)] px-3 py-3">
           <Inspector
             seed={seed}
+            gachaponFilters={gachaponFilters}
             gambitFilter={gambitFilter}
             excludedBytes={excludedBytes}
           />
@@ -356,9 +357,10 @@ function ResultRow({
       </tr>
       {open && (
         <tr className="border-t-2 border-[var(--color-cream-soft)] bg-[var(--color-cream-light)]">
-          <td colSpan={gachaponFilters.length + 4} className="px-3 py-3">
+          <td colSpan={gachaponFilters.length + 4} className="max-w-0 px-3 py-3">
             <Inspector
               seed={seed}
+              gachaponFilters={gachaponFilters}
               gambitFilter={gambitFilter}
               excludedBytes={excludedBytes}
             />
@@ -371,25 +373,65 @@ function ResultRow({
 
 function Inspector({
   seed,
+  gachaponFilters,
   gambitFilter,
   excludedBytes,
 }: {
   seed: number;
+  gachaponFilters: GachaponFilter[];
   gambitFilter: GambitFilter;
   excludedBytes: Uint32Array;
 }) {
   const starters = simulateStarters(seed);
-  const waves = [1, 2, 3, 4, 5, 6, 7, 8];
-  const counters = [0, 1, 2, 3, 4];
+  const hasGambitFilter = gambitFilter.targets.length > 0;
+  const maxGambitSpins = hasGambitFilter
+    ? Math.max(1, Math.min(32, gambitFilter.maxGachapons | 0))
+    : 5;
+  const explicitMaxWave = Math.max(0, ...gachaponFilters.map((g) => g.wave));
+  const explicitMaxCounter = Math.max(0, ...gachaponFilters.map((g) => g.counter));
+  const gambitTrajectoryWave = useMemo(
+    () => (hasGambitFilter ? lastWaveForGambitSpins(seed, maxGambitSpins) : 8),
+    [hasGambitFilter, maxGambitSpins, seed],
+  );
+  const waveCount = Math.max(8, explicitMaxWave, gambitTrajectoryWave);
+  const counterCount = Math.max(
+    5,
+    explicitMaxCounter + 1,
+    hasGambitFilter ? maxGambitSpins : 0,
+  );
+  const waves = useMemo(
+    () => Array.from({ length: waveCount }, (_, i) => i + 1),
+    [waveCount],
+  );
+  const counters = useMemo(
+    () => Array.from({ length: counterCount }, (_, i) => i),
+    [counterCount],
+  );
   const shopTokens = useMemo(
-    () => predictShopTokens(seed, waves.length),
-    // `waves` is a stable literal; only seed actually changes per row.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [seed],
+    () => predictShopTokens(seed, waveCount),
+    [seed, waveCount],
   );
   const targetIds = useMemo(
     () => new Set(gambitFilter.targets),
     [gambitFilter.targets],
+  );
+  const comboHighlights = useMemo(
+    () =>
+      gambitFilter.matchMode === "all"
+        ? buildComboHighlights(
+            seed,
+            gambitFilter.targets,
+            gambitFilter.maxGachapons,
+            excludedBytes,
+          )
+        : new Map<string, string>(),
+    [
+      excludedBytes,
+      gambitFilter.matchMode,
+      gambitFilter.maxGachapons,
+      gambitFilter.targets,
+      seed,
+    ],
   );
   /** `priorGambits[w]` = total GAMBIT slots in shops 1..w (inclusive).
    *  A cell at (wave W, counter C) is reachable iff wave W has a
@@ -460,6 +502,8 @@ function Inspector({
             priorGambits={priorGambits}
             excludedBytes={excludedBytes}
             targetIds={targetIds}
+            matchMode={gambitFilter.matchMode}
+            comboHighlights={comboHighlights}
           />
         </div>
       </div>
@@ -557,6 +601,78 @@ const TOKEN_LABEL: Record<TokenType, string> = {
   CHESS_PIECE: "wheel (piece)",
   TILE: "pachinko (tile)",
 };
+
+function lastWaveForGambitSpins(seed: number, maxSpins: number): number {
+  const target = Math.max(1, Math.min(32, maxSpins | 0));
+  const shops = predictShopTokens(seed, 32);
+  let spins = 0;
+  for (const shop of shops) {
+    spins += shop.gambitCount;
+    if (spins >= target) return shop.wave;
+  }
+  return 32;
+}
+
+function buildComboHighlights(
+  seed: number,
+  targetIds: readonly string[],
+  maxGachapons: number,
+  excludedBytes: Uint32Array,
+): Map<string, string> {
+  const targets = Array.from(new Set(targetIds));
+  if (targets.length === 0) return new Map();
+
+  const targetSet = new Set(targets);
+  const shops = predictShopTokens(seed, 32);
+  const spinOptions: { key: string; ids: string[] }[] = [];
+  const maxSpins = Math.max(1, Math.min(32, maxGachapons | 0));
+  let spin = 0;
+
+  for (const shop of shops) {
+    for (let i = 0; i < shop.gambitCount; i++) {
+      if (spin >= maxSpins) break;
+      const pick = predictGachaponAt(seed, shop.wave, spin, excludedBytes);
+      const ids = Array.from(
+        new Set(
+          pick.picks
+            .filter((g): g is Gambit => g !== null && targetSet.has(g.id))
+            .map((g) => g.id),
+        ),
+      );
+      spinOptions.push({ key: `${shop.wave}:${spin}`, ids });
+      spin++;
+    }
+    if (spin >= maxSpins) break;
+  }
+
+  const spinMatch = new Array<number>(spinOptions.length).fill(-1);
+  const augment = (targetIdx: number, seen: Set<number>): boolean => {
+    const target = targets[targetIdx];
+    for (let spinIdx = 0; spinIdx < spinOptions.length; spinIdx++) {
+      if (seen.has(spinIdx) || !spinOptions[spinIdx].ids.includes(target)) {
+        continue;
+      }
+      seen.add(spinIdx);
+      const current = spinMatch[spinIdx];
+      if (current === -1 || augment(current, seen)) {
+        spinMatch[spinIdx] = targetIdx;
+        return true;
+      }
+    }
+    return false;
+  };
+
+  for (let targetIdx = 0; targetIdx < targets.length; targetIdx++) {
+    if (!augment(targetIdx, new Set())) return new Map();
+  }
+
+  const out = new Map<string, string>();
+  for (let spinIdx = 0; spinIdx < spinMatch.length; spinIdx++) {
+    const targetIdx = spinMatch[spinIdx];
+    if (targetIdx !== -1) out.set(spinOptions[spinIdx].key, targets[targetIdx]);
+  }
+  return out;
+}
 
 /**
  * Inline trajectory preview rendered in each result row. Shows the
@@ -659,6 +775,8 @@ interface RollGridProps {
   priorGambits: readonly number[];
   excludedBytes: Uint32Array;
   targetIds: Set<string>;
+  matchMode: GambitFilter["matchMode"];
+  comboHighlights: Map<string, string>;
 }
 
 function RollGrid({
@@ -669,6 +787,8 @@ function RollGrid({
   priorGambits,
   excludedBytes,
   targetIds,
+  matchMode,
+  comboHighlights,
 }: RollGridProps) {
   // Build the set of trajectory cells `"shop:counter"` for spin-every.
   // Counter advances per GAMBIT slot, so a shop with 2 GAMBITs
@@ -698,24 +818,22 @@ function RollGrid({
       <div className="flex items-baseline gap-3 font-display text-xs uppercase tracking-wider">
         <span>Gachapon rolls</span>
         <span className="text-[10px] normal-case text-[var(--color-wine-dark)]/60">
-          rows = spin counter · cols = shop · hover for shop tokens + picks
+          rows = spin counter · cols = shop · scroll sideways for later shops
         </span>
       </div>
 
-      <div
-        className="grid w-full flex-1 gap-1 rounded-md border-2 border-[var(--color-ink)] bg-[var(--color-cream-light)] p-1.5 text-[10px] sm:gap-1.5 sm:p-2 sm:text-[11px]"
-        style={{
-          // Fluid cell columns (`minmax(0, 1fr)`) make the grid always
-          // fit its container width — no horizontal scroll on mobile,
-          // and at desktop the cells expand back to roughly the
-          // previous 2.75rem feel because the flex parent gives them
-          // plenty of room. The label column is a fixed-ish clamp so
-          // the spin-counter labels stay legible.
-          gridTemplateColumns: `clamp(1rem, 5vw, 2.25rem) repeat(${cols}, minmax(0, 1fr))`,
-          gridAutoRows: "minmax(1.5rem, 1fr)",
-        }}
-      >
-        {/* Header row */}
+      <div className="min-w-0 overflow-x-auto rounded-md pb-2">
+        <div
+          className="grid w-max min-w-full gap-1 rounded-md border-2 border-[var(--color-ink)] bg-[var(--color-cream-light)] p-1.5 text-[10px] sm:gap-1.5 sm:p-2 sm:text-[11px]"
+          style={{
+            // Keep cells readable as the relevant window grows. The
+            // wrapper scrolls horizontally instead of squashing 20–32
+            // shop columns into unreadable slivers.
+            gridTemplateColumns: `2.25rem repeat(${cols}, minmax(2.75rem, 3rem))`,
+            gridAutoRows: "minmax(1.75rem, auto)",
+          }}
+        >
+          {/* Header row */}
         <div className="px-1 pb-1 text-center font-display text-[10px] uppercase tracking-wider text-[var(--color-wine-dark)]/60">
           shop
         </div>
@@ -742,35 +860,38 @@ function RollGrid({
         })}
 
         {/* Body rows — one per counter value */}
-        {counters.map((c) => (
-          <Fragment key={c}>
-            <div className="flex items-center justify-center font-display text-[10px] uppercase tracking-wider text-[var(--color-wine-dark)]/60">
-              #{c}
-            </div>
-            {waves.map((w) => {
-              const roll = gachaponRoll(seed, w, c);
-              const tier = rarityTier(roll);
-              const shop = shopTokens[w - 1];
-              const priorMax = priorGambits[w - 1] ?? 0;
-              const onTrajectory = trajectory.has(`${w}:${c}`);
-              return (
-                <RollCell
-                  key={`${w}-${c}`}
-                  seed={seed}
-                  wave={w}
-                  counter={c}
-                  roll={roll}
-                  tier={tier}
-                  shop={shop}
-                  priorMax={priorMax}
-                  excludedBytes={excludedBytes}
-                  targetIds={targetIds}
-                  onTrajectory={onTrajectory}
-                />
-              );
-            })}
-          </Fragment>
-        ))}
+          {counters.map((c) => (
+            <Fragment key={c}>
+              <div className="flex items-center justify-center font-display text-[10px] uppercase tracking-wider text-[var(--color-wine-dark)]/60">
+                #{c}
+              </div>
+              {waves.map((w) => {
+                const roll = gachaponRoll(seed, w, c);
+                const tier = rarityTier(roll);
+                const shop = shopTokens[w - 1];
+                const priorMax = priorGambits[w - 1] ?? 0;
+                const onTrajectory = trajectory.has(`${w}:${c}`);
+                return (
+                  <RollCell
+                    key={`${w}-${c}`}
+                    seed={seed}
+                    wave={w}
+                    counter={c}
+                    roll={roll}
+                    tier={tier}
+                    shop={shop}
+                    priorMax={priorMax}
+                    excludedBytes={excludedBytes}
+                    targetIds={targetIds}
+                    matchMode={matchMode}
+                    comboTargetId={comboHighlights.get(`${w}:${c}`) ?? null}
+                    onTrajectory={onTrajectory}
+                  />
+                );
+              })}
+            </Fragment>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -790,8 +911,13 @@ interface RollCellProps {
    *  so the cell's picks reflect the user's locked pool. */
   excludedBytes: Uint32Array;
   /** Gambit IDs the user is searching for. Cells whose picks include
-   *  any of these get a yellow highlight. */
+   *  any of these get a yellow highlight in ANY mode. */
   targetIds: Set<string>;
+  matchMode: GambitFilter["matchMode"];
+  /** In ALL mode, the single target assigned to this gachapon by the
+   *  one-pick-per-spin combo matcher. Other selected picks in the same
+   *  offer are alternatives, not additional combo progress. */
+  comboTargetId: string | null;
   /** True if `(wave, counter)` is the player's natural spin position
    *  under the spin-every-GAMBIT trajectory. Cells on the trajectory
    *  get a chunkier border so the user sees the actual play path. */
@@ -823,6 +949,8 @@ function RollCell({
   priorMax,
   excludedBytes,
   targetIds,
+  matchMode,
+  comboTargetId,
   onTrajectory,
 }: RollCellProps) {
   const waveHasGambit = shop?.hasGambit ?? true;
@@ -838,8 +966,13 @@ function RollCell({
   );
 
   const cellPicks: (Gambit | null)[] = prediction?.picks ?? [];
-  const hitGambit = cellPicks.find((g) => g !== null && targetIds.has(g.id)) ?? null;
+  const hitGambit =
+    matchMode === "all"
+      ? cellPicks.find((g) => g !== null && g.id === comboTargetId) ?? null
+      : cellPicks.find((g) => g !== null && targetIds.has(g.id)) ?? null;
   const isTargetHit = hitGambit !== null;
+  const isHighlightedPick = (g: Gambit): boolean =>
+    matchMode === "all" ? g.id === comboTargetId : targetIds.has(g.id);
 
   const reason = !waveHasGambit
     ? "✕ no gachapon token in this wave's shop"
@@ -890,9 +1023,11 @@ function RollCell({
                 <li
                   key={i}
                   className={`flex items-center gap-1.5 rounded-sm px-1 py-0.5 ${
-                    targetIds.has(g.id)
+                    isHighlightedPick(g)
                       ? "bg-[var(--color-yellow)] text-[var(--color-ink)]"
-                      : ""
+                      : targetIds.has(g.id)
+                        ? "bg-[var(--color-cream-soft)]/60"
+                        : ""
                   }`}
                 >
                   {gambitSpriteUrl(g) && (

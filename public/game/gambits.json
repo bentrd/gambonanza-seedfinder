@@ -2635,10 +2635,10 @@
   },
   {
     "index": 169,
-    "poolIndex": 53,
+    "poolIndex": 37,
     "name": "Gambit_Trampoline",
     "id": "trampoline",
-    "rarity": "RARE",
+    "rarity": "EPIC",
     "focus": [
       "LANDING"
     ],
@@ -2650,7 +2650,7 @@
   },
   {
     "index": 170,
-    "poolIndex": 54,
+    "poolIndex": 53,
     "name": "Gambit_Trapper",
     "id": "trapper",
     "rarity": "RARE",
@@ -2665,7 +2665,7 @@
   },
   {
     "index": 171,
-    "poolIndex": 55,
+    "poolIndex": 54,
     "name": "Gambit_Trojan",
     "id": "trojan",
     "rarity": "RARE",
@@ -2701,7 +2701,7 @@
   },
   {
     "index": 173,
-    "poolIndex": 37,
+    "poolIndex": 38,
     "name": "Gambit_Valhalla",
     "id": "valhalla",
     "rarity": "EPIC",
@@ -2733,7 +2733,7 @@
   },
   {
     "index": 175,
-    "poolIndex": 56,
+    "poolIndex": 55,
     "name": "Gambit_Violet",
     "id": "violet",
     "rarity": "RARE",
@@ -2766,7 +2766,7 @@
   },
   {
     "index": 177,
-    "poolIndex": 38,
+    "poolIndex": 39,
     "name": "Gambit_Warlock",
     "id": "warlock",
     "rarity": "EPIC",
@@ -2798,7 +2798,7 @@
   },
   {
     "index": 179,
-    "poolIndex": 39,
+    "poolIndex": 40,
     "name": "Gambit_Whip",
     "id": "whip",
     "rarity": "EPIC",
@@ -2844,7 +2844,7 @@
   },
   {
     "index": 182,
-    "poolIndex": 40,
+    "poolIndex": 41,
     "name": "Gambit_WillOWisp",
     "id": "willOwisp",
     "rarity": "EPIC",
@@ -2859,7 +2859,7 @@
   },
   {
     "index": 183,
-    "poolIndex": 57,
+    "poolIndex": 56,
     "name": "Gambit_WinterHelmet",
     "id": "winterHelmet",
     "rarity": "RARE",
@@ -2876,7 +2876,7 @@
   },
   {
     "index": 184,
-    "poolIndex": 58,
+    "poolIndex": 57,
     "name": "Gambit_Witch",
     "id": "witch",
     "rarity": "RARE",
@@ -2908,7 +2908,7 @@
   },
   {
     "index": 186,
-    "poolIndex": 41,
+    "poolIndex": 42,
     "name": "Gambit_Yang",
     "id": "yin",
     "rarity": "EPIC",
@@ -2923,7 +2923,7 @@
   },
   {
     "index": 187,
-    "poolIndex": 42,
+    "poolIndex": 43,
     "name": "Gambit_Yin",
     "id": "yang",
     "rarity": "EPIC",
@@ -2938,7 +2938,7 @@
   },
   {
     "index": 188,
-    "poolIndex": 59,
+    "poolIndex": 58,
     "name": "Gambit_Zen",
     "id": "zen",
     "rarity": "RARE",
@@ -2954,7 +2954,7 @@
   },
   {
     "index": 189,
-    "poolIndex": 60,
+    "poolIndex": 59,
     "name": "Gambit_ZocmanTax",
     "id": "zocman-tax",
     "rarity": "RARE",
@@ -2970,7 +2970,7 @@
   },
   {
     "index": 190,
-    "poolIndex": 61,
+    "poolIndex": 60,
     "name": "Gambit_Bullet",
     "id": "bullet",
     "rarity": "RARE",
@@ -2985,7 +2985,7 @@
   },
   {
     "index": 191,
-    "poolIndex": 43,
+    "poolIndex": 44,
     "name": "Gambit_ChineseOpening",
     "id": "cn_opening",
     "rarity": "EPIC",
@@ -3016,7 +3016,7 @@
   },
   {
     "index": 193,
-    "poolIndex": 62,
+    "poolIndex": 61,
     "name": "Gambit_Enigma",
     "id": "enigma",
     "rarity": "RARE",
@@ -3046,7 +3046,7 @@
   },
   {
     "index": 195,
-    "poolIndex": 63,
+    "poolIndex": 62,
     "name": "Gambit_Beth",
     "id": "beth",
     "rarity": "RARE",
@@ -3062,7 +3062,7 @@
   },
   {
     "index": 196,
-    "poolIndex": 44,
+    "poolIndex": 45,
     "name": "Gambit_Goat",
     "id": "goat",
     "rarity": "EPIC",
@@ -3078,7 +3078,7 @@
   },
   {
     "index": 197,
-    "poolIndex": 45,
+    "poolIndex": 46,
     "name": "Gambit_Nemo",
     "id": "nemo",
     "rarity": "EPIC",
@@ -3093,7 +3093,7 @@
   },
   {
     "index": 198,
-    "poolIndex": 46,
+    "poolIndex": 47,
     "name": "Gambit_Anna",
     "id": "annaFamily",
     "rarity": "EPIC",
@@ -3108,7 +3108,7 @@
   },
   {
     "index": 199,
-    "poolIndex": 64,
+    "poolIndex": 63,
     "name": "Gambit_Dina",
     "id": "dina",
     "rarity": "RARE",

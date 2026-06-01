@@ -125,6 +125,33 @@ export function GambitPicker({
         }`}
         aria-disabled={selectedCount === 0}
       >
+        <span>match</span>
+        <button
+          type="button"
+          onClick={() => onChange({ ...value, matchMode: "any" })}
+          className={`chip-cream px-2 py-0.5 ${
+            value.matchMode === "any"
+              ? "bg-[var(--color-wine)] text-[var(--color-cream)]"
+              : ""
+          }`}
+          aria-pressed={value.matchMode === "any"}
+          title="Match seeds containing at least one selected gambit"
+        >
+          any
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange({ ...value, matchMode: "all" })}
+          className={`chip-cream px-2 py-0.5 ${
+            value.matchMode === "all"
+              ? "bg-[var(--color-wine)] text-[var(--color-cream)]"
+              : ""
+          }`}
+          aria-pressed={value.matchMode === "all"}
+          title="Match seeds where every selected gambit can be picked across separate gachapons"
+        >
+          all
+        </button>
         <span>within first</span>
         <Stepper
           value={value.maxGachapons}

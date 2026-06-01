@@ -29,8 +29,8 @@ const GACHAPON_NAMES: [u32; 4] = [
 // Update both these constants and the JS GAMBIT_POOL_SIZES if the game ever
 // adds new gambits.
 const POOL_SIZE_COMMON: u8 = 68;
-const POOL_SIZE_RARE: u8 = 65;
-const POOL_SIZE_EPIC: u8 = 47;
+const POOL_SIZE_RARE: u8 = 64;
+const POOL_SIZE_EPIC: u8 = 48;
 const POOL_SIZE_LEGENDARY: u8 = 20;
 const POOL_SIZES: [u8; 4] = [
     POOL_SIZE_COMMON,
@@ -443,7 +443,7 @@ fn simulate_shop_tokens(
 //           [4..7]=slot1_piece, [7]=slot1_any,
 //           [8..11]=slot2_piece, [11]=slot2_any,
 //           bit[12]=unordered, bit[13]=has_gambit_filter,
-//           bit[14]=has_exclusions,
+//           bit[14]=has_exclusions, bit[15]=gambit_match_all,
 //           bits[16..24]=num_gachapons (max 32),
 //           bits[24..32]=gambit_max_gach (0..32, only if has_gambit_filter)
 //   per gachapon (2 words):
@@ -554,6 +554,71 @@ fn matches_gachapons(seed: u32, filters: &[u32], num: usize) -> bool {
 /// We probe up to ~16 shops; that's more than enough to find ~32
 /// spins which is the user's max filter target.
 const TRAJECTORY_MAX_SHOPS: i32 = 32;
+const MAX_GAMBIT_TARGETS: usize = 256;
+const UNMATCHED_TARGET: usize = usize::MAX;
+
+#[inline(always)]
+fn add_unique_target(
+    target_words: &mut [u32; MAX_GAMBIT_TARGETS],
+    target_count: &mut usize,
+    target: u32,
+) -> bool {
+    for i in 0..*target_count {
+        if target_words[i] == target { return true; }
+    }
+    if *target_count >= MAX_GAMBIT_TARGETS { return false; }
+    target_words[*target_count] = target;
+    *target_count += 1;
+    true
+}
+
+#[inline(always)]
+fn find_target_index(
+    target_words: &[u32; MAX_GAMBIT_TARGETS],
+    target_count: usize,
+    target: u32,
+) -> Option<usize> {
+    for i in 0..target_count {
+        if target_words[i] == target { return Some(i); }
+    }
+    None
+}
+
+fn augment_combo_target(
+    target_idx: usize,
+    adjacency: &[u32; MAX_GAMBIT_TARGETS],
+    spin_match: &mut [usize; 32],
+    seen_spins: &mut u32,
+) -> bool {
+    let mut spins = adjacency[target_idx];
+    while spins != 0 {
+        let bit = spins & spins.wrapping_neg();
+        let spin = bit.trailing_zeros() as usize;
+        spins &= spins - 1;
+        if (*seen_spins & bit) != 0 { continue; }
+        *seen_spins |= bit;
+        let current = spin_match[spin];
+        if current == UNMATCHED_TARGET
+            || augment_combo_target(current, adjacency, spin_match, seen_spins)
+        {
+            spin_match[spin] = target_idx;
+            return true;
+        }
+    }
+    false
+}
+
+fn combo_match_count(target_count: usize, adjacency: &[u32; MAX_GAMBIT_TARGETS]) -> usize {
+    let mut spin_match = [UNMATCHED_TARGET; 32];
+    let mut count = 0usize;
+    for target_idx in 0..target_count {
+        let mut seen_spins = 0u32;
+        if augment_combo_target(target_idx, adjacency, &mut spin_match, &mut seen_spins) {
+            count += 1;
+        }
+    }
+    count
+}
 
 #[inline(always)]
 fn matches_gambit_filter(
@@ -561,14 +626,24 @@ fn matches_gambit_filter(
     max_gach: u32,
     targets: &[u32],
     pools: &FilteredPools,
+    match_all: bool,
 ) -> bool {
     let mut want_mask: u8 = 0;
+    let mut target_words = [0u32; MAX_GAMBIT_TARGETS];
+    let mut target_count = 0usize;
     for &t in targets {
-        let rarity = (t & 0x3) as u8;
+        let rarity = t & 0x3;
+        let pool_idx = (t >> 8) & 0xFF;
+        let target = (pool_idx << 8) | rarity;
         want_mask |= 1u8 << rarity;
+        if !add_unique_target(&mut target_words, &mut target_count, target) {
+            return false;
+        }
     }
     if want_mask == 0 || max_gach == 0 { return false; }
+    if match_all && target_count > max_gach as usize { return false; }
 
+    let mut adjacency = [0u32; MAX_GAMBIT_TARGETS];
     let mut shop_counters = ShopCounters::default();
     let mut per_rarity_counter = [0u32; 4];
     let mut spins_done: u32 = 0;
@@ -583,20 +658,30 @@ fn matches_gambit_filter(
             );
             let tier = rarity_tier(rarity_roll);
             if (want_mask >> tier) & 1 == 1 {
+                let tier_idx = tier as usize;
                 let picks = simulate_gambit_picks(
                     seed,
                     wave,
-                    per_rarity_counter[tier as usize],
+                    per_rarity_counter[tier_idx],
                     tier,
                     pools,
                 );
-                for &t in targets {
-                    let tr = (t & 0x3) as u8;
-                    if tr != tier { continue; }
-                    let pi = ((t >> 8) & 0xFF) as u8;
-                    if picks[0] == pi || picks[1] == pi || picks[2] == pi {
-                        return true;
-                    }
+                let spin_bit = 1u32 << spins_done;
+                let mut touched = false;
+                for &pick in &picks {
+                    if pick == u8::MAX { continue; }
+                    let target = ((pick as u32) << 8) | tier as u32;
+                    let Some(target_idx) = find_target_index(
+                        &target_words,
+                        target_count,
+                        target,
+                    ) else { continue; };
+                    if !match_all { return true; }
+                    adjacency[target_idx] |= spin_bit;
+                    touched = true;
+                }
+                if match_all && touched && combo_match_count(target_count, &adjacency) == target_count {
+                    return true;
                 }
             }
             per_rarity_counter[tier as usize] += 3;
@@ -630,6 +715,7 @@ fn search_inner(
     let unordered = (f0 >> 12) & 1 != 0;
     let has_gambit = (f0 >> 13) & 1 != 0;
     let has_excl = (f0 >> 14) & 1 != 0;
+    let gambit_match_all = (f0 >> 15) & 1 != 0;
     let num_gach = ((f0 >> 16) & 0xFF) as usize;
     let gambit_max_gach = ((f0 >> 24) & 0xFF) as u32;
 
@@ -669,7 +755,13 @@ fn search_inner(
             let pass_gach = num_gach == 0 || matches_gachapons(seed, filters, num_gach);
             if pass_gach {
                 let pass_gambit = !has_gambit
-                    || matches_gambit_filter(seed, gambit_max, gambit_targets, &pools);
+                    || matches_gambit_filter(
+                        seed,
+                        gambit_max,
+                        gambit_targets,
+                        &pools,
+                        gambit_match_all,
+                    );
                 if pass_gambit {
                     out_buf[written as usize] = seed;
                     written += 1;
@@ -925,10 +1017,10 @@ mod tests {
     // which threads through the verified gambonanza_rng.py port).
     //   (seed, gach_idx, expected_tier, expected_picks, expected_roll)
     const GAMBIT_VECTORS: &[(u32, u32, u8, [u8; 3], i32)] = &[
-        (1,    0, 1, [36, 0, 18], 44),     // seed=1   gach#1 RARE
+        (1,    0, 1, [35, 0, 17], 44),     // seed=1   gach#1 RARE
         (1,    1, 0, [6, 7, 50],  11),     // seed=1   gach#2 COMMON
         (1,    4, 0, [33, 16, 9], 10),     // seed=1   gach#5 COMMON
-        (798,  3, 2, [1, 45, 44], 87),     // seed=798 gach#4 EPIC
+        (798,  3, 2, [1, 46, 45], 87),     // seed=798 gach#4 EPIC
         (8308, 4, 3, [12, 14, 5], 96),     // seed=8308 gach#5 LEGENDARY (LuckyCoin)
     ];
 
@@ -960,6 +1052,38 @@ mod tests {
     }
 
     #[test]
+    fn gambit_filter_can_require_all_targets() {
+        // ALL mode means "can pick every selected gambit", so targets
+        // must be satisfiable across distinct gachapons. Seed 26's fifth
+        // reachable spin offers legendary poolIdx [12, 14, 5], but only
+        // one can be picked there, so [12, 14] is not a valid combo.
+        assert!(!matches_gambit_filter(
+            26,
+            5,
+            &[pack_target(3, 12), pack_target(3, 14)],
+            &FULL_POOLS,
+            true,
+        ));
+        assert!(matches_gambit_filter(
+            26,
+            5,
+            &[pack_target(3, 12), pack_target(3, 14)],
+            &FULL_POOLS,
+            false,
+        ));
+
+        // Seed 1 has reachable spin #1 with rare poolIdx 35 and spin #2
+        // with common poolIdx 39, so these can both be picked.
+        assert!(matches_gambit_filter(
+            1,
+            2,
+            &[pack_target(1, 35), pack_target(0, 39)],
+            &FULL_POOLS,
+            true,
+        ));
+    }
+
+    #[test]
     fn excludes_reduce_pool_size() {
         // Lock 5 legendaries — the remaining pool should be 15 and never
         // contain those poolIndices, regardless of seed.
@@ -976,8 +1100,10 @@ mod tests {
         for i in 0..15 {
             assert!(!blocked.contains(&pools.idx[3][i as usize]));
         }
-        // Common pool untouched.
+        // Other pools keep their current game sizes.
         assert_eq!(pools.len[0], 68);
+        assert_eq!(pools.len[1], 64);
+        assert_eq!(pools.len[2], 48);
     }
 
     fn simulate_shop_sequence(seed: u32, up_to_wave: i32) -> Vec<[u8; 3]> {

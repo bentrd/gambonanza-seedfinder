@@ -16,9 +16,13 @@ export interface GachaponFilter {
   rollMax: number;
 }
 
+export type GambitMatchMode = "any" | "all";
+
 export interface GambitFilter {
   /** Internal IDs (`Gambit.id`) of gambits to match. Empty = filter disabled. */
   targets: string[];
+  /** Match any selected gambit, or require every selected gambit to appear. */
+  matchMode: GambitMatchMode;
   /** Match within the first N gachapons opened (1..32). */
   maxGachapons: number;
   /** IDs the player does NOT have unlocked — removed from every gachapon pool. */
