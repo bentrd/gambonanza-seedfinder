@@ -52,7 +52,7 @@ export function HelpCard() {
         Tier bands: <Band r="COMMON">0–39 common</Band>{" "}
         <Band r="RARE">40–69 rare</Band> <Band r="EPIC">70–89 epic</Band>{" "}
         <Band r="LEGENDARY">90–100 legendary</Band>. The 3 specific gambits
-        inside a tier come from the eligible pool at that moment — unlocks,
+        inside a tier come from the eligible pool at that moment: unlocks,
         equipped gambits, and current shop offers can all change it.
       </p>
     </aside>
@@ -68,16 +68,16 @@ function Intro() {
       </p>
       <ul className="ml-4 list-disc space-y-1 text-[var(--color-wine-dark)]/90">
         <li>
-          <strong>counter</strong> — a run-wide integer that starts at{" "}
+          <strong>counter</strong>: a run-wide integer that starts at{" "}
           <Code>0</Code> and ticks up <em>only</em> when you actually spin a
           gachapon. Buying pieces / gambits / tokens / rerolls does not move
           it.
         </li>
         <li>
-          <strong>wave</strong> — under normal play this is{" "}
+          <strong>wave</strong>: under normal play this is{" "}
           <em>which shop you're in</em>, 1-indexed. The game increments
           it by 1 every time you win a game, and shops happen between
-          games — so the shop after Game 1 is wave 1, after Game 2 is
+          games, so the shop after Game 1 is wave 1, after Game 2 is
           wave 2, and so on. Internally it's the field shown on the HUD
           as <Code>Stage X/5  Game N/5</Code>, with{" "}
           <Code>wave = (X − 1) × 5 + (N − 1)</Code>.
@@ -162,7 +162,7 @@ function Scenarios() {
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
         <Scenario
           title="Spin every shop"
-          desc="One gachapon per wave, never skip. Each spin steps one cell down-right — you trace a diagonal."
+          desc="One gachapon per wave, never skip. Each spin steps one cell down-right, tracing a diagonal."
           grid={{
             cols: 5,
             rows: 4,
@@ -253,7 +253,7 @@ function Pitfalls() {
         </li>
         <li>
           A gambit is currently offered in the shop. The game excludes shop
-          offers from gachapon choices — even if the shop offer is not the
+          offers from gachapon choices, even if the shop offer is not the
           predicted gambit. Removing a later gambit in the same rarity pool
           can shift the same RNG roll from, for example, Phantom Bride to
           Pendant. This depends on live run state, rerolls, locks, and build
@@ -294,7 +294,7 @@ interface MiniGridProps {
  * Small explanatory grid used by the HOW IT WORKS scenarios. Rebuilt
  * as a CSS Grid (was a <table> which auto-sized columns to content,
  * so cells with numbers ended up wider than empty cells). Same pattern
- * as the main RollGrid — fixed column widths, fixed row heights, hits
+ * as the main RollGrid: fixed column widths, fixed row heights, hits
  * use box-shadow rings so widths don't shift.
  */
 function MiniGrid({
@@ -427,7 +427,7 @@ function Scenario({ title, desc, grid }: ScenarioProps) {
 }
 
 /**
- * Inline reference to a specific gambit by ID — renders its sprite +
+ * Inline reference to a specific gambit by ID: renders its sprite +
  * localized name as a small chip with the same hover tooltip used in
  * the picker. Falls back to a plain code-style chip if the ID isn't in
  * the registry (e.g. if the gambit was renamed in a future build).
