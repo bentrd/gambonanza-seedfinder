@@ -52,8 +52,8 @@ export function HelpCard() {
         Tier bands: <Band r="COMMON">0–39 common</Band>{" "}
         <Band r="RARE">40–69 rare</Band> <Band r="EPIC">70–89 epic</Band>{" "}
         <Band r="LEGENDARY">90–100 legendary</Band>. The 3 specific gambits
-        inside a tier come from your unlocks — set them in the gear modal
-        beside <em>Gambits</em> if predictions don't match your save.
+        inside a tier come from the eligible pool at that moment — unlocks,
+        equipped gambits, and current shop offers can all change it.
       </p>
     </aside>
   );
@@ -250,6 +250,19 @@ function Pitfalls() {
             Use the gear icon beside <em>Gambits</em> to tell the predictor
             which ones you have.
           </span>
+        </li>
+        <li>
+          A gambit is currently offered in the shop. The game excludes shop
+          offers from gachapon choices — even if the shop offer is not the
+          predicted gambit. Removing a later gambit in the same rarity pool
+          can shift the same RNG roll from, for example, Phantom Bride to
+          Pendant. This depends on live run state, rerolls, locks, and build
+          bias, so it cannot always be recovered from seed alone.
+        </li>
+        <li>
+          A gambit is already equipped in the run or locked in a shop slot.
+          Those are excluded from the pool too, and can shift the specific
+          gambits while leaving the rarity roll unchanged.
         </li>
       </ul>
     </section>
