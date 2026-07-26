@@ -25,7 +25,7 @@ export interface GambitFilter {
   matchMode: GambitMatchMode;
   /** Match within the first N gachapons opened (1..32). */
   maxGachapons: number;
-  /** IDs the player does NOT have unlocked — removed from every gachapon pool. */
+  /** IDs the player does NOT have unlocked - removed from every gachapon pool. */
   excludedIds: string[];
 }
 
@@ -54,7 +54,7 @@ export type SearchEvent =
   | { type: "results"; seeds: number[] }
   /** Worker has fulfilled the requested batch target; awaiting next call. */
   | { type: "paused"; matched: number; scanned: number; cursor: number }
-  /** Worker walked off the top of the u32 seed space — no more matches possible. */
+  /** Worker walked off the top of the u32 seed space - no more matches possible. */
   | { type: "exhausted"; matched: number; scanned: number }
   /** Periodic in-batch tick so the status pane animates while a slow batch runs. */
   | { type: "progress"; matched: number; scanned: number; cursor: number }

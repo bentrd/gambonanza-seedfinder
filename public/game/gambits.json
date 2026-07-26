@@ -59,7 +59,7 @@
     ],
     "sprite": "Gambit_Anarchist.png",
     "displayName": "Anarchist's Gambit",
-    "description": "Every piece is also <wave><color=\u222b>COUNTED AS</color></wave> a <sprite=9> <color=\u00a3>KING</color>.",
+    "description": "Every piece is also <wave><color=∫>COUNTED AS</color></wave> a <sprite=9> <color=£>KING</color>.",
     "nameKey": "anarchist_name",
     "descKey": "anarchist_description"
   },
@@ -74,7 +74,7 @@
     ],
     "sprite": "Gambit_Aphrodite.png",
     "displayName": "Aphrodite's Gambit",
-    "description": "When capturing with a <sprite=10> <color=^>QUEEN</color>, <color=\u00d8>1/4 chance</color> to grant that captured piece.",
+    "description": "When capturing with a <sprite=10> <color=^>QUEEN</color>, <color=Ø>1/4 chance</color> to grant that captured piece.",
     "nameKey": "aphrodite_name",
     "descKey": "aphrodite_description"
   },
@@ -90,7 +90,7 @@
     ],
     "sprite": "Gambit_Apocalypse.png",
     "displayName": "Knights of the Apocalypse's Gambit",
-    "description": "When a piece is captured, earn a <color=\u00df>PHANTOM</color> <sprite=7> <color=|>KNIGHT</color>.",
+    "description": "When a piece is captured, earn a <color=ß>PHANTOM</color> <sprite=7> <color=|>KNIGHT</color>.",
     "nameKey": "apocalypse_name",
     "descKey": "apocalypse_description"
   },
@@ -105,7 +105,7 @@
     ],
     "sprite": "Gambit_Artemis.png",
     "displayName": "Artemis' Gambit",
-    "description": "<color=\u25ca>TRAPS</color> power lasts 1 more turn.",
+    "description": "<color=◊>TRAPS</color> power lasts 1 more turn.",
     "nameKey": "artemis_name",
     "descKey": "artemis_description"
   },
@@ -135,7 +135,7 @@
     ],
     "sprite": "Gambit_Bait.png",
     "displayName": "Bait's Gambit",
-    "description": "If 2 pieces are <br><wave><sprite=11> THREATENED</wave> by the same piece,<br><color=\u00d8>1/3 chance</color> to <color=\u25ca>TRAP</color> that piece.",
+    "description": "If 2 pieces are <br><wave><sprite=11> THREATENED</wave> by the same piece,<br><color=Ø>1/3 chance</color> to <color=◊>TRAP</color> that piece.",
     "nameKey": "bait_name",
     "descKey": "bait_description"
   },
@@ -147,13 +147,14 @@
     "rarity": "COMMON",
     "focus": [
       "KING",
-      "QUEEN",
+      "BISHOP",
       "ROOK",
-      "PIECE_SELLER"
+      "PIECE_SELLER",
+      "KNIGHT"
     ],
     "sprite": "Gambit_Balance.png",
     "displayName": "Balance Scale's Gambit",
-    "description": "Selling a <sprite=10> <color=^>QUEEN</color> or a <sprite=6> <color=\u00b0>ROOK</color> grants a <sprite=9> <color=\u00a3>KING</color>.",
+    "description": "Selling a <sprite=6> <color=°>ROOK</color> grants a <sprite=7> <color=|>KNIGHT</color>,<br>selling a <sprite=8> <color=∏>BISHOP</color> grants a <sprite=9> <color=£>KING</color>.",
     "nameKey": "balance_name",
     "descKey": "balance_description"
   },
@@ -168,7 +169,7 @@
     ],
     "sprite": "Gambit_BananaPeel.png",
     "displayName": "Banana Peel's Gambit",
-    "description": "<color=\u00d8>1/10 chance</color> to skip the enemy's turn after playing.",
+    "description": "<color=Ø>1/10 chance</color> to skip the enemy's turn after playing.",
     "nameKey": "banana_name",
     "descKey": "banana_description"
   },
@@ -184,7 +185,7 @@
     ],
     "sprite": "Gambit_Banner.png",
     "displayName": "Banner's Gambit",
-    "description": "<color=\u00e6>PROTECT</color> a piece if it captures while aligned with a <sprite=6> <color=\u00b0>ROOK</color>.<br><i>(Once per game)</i>",
+    "description": "<color=æ>PROTECT</color> a piece if it captures while aligned with a <sprite=6> <color=°>ROOK</color>.<br><i>(Once per game)</i>",
     "nameKey": "banner_name",
     "descKey": "banner_description"
   },
@@ -199,7 +200,7 @@
     ],
     "sprite": "Gambit_Baron.png",
     "displayName": "Baron's Gambit",
-    "description": "Your <sprite=6> <color=\u00b0>ROOKS</color> can also move like <sprite=9> <color=\u00a3>KINGS</color>.",
+    "description": "Your <sprite=6> <color=°>ROOKS</color> can also move like <sprite=9> <color=£>KINGS</color>.",
     "nameKey": "baron_name",
     "descKey": "baron_description"
   },
@@ -215,7 +216,7 @@
     ],
     "sprite": "Gambit_Barter.png",
     "displayName": "Barter Trade's Gambit",
-    "description": "Selling a <sprite=8> <color=\u220f>BISHOP</color> grants another random piece.",
+    "description": "Selling a <sprite=8> <color=∏>BISHOP</color> grants another random piece. <br><i>(5 times, reset when entering the Shop).</i>",
     "nameKey": "barter_name",
     "descKey": "barter_description"
   },
@@ -245,7 +246,7 @@
     ],
     "sprite": "Gambit_Billionaire.png",
     "displayName": "Billionaire's Gambit",
-    "description": "<color=\u00d8>1/4 chance</color> to earn the amount of <color=\u221e>GOLD PIECES</color> you have in<color=*> $</color> at the end of your turn.",
+    "description": "<color=Ø>1/4 chance</color> to earn the amount of <color=∞>GOLD PIECES</color> you have in<color=*> $</color> at the end of your turn.",
     "nameKey": "billionaire_name",
     "descKey": "billionaire_description"
   },
@@ -305,7 +306,7 @@
     ],
     "sprite": "Gambit_BubbleShield.png",
     "displayName": "Bubble shield's Gambit",
-    "description": "<color=\u00e6>PROTECTING</color> a piece has a <color=\u00d8>1/2 chance</color> to protect a second one.",
+    "description": "<color=æ>PROTECTING</color> a piece has a <color=Ø>1/2 chance</color> to protect a second one.",
     "nameKey": "bubble-shield_name",
     "descKey": "bubble-shield_description"
   },
@@ -317,11 +318,11 @@
     "rarity": "COMMON",
     "focus": [
       "PROTECTIVE",
-      "CRUMBLE"
+      "MONEY"
     ],
     "sprite": "Gambit_Bunker.png",
     "displayName": "Bunker's Gambit",
-    "description": "<color=\u00e6>PROTECTING</color> a piece during <shake>Crumble Mode</shake> gives <color=*>+$3</color>.",
+    "description": "<color=æ>PROTECTING</color> a piece gives <color=*>+$1</color>.",
     "nameKey": "bunker_name",
     "descKey": "bunker_description"
   },
@@ -337,7 +338,7 @@
     ],
     "sprite": "Gambit_Candle.png",
     "displayName": "Candle's Gambit",
-    "description": "Selling a <sprite=8> <color=\u220f>BISHOP</color> creates a <sprite=0> <color=\u0192>BLESS TILE</color> on a random empty tile.",
+    "description": "Selling a <sprite=8> <color=∏>BISHOP</color> creates a <sprite=0> <color=ƒ>BLESS TILE</color> on a random tile.",
     "nameKey": "candle_name",
     "descKey": "candle_description"
   },
@@ -368,7 +369,7 @@
     ],
     "sprite": "Gambit_Carrousel.png",
     "displayName": "Carrousel's Gambit",
-    "description": "Buying a Token has a <color=\u00d8>1/3 chance</color> to grant a <sprite=7> <color=|>KNIGHT</color>.",
+    "description": "Buying a Token has a <color=Ø>1/2 chance</color> to grant a <sprite=7> <color=|>KNIGHT</color>.",
     "nameKey": "carrousel_name",
     "descKey": "carrousel_description"
   },
@@ -384,7 +385,7 @@
     ],
     "sprite": "Gambit_Castling.png",
     "displayName": "Castling's Gambit",
-    "description": "If you have a <sprite=6> <color=\u00b0>ROOK</color> and a <sprite=9> <color=\u00a3>KING</color> on board,<br><color=\u00d8>1/3 chance</color> to skip the enemy's turn.",
+    "description": "If you have a <sprite=6> <color=°>ROOK</color> and a <sprite=9> <color=£>KING</color> on board,<br><color=Ø>1/3 chance</color> to skip the enemy's turn.",
     "nameKey": "castling_name",
     "descKey": "castling_description"
   },
@@ -399,7 +400,7 @@
     ],
     "sprite": "Gambit_Catapult.png",
     "displayName": "Catapult's Gambit",
-    "description": "Capturing a piece with no neighbours with a <sprite=6> <color=\u00b0>ROOK</color> skips the enemy's turn.",
+    "description": "Capturing a piece that has no <color=≠><bounce>ADJACENT</color></bounce> pieces with a <sprite=6> <color=°>ROOK</color> skips the enemy's turn.",
     "nameKey": "catapult_name",
     "descKey": "catapult_description"
   },
@@ -414,7 +415,7 @@
     ],
     "sprite": "Gambit_Caterpillar.png",
     "displayName": "Caterpillar's Gambit",
-    "description": "<rainb l=0.5>PROMOTING</rainb> has a <color=\u00d8>1/4 chance</color> to grant a <sprite=5> <color=&>PAWN</color>.",
+    "description": "<rainb l=0.5>PROMOTING</rainb> has a <color=Ø>1/2 chance</color> to grant a <sprite=5> <color=&>PAWN</color>.",
     "nameKey": "caterpillar_name",
     "descKey": "caterpillar_description"
   },
@@ -430,7 +431,7 @@
     ],
     "sprite": "Gambit_Cauldron.png",
     "displayName": "Cauldron's Gambit",
-    "description": "After capturing 2 pieces with a <sprite=8> <color=\u220f>BISHOP</color>,<br>earn a random piece among those 2.",
+    "description": "After capturing 2 pieces with a <sprite=8> <color=∏>BISHOP</color>,<br>earn a random piece among those 2.",
     "nameKey": "cauldron_name",
     "descKey": "cauldron_description"
   },
@@ -445,7 +446,7 @@
     ],
     "sprite": "Gambit_CaveOfWander.png",
     "displayName": "Cave of Wonder's Gambit",
-    "description": "<color=\u2248>LEGENDARY</color> gambits can be found in the shop.",
+    "description": "<color=≈>LEGENDARY</color> gambits can be found in the shop.",
     "nameKey": "caveOfWander_name",
     "descKey": "caveOfWander_description"
   },
@@ -478,7 +479,7 @@
     ],
     "sprite": "Gambit_Chamberlain.png",
     "displayName": "Chamberlain Ghost's Gambit",
-    "description": "On <shake>Crumble Mode</shake>, each of your <sprite=8> <color=\u220f>BISHOPS</color> on board has a <color=\u00d8>1/2 chance</color> to turn to <color=\u221e>GOLD</color>.",
+    "description": "On <shake>Crumble Mode</shake>, each <sprite=8> <color=∏>BISHOP</color> on your board turns into a <color=∞>GOLD PIECE</color>.",
     "nameKey": "chamberlain_name",
     "descKey": "chamberlain_description"
   },
@@ -510,7 +511,7 @@
     ],
     "sprite": "Gambit_ChronoBreak.png",
     "displayName": "Chronobreak's Gambit",
-    "description": "<color=\u0192>BLESS</color> the first piece you play.",
+    "description": "<color=ƒ>BLESS</color> the first piece you play.",
     "nameKey": "chronobreak_name",
     "descKey": "chronobreak_description"
   },
@@ -521,12 +522,11 @@
     "id": "chrysalis",
     "rarity": "RARE",
     "focus": [
-      "ROOK",
       "WAIT"
     ],
     "sprite": "Gambit_Chrysalis.png",
     "displayName": "Chrysalis' Gambit",
-    "description": "<color=\u00b5>WAITING</color> has a <color=\u00d8>1/3 chance</color> to turn one of your <sprite=6> <color=\u00b0>ROOKS</color> into <sprite=10> <color=^>QUEEN</color>.",
+    "description": "<color=µ>WAITING</color> has a <color=Ø>1/3 chance</color> to grant a random piece.",
     "nameKey": "chrysalis_name",
     "descKey": "chrysalis_description"
   },
@@ -541,7 +541,7 @@
     ],
     "sprite": "Gambit_Church.png",
     "displayName": "Church's Gambit",
-    "description": "At the start of a game, earn <color=*>+$2</color> per<sprite=8> <color=\u220f>BISHOP</color>.",
+    "description": "At the start of a game, earn <color=*>+$2</color> per<sprite=8> <color=∏>BISHOP</color>.",
     "nameKey": "church_name",
     "descKey": "church_description"
   },
@@ -556,7 +556,7 @@
     ],
     "sprite": "Gambit_Coconut.png",
     "displayName": "Coconut Juice's Gambit",
-    "description": "<color=\u00b5>WAIT</color> is now unlimited.",
+    "description": "<color=µ>WAIT</color> is now unlimited.",
     "nameKey": "coconutJuice_name",
     "descKey": "coconutJuice_description"
   },
@@ -603,7 +603,7 @@
     ],
     "sprite": "Gambit_CopyCat.png",
     "displayName": "Copycat's Gambit",
-    "description": "Selling this Gambit turns your <sprite=8> <color=\u220f>BISHOPS</color> into &.<br><i>(Change when entering the Shop).",
+    "description": "Selling this Gambit turns your <sprite=8> <color=∏>BISHOPS</color> into &.<br><i>(Change when entering the Shop).",
     "nameKey": "copycat_name",
     "descKey": "copycat_description"
   },
@@ -619,7 +619,7 @@
     ],
     "sprite": "Gambit_CowboyHorse.png",
     "displayName": "Cowboy Horse's Gambit",
-    "description": "Capturing with a <sprite=7> <color=|>KNIGHT</color> has a <color=\u00d8>1/3 chance</color> to place a <color=\u25ca>TRAP TILE</color> <sprite=3> on the capturing tile.",
+    "description": "Capturing with a <sprite=7> <color=|>KNIGHT</color> has a <color=Ø>1/3 chance</color> to place a <color=◊>TRAP TILE</color> <sprite=3> on the capturing tile.",
     "nameKey": "cowboy-horse_name",
     "descKey": "cowboy-horse_description"
   },
@@ -630,11 +630,12 @@
     "id": "depthcreature",
     "rarity": "COMMON",
     "focus": [
-      "CRUMBLE"
+      "CRUMBLE",
+      "MONEY"
     ],
     "sprite": "Gambit_CreatureOfTheDepth.png",
     "displayName": "Creature of the Depths' Gambit",
-    "description": "Earn <color=*>+$2</color> when a piece falls from the board.",
+    "description": "Earn <color=*>+$4</color> when a piece falls from the board.",
     "nameKey": "depthcreature_name",
     "descKey": "depthcreature_description"
   },
@@ -650,7 +651,7 @@
     ],
     "sprite": "Gambit_Crown.png",
     "displayName": "Crown's Gambit",
-    "description": "Skip enemy\u2019s turn after a <rainb l=0.5>PROMOTION</rainb>.",
+    "description": "Skip enemy’s turn after a <rainb l=0.5>PROMOTION</rainb>.",
     "nameKey": "crown_name",
     "descKey": "crown_description"
   },
@@ -666,7 +667,7 @@
     ],
     "sprite": "Gambit_Dainsleif.png",
     "displayName": "Dainsleif's Gambit",
-    "description": "Turning a <sprite=9> <color=\u00a3>KING</color> into a <color=\u221e>GOLDEN PIECE</color> skips the enemy's turn.",
+    "description": "Turning a <sprite=9> <color=£>KING</color> into a <color=∞>GOLDEN PIECE</color> skips the enemy's turn.",
     "nameKey": "dainsleif_name",
     "descKey": "dainsleif_description"
   },
@@ -682,7 +683,7 @@
     ],
     "sprite": "Gambit_DarkKnight.png",
     "displayName": "Dark Knight's Gambit",
-    "description": "When one of your <sprite=6> <color=\u00b0>ROOKS</color> is captured, turn the captured tile into a <sprite=2> <color=\u00e6>PROTECTIVE TILE</color>.",
+    "description": "When one of your <sprite=6> <color=°>ROOKS</color> is captured, turn the captured tile into a <sprite=2> <color=æ>PROTECTIVE TILE</color>.",
     "nameKey": "knight_name",
     "descKey": "knight_description"
   },
@@ -697,7 +698,7 @@
     ],
     "sprite": "Gambit_DeadorAlive.png",
     "displayName": "Dead or Alive's Gambit",
-    "description": "<color=\u25ca>TRAPPING</color> an enemy piece has a <color=\u00d8>1/3 chance</color> to grant a random Gambit.",
+    "description": "<color=◊>TRAPPING</color> an enemy piece grants a random Gambit.",
     "nameKey": "deadoralive_name",
     "descKey": "deadoralive_description"
   },
@@ -743,7 +744,7 @@
     ],
     "sprite": "Gambit_Druid.png",
     "displayName": "Druid's Gambit",
-    "description": "On receiving a piece, it has a <color=\u00d8>1/3 chance</color> to be a <color=\u221e>GOLD</color> one and a <color=\u00d8>1/3 chance</color> to be a <color=\u00df>PHANTOM</color> one.",
+    "description": "On receiving a piece, it has a <color=Ø>1/3 chance</color> to be a <color=∞>GOLD</color> one and a <color=Ø>1/3 chance</color> to be a <color=ß>PHANTOM</color> one.",
     "nameKey": "druid_name",
     "descKey": "druid_description"
   },
@@ -759,7 +760,7 @@
     ],
     "sprite": "Gambit_Dungeon.png",
     "displayName": "Dungeon's Gambit",
-    "description": "Earn a <sprite=6> <color=\u00b0>ROOK</color> when <color=\u00a9>LANDING</color> a <sprite=6> <color=\u00b0>ROOK</color>.<br><i>(Once per game)</i>",
+    "description": "Earn a <sprite=6> <color=°>ROOK</color> when <color=©>LANDING</color> a <sprite=6> <color=°>ROOK</color>.<br><i>(Once per game)</i>",
     "nameKey": "dungeon_name",
     "descKey": "dungeon_description"
   },
@@ -774,7 +775,7 @@
     ],
     "sprite": "Gambit_Emperor.png",
     "displayName": "Emperor's Gambit",
-    "description": "Moving a <sprite=9> <color=\u00a3>KING</color> has a <color=\u00d8>1/2 chance</color> to grant <color=*>+$1</color>.",
+    "description": "Moving a <sprite=9> <color=£>KING</color> has a <color=Ø>1/2 chance</color> to grant <color=*>+$1</color>.",
     "nameKey": "emperor_name",
     "descKey": "emperor_description"
   },
@@ -789,7 +790,7 @@
     ],
     "sprite": "Gambit_Empress.png",
     "displayName": "Empress's Gambit",
-    "description": "Your <sprite=7> <color=|>KNIGHTS</color> can also move like <sprite=6> <color=\u00b0>ROOKS</color>.",
+    "description": "Your <sprite=7> <color=|>KNIGHTS</color> can also move like <sprite=6> <color=°>ROOKS</color>.",
     "nameKey": "empress_name",
     "descKey": "empress_description"
   },
@@ -836,7 +837,7 @@
     ],
     "sprite": "Gambit_Excalibur.png",
     "displayName": "Excalibur's Gambit",
-    "description": "<sprite=5> <color=&>PAWNS</color> can <rainb l=0.5>PROMOTE</rainb> by moving next to a <sprite=9> <color=\u00a3>KING</color>.",
+    "description": "When <sprite=5> <color=&>PAWNS</color> are moved <color=≠><bounce>ADJACENT</color></bounce> to a <sprite=9> <color=£>KING</color>, they <rainb l=0.5>PROMOTE</rainb>.",
     "nameKey": "excalibur_name",
     "descKey": "excalibur_description"
   },
@@ -852,7 +853,7 @@
     ],
     "sprite": "Gambit_Exorcist.png",
     "displayName": "Exorcist's Gambit",
-    "description": "Capturing with a <sprite=8> <color=\u220f>BISHOP</color> on a <color=~>BLACK</color> tile gives a <color=\u00df>PHANTOM</color> copy of the captured piece.",
+    "description": "Capturing with a <sprite=8> <color=∏>BISHOP</color> on a <color=~>BLACK</color> tile gives a <color=ß>PHANTOM</color> copy of the captured piece.",
     "nameKey": "exorcist_name",
     "descKey": "exorcist_description"
   },
@@ -869,7 +870,7 @@
     ],
     "sprite": "Gambit_Fairy.png",
     "displayName": "Fairy's Gambit",
-    "description": "On <rainb l=0.5>PROMOTION</rainb>, place a <br><sprite=0> <color=\u0192>BLESS TILE</color> on a random tile.",
+    "description": "On <rainb l=0.5>PROMOTION</rainb>, place a <br><sprite=0> <color=ƒ>BLESS TILE</color> on a random tile.",
     "nameKey": "fairy_name",
     "descKey": "fairy_description"
   },
@@ -884,7 +885,7 @@
     ],
     "sprite": "Gambit_FallenCrown.png",
     "displayName": "Fallen Crown's Gambit",
-    "description": "When one of your <sprite=9> <color=\u00a3>KINGS</color> is captured, earn a <sprite=5> <color=&>PAWN</color>.",
+    "description": "When one of your <sprite=9> <color=£>KINGS</color> is captured, earn a <sprite=5> <color=&>PAWN</color>.",
     "nameKey": "fallen-crown_name",
     "descKey": "fallen-crown_description"
   },
@@ -901,7 +902,7 @@
     ],
     "sprite": "Gambit_FallingCrown.png",
     "displayName": "Falling Crown's Gambit",
-    "description": "<color=\u00b5>WAITING</color> <rainb l=0.5>PROMOTES</rainb> one of your <sprite=5> <color=&>PAWNS</color>.",
+    "description": "<color=µ>WAITING</color> <rainb l=0.5>PROMOTES</rainb> one of your <sprite=5> <color=&>PAWNS</color>.",
     "nameKey": "fallingCrown_name",
     "descKey": "fallingCrown_description"
   },
@@ -916,7 +917,7 @@
     ],
     "sprite": "Gambit_Family.png",
     "displayName": "Family's Gambit",
-    "description": "At the end of a game, earn <color=*>+$5</color> per piece next to a <sprite=9> <color=\u00a3>KING</color>.",
+    "description": "At the end of a game, earn <color=*>+$5</color> for each piece <color=≠><bounce>ADJACENT</color></bounce> to a <sprite=9> <color=£>KING</color>.",
     "nameKey": "family_name",
     "descKey": "family_description"
   },
@@ -948,7 +949,7 @@
     ],
     "sprite": "Gambit_Firewatch.png",
     "displayName": "Fire Watch's Gambit",
-    "description": "At the start of a game, earn <color=*>+$3</color> for each of your <sprite=6> <color=\u00b0>ROOKS</color> with no pieces next to them.",
+    "description": "At the start of a game, earn <color=*>+$3</color> for each of your <sprite=6> <color=°>ROOKS</color> with no <color=≠><bounce>ADJACENT</color></bounce> pieces.",
     "nameKey": "firewatch_name",
     "descKey": "firewatch_description"
   },
@@ -964,7 +965,7 @@
     ],
     "sprite": "Gambit_Fleur-De-Lys.png",
     "displayName": "Fleur de Lys' Gambit",
-    "description": "At the start of a game, every piece next to a <sprite=9> <color=\u00a3>KING</color> turns to <color=\u221e>GOLDEN PIECES</color>.",
+    "description": "At the start of a game, every piece <color=≠><bounce>ADJACENT</color></bounce> to a <sprite=9> <color=£>KING</color> becomes a <color=∞>GOLDEN PIECE</color>.",
     "nameKey": "fleur-de-lys_name",
     "descKey": "fleur-de-lys_description"
   },
@@ -980,7 +981,7 @@
     ],
     "sprite": "Gambit_Foal.png",
     "displayName": "Foal's Gambit",
-    "description": "Buying a <sprite=7> <color=|>KNIGHT</color> has a <color=\u00d8>1/4 chance</color> to grant a <sprite=5> <color=&>PAWN</color> too.",
+    "description": "Buying a <sprite=7> <color=|>KNIGHT</color> also grants a <sprite=5> <color=&>PAWN</color>.",
     "nameKey": "foal_name",
     "descKey": "foal_description"
   },
@@ -995,7 +996,7 @@
     ],
     "sprite": "Gambit_Fork.png",
     "displayName": "Silver Fork's Gambit",
-    "description": "After moving a <sprite=7> <color=|>KNIGHT</color>, <color=\u00d8>1/2 chance</color> to skip the enemy's turn if it can capture 2+ pieces.",
+    "description": "After moving a <sprite=7> <color=|>KNIGHT</color>, <color=Ø>1/2 chance</color> to skip the enemy's turn if it can capture 2+ pieces.",
     "nameKey": "fork_name",
     "descKey": "fork_description"
   },
@@ -1010,7 +1011,7 @@
     ],
     "sprite": "Gambit_FortuneWheel.png",
     "displayName": "Fortune Wheel's Gambit",
-    "description": "At the start of a game, there is a <color=\u00d8>1/7 chance</color> to turn all your pieces into <color=\u221e>GOLDEN PIECES</color>.",
+    "description": "At the start of a game, there is a <color=Ø>1/7 chance</color> to turn all your pieces into <color=∞>GOLDEN PIECES</color>.",
     "nameKey": "fortune-wheel_name",
     "descKey": "fortune-wheel_description"
   },
@@ -1025,7 +1026,7 @@
     ],
     "sprite": "Gambit_Frog.png",
     "displayName": "Frog's Gambit",
-    "description": "<color=\u00a9>LANDING</color> a piece has a <color=\u00d8>1/2 chance</color> to skip the enemy's turn.",
+    "description": "<color=©>LANDING</color> a piece has a <color=Ø>1/2 chance</color> to skip the enemy's turn.",
     "nameKey": "frog_name",
     "descKey": "frog_description"
   },
@@ -1040,7 +1041,7 @@
     ],
     "sprite": "Gambit_Gambler.png",
     "displayName": "Gambler's Gambit",
-    "description": "Double every <color=\u00d8>probability chance</color><br>(ex 1/3 -> 2/3).",
+    "description": "Double every <color=Ø>probability chance</color><br>(ex 1/3 -> 2/3).",
     "nameKey": "gambler_name",
     "descKey": "gambler_description"
   },
@@ -1088,7 +1089,7 @@
     ],
     "sprite": "Gambit_Gluttony.png",
     "displayName": "Gluttony's Gambit",
-    "description": "Each time one of your <sprite=8> <color=\u220f>BISHOPS</color> captures, <color=*>lose $1</color> but increase <sprite=8> <color=\u220f>BISHOPS</color> <color=*>sell value by +$1</color>.<br><i>(Reset at the start of a game)</i>.",
+    "description": "Each time one of your <sprite=8> <color=∏>BISHOPS</color> captures, <color=*>lose $1</color> but increase <sprite=8> <color=∏>BISHOPS</color> <color=*>sell value by +$1</color>.<br><i>(Reset at the start of a game)</i>.",
     "nameKey": "gluttony_name",
     "descKey": "gluttony_description"
   },
@@ -1103,7 +1104,7 @@
     ],
     "sprite": "Gambit_Goddess.png",
     "displayName": "Goddess's Gambit",
-    "description": "If you have a <sprite=10> <color=^>QUEEN</color> in your Stock, the first <sprite=5> <color=&>PAWN</color> you move can also move like a<sprite=9> <color=\u00a3>KING</color>.",
+    "description": "Your <sprite=10> <color=^>QUEENS</color> can also move like <sprite=7> <color=|>KNIGHTS</color>.",
     "nameKey": "goddess_name",
     "descKey": "goddess_description"
   },
@@ -1118,7 +1119,7 @@
     ],
     "sprite": "Gambit_GoldenClover.png",
     "displayName": "Golden Clover's Gambit",
-    "description": "Earn <color=*>+$3</color> after triggering <color=\u00d8>chance</color>.",
+    "description": "Earn <color=*>+$3</color> after triggering <color=Ø>chance</color>.",
     "nameKey": "golden-clover_name",
     "descKey": "golden-clover_description"
   },
@@ -1133,7 +1134,7 @@
     ],
     "sprite": "Gambit_GoldenIdol.png",
     "displayName": "Golden Idol's Gambit",
-    "description": "Turning a piece to <color=\u221e>GOLD</color> has a <color=\u00d8>1/3 chance</color> to turn another piece to <color=\u221e>GOLD</color>.",
+    "description": "Turning a piece to <color=∞>GOLD</color> has a <color=Ø>1/3 chance</color> to turn another piece to <color=∞>GOLD</color>.",
     "nameKey": "golden-idol_name",
     "descKey": "golden-idol_description"
   },
@@ -1149,7 +1150,7 @@
     ],
     "sprite": "Gambit_GoldenKing.png",
     "displayName": "King XI's Gambit",
-    "description": "When a <sprite=9> <color=\u00a3>KING</color> moves to a <color=\u20ac>WHITE</color> tile, <color=\u00d8>1/3 chance</color> to turn it into a <sprite=1> <color=\u221e>GOLDEN TILE</color>",
+    "description": "When a <sprite=9> <color=£>KING</color> moves to a <color=€>WHITE</color> tile, <color=Ø>1/2 chance</color> to turn it into a <sprite=1> <color=∞>GOLDEN TILE</color>.",
     "nameKey": "golden-king_name",
     "descKey": "golden-king_description"
   },
@@ -1164,7 +1165,7 @@
     ],
     "sprite": "Gambit_GoldenStairs.png",
     "displayName": "Golden Stair's Gambit",
-    "description": "Triggering a <br><sprite=1> <color=\u221e>GOLDEN TILE</color> has a <br><color=\u00d8>1/3 chance</color> to create another one.",
+    "description": "Triggering a <br><sprite=1> <color=∞>GOLDEN TILE</color> has a <br><color=Ø>1/3 chance</color> to create another one.",
     "nameKey": "golden-stairs_name",
     "descKey": "golden-stairs_description"
   },
@@ -1179,7 +1180,7 @@
     ],
     "sprite": "Gambit_GoldenTreasure.png",
     "displayName": "Geode's Gambit",
-    "description": "Losing a <color=\u221e>GOLDEN PIECE</color> grants <color=*>+$5</color>.",
+    "description": "Losing a <color=∞>GOLDEN PIECE</color> grants <color=*>+$5</color>.",
     "nameKey": "golden-treasure_name",
     "descKey": "golden-treasure_description"
   },
@@ -1194,7 +1195,7 @@
     ],
     "sprite": "Gambit_GoldSeeker.png",
     "displayName": "Gold Seeker's Gambit",
-    "description": "Capturing with a <color=\u221e>GOLDEN</color> piece grants <color=*>+$1</color>.",
+    "description": "Capturing with a <color=∞>GOLDEN PIECE</color> grants <color=*>+$2</color>.",
     "nameKey": "goldSeeker_name",
     "descKey": "goldSeeker_description"
   },
@@ -1209,7 +1210,7 @@
     ],
     "sprite": "Gambit_GrandMa_Letter.png",
     "displayName": "GrandMa's Letter's Gambit",
-    "description": "At the start of a game,<br><color=\u00d8>1/5 chance</color> to earn <color=*>+$5</color> <br><color=\u00d8>1/3 chance</color> to earn <color=*>+$2</color>.",
+    "description": "At the start of a game,<br><color=Ø>1/5 chance</color> to earn <color=*>+$5</color> <br><color=Ø>1/3 chance</color> to earn <color=*>+$2</color>.",
     "nameKey": "grandma-letter_name",
     "descKey": "grandma-letter_description"
   },
@@ -1224,7 +1225,7 @@
       "GAMBIT_SELLER"
     ],
     "sprite": "Gambit_GrandMaGift.png",
-    "displayName": "Grandma's Gift Gambit",
+    "displayName": "GrandMa's Gift Gambit",
     "description": "At the start of a game, grants a random Gambit.",
     "nameKey": "grandma_name",
     "descKey": "grandma_description"
@@ -1240,7 +1241,7 @@
     ],
     "sprite": "Gambit_Gravekeeper.png",
     "displayName": "Gravekeeper's Gambit",
-    "description": "When one of your pieces is captured, grant<color=*>+$2</color>.",
+    "description": "When one of your pieces is captured, grant <color=*>+$2</color>.",
     "nameKey": "gravekeeper_name",
     "descKey": "gravekeeper_description"
   },
@@ -1256,7 +1257,7 @@
     ],
     "sprite": "Gambit_Greed.png",
     "displayName": "Inheritance's Gambit",
-    "description": "When one of your pieces is captured, turn another into a <color=\u221e>GOLDEN PIECE</color>.",
+    "description": "When one of your pieces is captured, turn another into a <color=∞>GOLDEN PIECE</color>.",
     "nameKey": "greed_name",
     "descKey": "greed_description"
   },
@@ -1271,7 +1272,7 @@
     ],
     "sprite": "Gambit_HeroArmor.png",
     "displayName": "Hero's Armor's Gambit",
-    "description": "<color=\u00e6>PROTECTION</color> power lasts 1 more turn.",
+    "description": "<color=æ>PROTECTION</color> power lasts 1 more turn.",
     "nameKey": "hero-armor_name",
     "descKey": "hero-armor_description"
   },
@@ -1286,7 +1287,7 @@
     ],
     "sprite": "Gambit_HiddenQueen.png",
     "displayName": "Hidden Queen's Gambit",
-    "description": "If the first piece you play is a <sprite=5> <color=&>PAWN</color> it can move like a <sprite=10> <color=^>QUEEN</color>.",
+    "description": "On your first turn, your <sprite=5> <color=&>PAWNS</color> can move like <sprite=10> <color=^>QUEENS</color>.",
     "nameKey": "hiddenqueen_name",
     "descKey": "hiddenqueen_description"
   },
@@ -1349,7 +1350,7 @@
     ],
     "sprite": "Gambit_HunterTrophy.png",
     "displayName": "Hunter Trophy's Gambit",
-    "description": "<color=\u25ca>TRAPPING</color> an enemy piece grants a copy of that piece.",
+    "description": "<color=◊>TRAPPING</color> an enemy piece grants a copy of that piece.",
     "nameKey": "hunter-trophy_name",
     "descKey": "hunter-trophy_description"
   },
@@ -1366,7 +1367,7 @@
     ],
     "sprite": "Gambit_ImpossibleChoice.png",
     "displayName": "Impossible Choice's Gambit",
-    "description": "<color=\u00b5>WAITING</color> while having a <br><wave><sprite=11> THREATENING</wave> piece grants its <color=*>sell price</color>.",
+    "description": "<color=µ>WAITING</color> while having a <br><wave><sprite=11> THREATENING</wave> piece grants its <color=*>sell price</color>.",
     "nameKey": "impossible-choice_name",
     "descKey": "impossible-choice_description"
   },
@@ -1381,7 +1382,7 @@
     ],
     "sprite": "Gambit_Inventor.png",
     "displayName": "Inventor's Gambit",
-    "description": "<color=\u00b5>WAITING</color> has a <color=\u00d8>1/3 chance</color> to grant a random gambit.",
+    "description": "<color=µ>WAITING</color> has a <color=Ø>1/3 chance</color> to grant a random gambit.",
     "nameKey": "inventor_name",
     "descKey": "inventor_description"
   },
@@ -1396,7 +1397,7 @@
     ],
     "sprite": "Gambit_Investor.png",
     "displayName": "Investor's Gambit",
-    "description": "At the start of a game <color=*>+$4</color> but there is a <color=\u00d8>1/7 chance</color> to be destroyed and lose <color=*>$20</color>.",
+    "description": "At the start of a game <color=*>+$4</color> but there is a <color=Ø>1/7 chance</color> to be destroyed and lose <color=*>$20</color>.",
     "nameKey": "investor_name",
     "descKey": "investor_description"
   },
@@ -1416,28 +1417,28 @@
     ],
     "sprite": "Gambit_Joker.png",
     "displayName": "Joker's Gambit",
-    "description": "Moving a <sprite=8> <color=\u220f>BISHOP</color> has a <color=\u00d8>1/2 chance</color> to modify its current tile.<br><sprite=0> <sprite=1> <sprite=2> <sprite=3> <sprite=12>",
+    "description": "After moving a <sprite=8> <color=∏>BISHOP</color>, modify its current tile.<br><sprite=0> <sprite=1> <sprite=2> <sprite=3> <sprite=12>",
     "nameKey": "joker_name",
     "descKey": "joker_description"
   },
   {
     "index": 91,
-    "poolIndex": 32,
+    "poolIndex": 25,
     "name": "Gambit_Jokey",
     "id": "jokey",
-    "rarity": "COMMON",
+    "rarity": "RARE",
     "focus": [
       "KNIGHT"
     ],
     "sprite": "Gambit_Jokey.png",
     "displayName": "Jockey's Gambit",
-    "description": "When one of your <sprite=7> <color=|>KNIGHTS</color> is captured, <color=\u00d8>1/2 chance</color> to earn a <sprite=5> <color=&>PAWN</color>, <color=\u00d8>1/3 chance</color> to earn a <sprite=9> <color=\u00a3>KING</color>.",
+    "description": "When one of your <sprite=7> <color=|>KNIGHTS</color> is captured, grants a random chess piece.",
     "nameKey": "jokey_name",
     "descKey": "jokey_description"
   },
   {
     "index": 92,
-    "poolIndex": 25,
+    "poolIndex": 26,
     "name": "Gambit_Jump",
     "id": "jump",
     "rarity": "RARE",
@@ -1452,7 +1453,7 @@
   },
   {
     "index": 93,
-    "poolIndex": 33,
+    "poolIndex": 32,
     "name": "Gambit_KeyOfLife",
     "id": "key_of_life",
     "rarity": "COMMON",
@@ -1461,7 +1462,7 @@
     ],
     "sprite": "Gambit_KeyOfLife.png",
     "displayName": "Key of Life's Gambit",
-    "description": "On capture, <color=\u00d8>1/4 chance</color> to receive a random piece.<br><i>(Once per game)</i>.",
+    "description": "On capture, <color=Ø>1/2 chance</color> to receive a random piece.<br><i>(Once per game)</i>.",
     "nameKey": "key_of_life_name",
     "descKey": "key_of_life_description"
   },
@@ -1476,7 +1477,7 @@
     ],
     "sprite": "Gambit_KingDragon.png",
     "displayName": "Dragon Horse's Gambit",
-    "description": "Your <sprite=8> <color=\u220f>BISHOPS</color> can also move like <sprite=9> <color=\u00a3>KINGS</color>.",
+    "description": "Your <sprite=8> <color=∏>BISHOPS</color> can also move like <sprite=9> <color=£>KINGS</color>.",
     "nameKey": "kingdragon_name",
     "descKey": "kingdragon_description"
   },
@@ -1490,23 +1491,24 @@
       "KING"
     ],
     "sprite": "Gambit_KingGuard.png",
-    "displayName": "King\u2019s Guard's Gambit",
-    "description": "Capturing a piece <br><wave><sprite=11> THREATENING</wave> your <sprite=9> <color=\u00a3>KING</color> with another piece skips the enemy\u2019s turn.",
+    "displayName": "King’s Guard's Gambit",
+    "description": "Capturing a piece <br><wave><sprite=11> THREATENING</wave> your <sprite=9> <color=£>KING</color> with another piece skips the enemy’s turn.",
     "nameKey": "king-guard_name",
     "descKey": "king-guard_description"
   },
   {
     "index": 96,
-    "poolIndex": 26,
+    "poolIndex": 27,
     "name": "Gambit_KingOfWinter",
     "id": "king_of_winter",
     "rarity": "RARE",
     "focus": [
-      "PHANTOM"
+      "PHANTOM",
+      "PIECE_SELLER"
     ],
     "sprite": "Gambit_KingOfWinter.png",
     "displayName": "Winter King's Gambit",
-    "description": "Capturing with a <color=\u00df>PHANTOM</color> piece has a <color=\u00d8>1/2 chance</color> to grant a <color=\u00df>PHANTOM</color> copy of the captured piece.",
+    "description": "Capturing with a <color=ß>PHANTOM</color> piece grants a <color=ß>PHANTOM</color> copy of the captured piece.",
     "nameKey": "king_of_winter_name",
     "descKey": "king_of_winter_description"
   },
@@ -1521,23 +1523,23 @@
     ],
     "sprite": "Gambit_Lavander.png",
     "displayName": "Lavander's Gambit",
-    "description": "<color=\u00df>PHANTOM</color> pieces do not disappear at the end of a game.",
+    "description": "<color=ß>PHANTOM</color> pieces do not disappear at the end of a game.",
     "nameKey": "lavander_name",
     "descKey": "lavander_description"
   },
   {
     "index": 98,
-    "poolIndex": 27,
+    "poolIndex": 23,
     "name": "Gambit_Lich",
     "id": "lich",
-    "rarity": "RARE",
+    "rarity": "EPIC",
     "focus": [
       "PHANTOM",
       "LANDING"
     ],
     "sprite": "Gambit_Lich.png",
     "displayName": "Lich's Gambit",
-    "description": "<color=\u00a9>LANDING</color> a piece creates a <color=\u00df>PHANTOM</color> copy next to it if possible <br><i>(regardless of the board's piece limit)</i>.",
+    "description": "<color=©>LANDING</color> a piece creates a <color=ß>PHANTOM</color> copy next to it if possible.",
     "nameKey": "lich_name",
     "descKey": "lich_description"
   },
@@ -1567,13 +1569,13 @@
     ],
     "sprite": "Gambit_LuckyCoin.png",
     "displayName": "Lucky Coin's Gambit",
-    "description": "Gachapon always opens up <color=\u2248>LEGENDARY</color> Gambits.",
+    "description": "Gachapon always opens up <color=≈>LEGENDARY</color> Gambits.",
     "nameKey": "lucky-coin_name",
     "descKey": "lucky-coin_description"
   },
   {
     "index": 101,
-    "poolIndex": 34,
+    "poolIndex": 33,
     "name": "Gambit_Ludo",
     "id": "ludo",
     "rarity": "COMMON",
@@ -1602,13 +1604,13 @@
     ],
     "sprite": "Gambit_MagicalBrush.png",
     "displayName": "Magic Brush's Gambit",
-    "description": "<color=\u00b5>WAITING</color> modifies a random tile that has not already been modified.<br><sprite=0> <sprite=1> <sprite=2> <sprite=3> <sprite=12>",
+    "description": "<color=µ>WAITING</color> modifies a random tile that has not already been modified.<br><sprite=0> <sprite=1> <sprite=2> <sprite=3> <sprite=12>",
     "nameKey": "magicalBrush_name",
     "descKey": "magicalBrush_description"
   },
   {
     "index": 103,
-    "poolIndex": 23,
+    "poolIndex": 24,
     "name": "Gambit_Makibishi",
     "id": "makibishi",
     "rarity": "EPIC",
@@ -1618,13 +1620,13 @@
     ],
     "sprite": "Gambit_Makibishi.png",
     "displayName": "Makibishi's Gambit",
-    "description": "When one of your <sprite=7> <color=|>KNIGHTS</color> captures in a game, <color=\u25ca>TRAP</color> all adjacent pieces.<br><i>(Once per game)</i>.",
+    "description": "When one of your <sprite=7> <color=|>KNIGHTS</color> captures a piece, <color=◊>TRAP</color> all <color=≠><bounce>ADJACENT</color></bounce> pieces.<br><i>(Once per game)</i>",
     "nameKey": "makibishi_name",
     "descKey": "makibishi_description"
   },
   {
     "index": 104,
-    "poolIndex": 24,
+    "poolIndex": 25,
     "name": "Gambit_Medal",
     "id": "medal",
     "rarity": "EPIC",
@@ -1640,7 +1642,7 @@
   },
   {
     "index": 105,
-    "poolIndex": 35,
+    "poolIndex": 34,
     "name": "Gambit_Mercenary",
     "id": "mercenary",
     "rarity": "COMMON",
@@ -1651,13 +1653,13 @@
     ],
     "sprite": "Gambit_Mercenary.png",
     "displayName": "Mercenary's Gambit",
-    "description": "Moving a <sprite=6> <color=\u00b0>ROOK</color> next to a <sprite=9> <color=\u00a3>KING</color> <color=\u00e6>PROTECTS</color> it.",
+    "description": "Moving a <sprite=6> <color=°>ROOK</color> <color=≠><bounce>ADJACENT</color></bounce> to a <sprite=9> <color=£>KING</color> <color=æ>PROTECTS</color> it.",
     "nameKey": "mercenary_name",
     "descKey": "mercenary_description"
   },
   {
     "index": 106,
-    "poolIndex": 36,
+    "poolIndex": 35,
     "name": "Gambit_MerchantMask",
     "id": "merchant-mask",
     "rarity": "COMMON",
@@ -1672,7 +1674,7 @@
   },
   {
     "index": 107,
-    "poolIndex": 37,
+    "poolIndex": 36,
     "name": "Gambit_Midas",
     "id": "midas",
     "rarity": "COMMON",
@@ -1681,13 +1683,13 @@
     ],
     "sprite": "Gambit_Midas.png",
     "displayName": "King Midas's Gambit",
-    "description": "<color=\u221e>GOLDEN PIECES</color> are not reset at the end of the game.",
+    "description": "<color=∞>GOLDEN PIECES</color> are not reset at the end of the game.",
     "nameKey": "midas_name",
     "descKey": "midas_description"
   },
   {
     "index": 108,
-    "poolIndex": 25,
+    "poolIndex": 26,
     "name": "Gambit_Mime",
     "id": "mime",
     "rarity": "EPIC",
@@ -1696,7 +1698,7 @@
     ],
     "sprite": "Gambit_Mime.png",
     "displayName": "Mime's Gambit",
-    "description": "Capturing with a <sprite=8> <color=\u220f>BISHOP</color> on a <color=\u20ac>WHITE</color> tile skips the enemy\u2019s turn.",
+    "description": "Capturing with a <sprite=8> <color=∏>BISHOP</color> on a <color=€>WHITE</color> tile skips the enemy’s turn.",
     "nameKey": "mime_name",
     "descKey": "mime_description"
   },
@@ -1712,7 +1714,7 @@
     ],
     "sprite": "Gambit_Minirook.png",
     "displayName": "Minirook's Gambit",
-    "description": "Your <sprite=5> <color=&>PAWNS</color> are instead <wave><color=\u222b>COUNTED AS</color></wave> <sprite=6> <color=\u00b0>ROOKS</color>.",
+    "description": "Your <sprite=5> <color=&>PAWNS</color> are instead <wave><color=∫>COUNTED AS</color></wave> <sprite=6> <color=°>ROOKS</color>.",
     "nameKey": "minirook_name",
     "descKey": "minirook_description"
   },
@@ -1727,13 +1729,13 @@
     ],
     "sprite": "Gambit_Miracle.png",
     "displayName": "Miracle's Gambit",
-    "description": "When one of your <color=\u0192>BLESSED</color> pieces is captured, <color=\u00d8>1/3 chance</color> to get another copy of it.",
+    "description": "When one of your <color=ƒ>BLESSED</color> pieces is captured, <color=Ø>1/2 chance</color> to get another copy of it.",
     "nameKey": "miracle_name",
     "descKey": "miracle_description"
   },
   {
     "index": 111,
-    "poolIndex": 38,
+    "poolIndex": 37,
     "name": "Gambit_Mirror",
     "id": "mirror",
     "rarity": "COMMON",
@@ -1742,7 +1744,7 @@
     ],
     "sprite": "Gambit_Mirror.png",
     "displayName": "Mirror's Gambit",
-    "description": "Capturing a piece with a piece of the same type has a <color=\u00d8>1/2 chance</color> of granting a copy of it.",
+    "description": "Capturing a piece with a piece of the same type has a <color=Ø>1/2 chance</color> of granting a copy of it.",
     "nameKey": "mirror_name",
     "descKey": "mirror_description"
   },
@@ -1758,7 +1760,7 @@
     ],
     "sprite": "Gambit_Musketeer.png",
     "displayName": "Musketeer's Gambit",
-    "description": "Capturing with a <sprite=8> <color=\u220f>BISHOP</color> has a <color=\u00d8>1/3 chance</color> to earn a <sprite=9> <color=\u00a3>KING</color> and <color=\u00d8>1/5 chance</color> to earn a <color=\u221e>GOLDEN</color> one.",
+    "description": "Capturing with a <sprite=8> <color=∏>BISHOP</color> grants a <sprite=9> <color=£>KING</color> (<color=Ø>1/5 chance</color> to earn a <color=∞>GOLDEN</color> one).",
     "nameKey": "musketeer_name",
     "descKey": "musketeer_description"
   },
@@ -1773,28 +1775,29 @@
     ],
     "sprite": "Gambit_Necromancer.png",
     "displayName": "Necromancer's Gambit",
-    "description": "Capturing with a <color=\u00df>PHANTOM</color> piece makes it DEFAULT.",
+    "description": "Capturing with a <color=ß>PHANTOM</color> piece makes it DEFAULT.",
     "nameKey": "necromancer_name",
     "descKey": "necromancer_description"
   },
   {
     "index": 114,
-    "poolIndex": 26,
+    "poolIndex": 27,
     "name": "Gambit_Obstacle",
     "id": "obstacle",
     "rarity": "EPIC",
     "focus": [
-      "KNIGHT"
+      "KNIGHT",
+      "LANDING"
     ],
     "sprite": "Gambit_Obstacle.png",
     "displayName": "Show Jumping's Gambit",
-    "description": "<color=\u00a9>LANDING</color> a <sprite=7> <color=|>KNIGHT</color> has a <color=\u00d8>1/4 chance</color> to grant a random Gambit.",
+    "description": "<color=©>LANDING</color> a <sprite=7> <color=|>KNIGHT</color> grants a random Gambit.",
     "nameKey": "obstacle_name",
     "descKey": "obstacle_description"
   },
   {
     "index": 115,
-    "poolIndex": 39,
+    "poolIndex": 38,
     "name": "Gambit_OldIdol",
     "id": "old-idol",
     "rarity": "COMMON",
@@ -1803,13 +1806,13 @@
     ],
     "sprite": "Gambit_OldIdol.png",
     "displayName": "Old Idol's Gambit",
-    "description": "<color=\u00d8>1/5 chance</color> to <color=\u0192>BLESS</color> a <br><wave><sprite=11> THREATENED</wave> piece.",
+    "description": "<color=Ø>1/5 chance</color> to <color=ƒ>BLESS</color> a <br><wave><sprite=11> THREATENED</wave> piece.",
     "nameKey": "old-idol_name",
     "descKey": "old-idol_description"
   },
   {
     "index": 116,
-    "poolIndex": 40,
+    "poolIndex": 39,
     "name": "Gambit_OldShield",
     "id": "old-shield",
     "rarity": "COMMON",
@@ -1818,13 +1821,13 @@
     ],
     "sprite": "Gambit_OldShield.png",
     "displayName": "Old Shield's Gambit",
-    "description": "<color=\u00d8>1/7 chance</color> to <color=\u00e6>PROTECT</color> a <br><wave><sprite=11> THREATENED</wave> piece.",
+    "description": "<color=Ø>1/7 chance</color> to <color=æ>PROTECT</color> a <br><wave><sprite=11> THREATENED</wave> piece.",
     "nameKey": "old-shield_name",
     "descKey": "old-shield_description"
   },
   {
     "index": 117,
-    "poolIndex": 41,
+    "poolIndex": 40,
     "name": "Gambit_Oshiya",
     "id": "oshiya",
     "rarity": "COMMON",
@@ -1848,7 +1851,7 @@
     ],
     "sprite": "Gambit_Ouija.png",
     "displayName": "Ouija's Gambit",
-    "description": "Earn <color=*>+$2</color> per vanishing <color=\u00df>PHANTOM</color> piece at the end of a game.",
+    "description": "Earn <color=*>+$2</color> per vanishing <color=ß>PHANTOM</color> piece at the end of a game.",
     "nameKey": "ouija_name",
     "descKey": "ouija_description"
   },
@@ -1863,13 +1866,13 @@
     ],
     "sprite": "Gambit_Patience.png",
     "displayName": "Patience's Gambit",
-    "description": "<color=\u00b5>WAITING</color> <color=\u00d8>doubles the chance</color> for the next turn<br><i>(ex 1/3 -> 2/3).",
+    "description": "<color=µ>WAITING</color> <color=Ø>doubles the chance</color> for the next turn<br><i>(ex 1/3 -> 2/3).",
     "nameKey": "patience_name",
     "descKey": "patience_description"
   },
   {
     "index": 120,
-    "poolIndex": 27,
+    "poolIndex": 28,
     "name": "Gambit_Pegasus",
     "id": "pegasus",
     "rarity": "EPIC",
@@ -1879,7 +1882,7 @@
     ],
     "sprite": "Gambit_Pegasus.png",
     "displayName": "Pegasus' Gambit",
-    "description": "Every <rainb l=0.5>PROMOTED </rainb>piece is also <wave><color=\u222b>COUNTED AS</color></wave> a <sprite=7> <color=|>KNIGHT</color>.",
+    "description": "Every <rainb l=0.5>PROMOTED </rainb>piece is also <wave><color=∫>COUNTED AS</color></wave> a <sprite=7> <color=|>KNIGHT</color>.",
     "nameKey": "pegasus_name",
     "descKey": "pegasus_description"
   },
@@ -1894,13 +1897,13 @@
     ],
     "sprite": "Gambit_Pendant.png",
     "displayName": "Pendant's Gambit",
-    "description": "When a piece is <color=\u0192>BLESSED</color>,<br><color=\u00d8>1/4 chance</color> to <color=\u0192>BLESS</color> another random one.",
+    "description": "When a piece is <color=ƒ>BLESSED</color>, <color=ƒ>BLESS</color> another random one.",
     "nameKey": "pendant_name",
     "descKey": "pendant_description"
   },
   {
     "index": 122,
-    "poolIndex": 28,
+    "poolIndex": 29,
     "name": "Gambit_Peon",
     "id": "peon",
     "rarity": "EPIC",
@@ -1926,7 +1929,7 @@
     ],
     "sprite": "Gambit_PhantomBride.png",
     "displayName": "Phantom Bride's Gambit",
-    "description": "<color=\u00b5>WAITING</color> has a <color=\u00d8>1/2 chance</color> to grant a <color=\u00df>PHANTOM</color> <sprite=10> <color=^>QUEEN</color>.",
+    "description": "<color=µ>WAITING</color> has a <color=Ø>1/2 chance</color> to grant a <color=ß>PHANTOM</color> <sprite=10> <color=^>QUEEN</color>.",
     "nameKey": "bride_name",
     "descKey": "bride_description"
   },
@@ -1947,17 +1950,17 @@
   },
   {
     "index": 125,
-    "poolIndex": 42,
+    "poolIndex": 41,
     "name": "Gambit_PlagueMask",
     "id": "plague-mask",
     "rarity": "COMMON",
     "focus": [
-      "BLESS",
+      "PIECE_SELLER",
       "BISHOP"
     ],
     "sprite": "Gambit_PlagueMask.png",
     "displayName": "Plague Mask's Gambit",
-    "description": "Starting a game with 2+ <sprite=8> <color=\u220f>BISHOPS</color> on board creates a <sprite=0> <color=\u0192>BLESS TILE</color> on a random tile.",
+    "description": "Sold pieces also <wave><color=∫>COUNT AS</color></wave> <sprite=8> <color=∏>BISHOPS</color>.",
     "nameKey": "plague-mask_name",
     "descKey": "plague-mask_description"
   },
@@ -1973,13 +1976,13 @@
     ],
     "sprite": "Gambit_Poacher.png",
     "displayName": "Poacher's Gambit",
-    "description": "Losing a <sprite=5> <color=&>PAWN</color> places a <sprite=3> <color=\u25ca>TRAP TILE</color> on its current tile.",
+    "description": "Losing a <sprite=5> <color=&>PAWN</color> places a <sprite=3> <color=◊>TRAP TILE</color> on its current tile.",
     "nameKey": "poacher_name",
     "descKey": "poacher_description"
   },
   {
     "index": 127,
-    "poolIndex": 29,
+    "poolIndex": 30,
     "name": "Gambit_Pope",
     "id": "pope",
     "rarity": "EPIC",
@@ -1989,7 +1992,7 @@
     ],
     "sprite": "Gambit_Pope.png",
     "displayName": "Pope's Gambit",
-    "description": "Your <sprite=8> <color=\u220f>BISHOPS</color> are also <wave><color=\u222b>COUNTED AS</color></wave> <sprite=10> <color=^>QUEENS</color>.",
+    "description": "Your <sprite=8> <color=∏>BISHOPS</color> are also <wave><color=∫>COUNTED AS</color></wave> <sprite=10> <color=^>QUEENS</color>.",
     "nameKey": "pope_name",
     "descKey": "pope_description"
   },
@@ -2004,13 +2007,13 @@
     ],
     "sprite": "Gambit_Prayer.png",
     "displayName": "Prayer's Gambit",
-    "description": "<color=\u00b5>WAITING</color> has a <color=\u00d8>1/3 chance</color> to grant the piece you have the most of in your Stock.",
+    "description": "<color=µ>WAITING</color> has a <color=Ø>1/3 chance</color> to grant the piece you have the most of in your Stock.",
     "nameKey": "prayer_name",
     "descKey": "prayer_description"
   },
   {
     "index": 129,
-    "poolIndex": 43,
+    "poolIndex": 42,
     "name": "Gambit_Priest",
     "id": "priest",
     "rarity": "COMMON",
@@ -2019,7 +2022,7 @@
     ],
     "sprite": "Gambit_Priest.png",
     "displayName": "Priest's Gambit",
-    "description": "<color=\u0192>BLESSING</color> power lasts 1 more turn.",
+    "description": "<color=ƒ>BLESSING</color> power lasts 1 more turn.",
     "nameKey": "priest_name",
     "descKey": "priest_description"
   },
@@ -2035,13 +2038,13 @@
     ],
     "sprite": "Gambit_Princess.png",
     "displayName": "Princess's Gambit",
-    "description": "<color=\u00a9>LANDING</color> a <sprite=10> <color=^>QUEEN</color> <color=\u0192>BLESSES</color> every neighbouring piece.",
+    "description": "<color=©>LANDING</color> a <sprite=10> <color=^>QUEEN</color> <color=ƒ>BLESSES</color> every <color=≠><bounce>ADJACENT</color></bounce> piece.",
     "nameKey": "princess_name",
     "descKey": "princess_description"
   },
   {
     "index": 131,
-    "poolIndex": 44,
+    "poolIndex": 43,
     "name": "Gambit_Proliferation",
     "id": "proliferation",
     "rarity": "COMMON",
@@ -2066,13 +2069,13 @@
     ],
     "sprite": "Gambit_Protector.png",
     "displayName": "Protector's Gambit",
-    "description": "After your first turn,<br><color=\u00e6>PROTECT</color> your <sprite=6> <color=\u00b0>ROOKS</color>.",
+    "description": "On your first turn,<br><color=æ>PROTECT</color> your <sprite=6> <color=°>ROOKS</color>.",
     "nameKey": "protector_name",
     "descKey": "protector_description"
   },
   {
     "index": 133,
-    "poolIndex": 45,
+    "poolIndex": 44,
     "name": "Gambit_QueenAnt",
     "id": "ant-queen",
     "rarity": "COMMON",
@@ -2104,7 +2107,7 @@
   },
   {
     "index": 135,
-    "poolIndex": 30,
+    "poolIndex": 31,
     "name": "Gambit_RecruiterHat",
     "id": "recruiterHat",
     "rarity": "EPIC",
@@ -2113,13 +2116,13 @@
     ],
     "sprite": "Gambit_RecruiterHat.png",
     "displayName": "Recruiter Hat's Gambit",
-    "description": "<color=\u00b5>WAITING</color> has a <color=\u00d8>1/3 chance</color> to grant a copy of a random piece you have in your stock.",
+    "description": "<color=µ>WAITING</color> has a <color=Ø>1/3 chance</color> to grant a copy of a random piece you have in your stock.",
     "nameKey": "recruiterHat_name",
     "descKey": "recruiterHat_description"
   },
   {
     "index": 136,
-    "poolIndex": 46,
+    "poolIndex": 45,
     "name": "Gambit_Reincarnation",
     "id": "reincarnation",
     "rarity": "COMMON",
@@ -2129,7 +2132,7 @@
     ],
     "sprite": "Gambit_Reincarnation.png",
     "displayName": "Reincarnation's Gambit",
-    "description": "Selling a <sprite=8> <color=\u220f>BISHOP</color> has a <color=\u00d8>1/3 chance</color> to grant a <sprite=8> <color=\u220f>BISHOP</color>.",
+    "description": "When you should get a <sprite=8> <color=∏>BISHOP</color>, get another random piece instead.",
     "nameKey": "reincarnation_name",
     "descKey": "reincarnation_description"
   },
@@ -2146,7 +2149,7 @@
     ],
     "sprite": "Gambit_Relic.png",
     "displayName": "Relic's Gambit",
-    "description": "When one of your <sprite=8> <color=\u220f>BISHOPS</color> is captured, creates a <sprite=12> <color=\u00df>PHANTOM TILE</color> on the captured tile.",
+    "description": "When one of your <sprite=8> <color=∏>BISHOPS</color> is captured, creates a <sprite=12> <color=ß>PHANTOM TILE</color> on the captured tile.",
     "nameKey": "relic_name",
     "descKey": "relic_description"
   },
@@ -2161,7 +2164,7 @@
     ],
     "sprite": "Gambit_ResurrectionStone.png",
     "displayName": "Resurrection Stone's Gambit",
-    "description": "<sprite=12> <color=\u00df>PHANTOM TILES</color> has a <color=\u00d8>1/4 chance</color> to grant a DEFAULT piece instead of a <color=\u00df>PHANTOM</color> one.",
+    "description": "<sprite=12> <color=ß>PHANTOM TILES</color> have a <color=Ø>1/4 chance</color> to grant a DEFAULT piece instead of a <color=ß>PHANTOM</color> one.",
     "nameKey": "resurrectionStone_name",
     "descKey": "resurrectionStone_description"
   },
@@ -2176,13 +2179,13 @@
     ],
     "sprite": "Gambit_Sacrifice.png",
     "displayName": "Sacrifice's Gambit",
-    "description": "After losing 3 pieces, earn a random gambit.",
+    "description": "After losing 2 pieces, earn a random gambit.",
     "nameKey": "sacrifice_name",
     "descKey": "sacrifice_description"
   },
   {
     "index": 140,
-    "poolIndex": 47,
+    "poolIndex": 46,
     "name": "Gambit_Scapegoat",
     "id": "scapegoat",
     "rarity": "COMMON",
@@ -2192,13 +2195,13 @@
     ],
     "sprite": "Gambit_Scapegoat.png",
     "displayName": "Scapegoat's Gambit",
-    "description": "When one of your <sprite=8> <color=\u220f>BISHOPS</color> is captured, earn a random piece.",
+    "description": "When one of your <sprite=8> <color=∏>BISHOPS</color> is captured, earn a random piece.",
     "nameKey": "scapegoat_name",
     "descKey": "scapegoat_description"
   },
   {
     "index": 141,
-    "poolIndex": 48,
+    "poolIndex": 47,
     "name": "Gambit_Scepter",
     "id": "scepter",
     "rarity": "COMMON",
@@ -2208,22 +2211,22 @@
     ],
     "sprite": "Gambit_Scepter.png",
     "displayName": "Scepter's Gambit",
-    "description": "Earn a <sprite=8> <color=\u220f>BISHOP</color> when entering <shake>Crumble Mode</shake>.",
+    "description": "Earn a <sprite=8> <color=∏>BISHOP</color> when entering <shake>Crumble Mode</shake>.",
     "nameKey": "scepter_name",
     "descKey": "scepter_description"
   },
   {
     "index": 142,
-    "poolIndex": 49,
+    "poolIndex": 32,
     "name": "Gambit_Scout",
     "id": "scout",
-    "rarity": "COMMON",
+    "rarity": "EPIC",
     "focus": [
       "ROOK"
     ],
     "sprite": "Gambit_Scout.png",
     "displayName": "Scout's Gambit",
-    "description": "Capturing a piece with no neighbour with a <sprite=6> <color=\u00b0>ROOK</color> has a <color=\u00d8>1/3 chance</color> to grant a random Gambit.",
+    "description": "Capturing a piece with a <sprite=6> <color=°>ROOK</color> that has no <color=≠><bounce>ADJACENT</color></bounce> pieces grants a random Gambit.",
     "nameKey": "scout_name",
     "descKey": "scout_description"
   },
@@ -2238,7 +2241,7 @@
     ],
     "sprite": "Gambit_Scream.png",
     "displayName": "Scream's Gambit",
-    "description": "<sprite=12> <color=\u00df>PHANTOM TILES</color> have a <color=\u00d8>1/2 chance</color> to trigger twice.",
+    "description": "<sprite=12> <color=ß>PHANTOM TILES</color> have a <color=Ø>1/2 chance</color> to trigger twice.",
     "nameKey": "scream_name",
     "descKey": "scream_description"
   },
@@ -2253,13 +2256,13 @@
     ],
     "sprite": "Gambit_Seraphin.png",
     "displayName": "Seraph's Gambit",
-    "description": "<color=\u00e6>PROTECTING</color> a piece has a <color=\u00d8>1/2 chance</color> to grant a copy of that piece.<br><i>(Once per piece on the board.)",
+    "description": "<color=æ>PROTECTING</color> a piece has a <color=Ø>1/2 chance</color> to grant a copy of that piece.<br><i>(Once per piece on the board.)",
     "nameKey": "seraphin_name",
     "descKey": "seraphin_description"
   },
   {
     "index": 145,
-    "poolIndex": 50,
+    "poolIndex": 48,
     "name": "Gambit_Shadow",
     "id": "shadow",
     "rarity": "COMMON",
@@ -2274,22 +2277,7 @@
   },
   {
     "index": 146,
-    "poolIndex": 51,
-    "name": "Gambit_Shield",
-    "id": "shield",
-    "rarity": "COMMON",
-    "focus": [
-      "PROTECTIVE"
-    ],
-    "sprite": "Gambit_Shield.png",
-    "displayName": "Shield's Gambit",
-    "description": "When a piece is <color=\u00e6>PROTECTED</color>,<br><color=\u00d8>1/4 chance</color> to <color=\u00e6>PROTECT</color> another random one.",
-    "nameKey": "shield_name",
-    "descKey": "shield_description"
-  },
-  {
-    "index": 147,
-    "poolIndex": 31,
+    "poolIndex": 33,
     "name": "Gambit_ShootingStar",
     "id": "shootingStar",
     "rarity": "EPIC",
@@ -2299,13 +2287,13 @@
     ],
     "sprite": "Gambit_ShootingStar.png",
     "displayName": "Shooting Star's Gambit",
-    "description": "<color=\u00a9>LANDING</color> a piece makes it <color=\u221e>GOLDEN.</color><br><i>(Once per game)</i>.",
+    "description": "<color=©>LANDING</color> a piece makes it <color=∞>GOLDEN.</color><br><i>(Once per game)</i>.",
     "nameKey": "shootingStar_name",
     "descKey": "shootingStar_description"
   },
   {
-    "index": 148,
-    "poolIndex": 52,
+    "index": 147,
+    "poolIndex": 49,
     "name": "Gambit_ShopCard",
     "id": "shopcard",
     "rarity": "COMMON",
@@ -2319,7 +2307,7 @@
     "descKey": "shopcard_description"
   },
   {
-    "index": 149,
+    "index": 148,
     "poolIndex": 17,
     "name": "Gambit_Skydiver",
     "id": "skydiver",
@@ -2331,13 +2319,13 @@
     ],
     "sprite": "Gambit_Skydiver.png",
     "displayName": "Skydiver's Gambit",
-    "description": "<color=\u00a9>LANDING</color> a <sprite=5> <color=&>PAWN</color> <rainb l=0.5>PROMOTES </rainb>it.",
+    "description": "<color=©>LANDING</color> a <sprite=5> <color=&>PAWN</color> <rainb l=0.5>PROMOTES </rainb>it.",
     "nameKey": "skydiver_name",
     "descKey": "skydiver_description"
   },
   {
-    "index": 150,
-    "poolIndex": 53,
+    "index": 149,
+    "poolIndex": 50,
     "name": "Gambit_Sleepy",
     "id": "sleepy",
     "rarity": "COMMON",
@@ -2351,7 +2339,7 @@
     "descKey": "sleepy_description"
   },
   {
-    "index": 151,
+    "index": 150,
     "poolIndex": 47,
     "name": "Gambit_Soul",
     "id": "soul",
@@ -2362,12 +2350,12 @@
     ],
     "sprite": "Gambit_Soul.png",
     "displayName": "Soul's Gambit",
-    "description": "At the beginning of a game, turn a random piece into a <color=\u00df>PHANTOM</color> one and earn a copy of it in your stock.",
+    "description": "At the beginning of a game, turn a random piece into a <color=ß>PHANTOM</color> one and earn a copy of it in your stock.",
     "nameKey": "soul_name",
     "descKey": "soul_description"
   },
   {
-    "index": 152,
+    "index": 151,
     "poolIndex": 48,
     "name": "Gambit_SoulLantern",
     "id": "soulLantern",
@@ -2378,13 +2366,13 @@
     ],
     "sprite": "Gambit_SoulLantern.png",
     "displayName": "Soul's Lantern's Gambit",
-    "description": "<color=\u00df>PHANTOM</color> pieces can be sold for <color=*>half of their default sell price</color>.",
+    "description": "<color=ß>PHANTOM</color> pieces can be sold for <color=*>half of their default sell price</color>.",
     "nameKey": "soulLantern_name",
     "descKey": "soulLantern_description"
   },
   {
-    "index": 153,
-    "poolIndex": 54,
+    "index": 152,
+    "poolIndex": 51,
     "name": "Gambit_Spartan",
     "id": "spartan",
     "rarity": "COMMON",
@@ -2398,8 +2386,8 @@
     "descKey": "spartan_description"
   },
   {
-    "index": 154,
-    "poolIndex": 32,
+    "index": 153,
+    "poolIndex": 34,
     "name": "Gambit_Spy",
     "id": "spy",
     "rarity": "EPIC",
@@ -2409,13 +2397,13 @@
     ],
     "sprite": "Gambit_Spy.png",
     "displayName": "Spy's Gambit",
-    "description": "<color=\u00a9>LANDING</color> a piece creates a <color=\u25ca>TRAP TILE</color> <sprite=3> on a random tile in the same column.",
+    "description": "<color=©>LANDING</color> a piece creates a <color=◊>TRAP TILE</color> <sprite=3> on a random tile in the same column.",
     "nameKey": "spy_name",
     "descKey": "spy_description"
   },
   {
-    "index": 155,
-    "poolIndex": 33,
+    "index": 154,
+    "poolIndex": 35,
     "name": "Gambit_Squire",
     "id": "squire",
     "rarity": "EPIC",
@@ -2425,13 +2413,13 @@
     ],
     "sprite": "Gambit_Squire.png",
     "displayName": "Squire's Gambit",
-    "description": "Moving a <sprite=7> <color=|>KNIGHT</color> next to a <sprite=5> <color=&>PAWN</color> has a <color=\u00d8>1/2 chance</color> to skip the enemy's turn.",
+    "description": "Moving a <sprite=7> <color=|>KNIGHT</color> <color=≠><bounce>ADJACENT</color></bounce> to a <sprite=5> <color=&>PAWN</color> has a <color=Ø>1/2 chance</color> to skip the enemy's turn.",
     "nameKey": "squire_name",
     "descKey": "squire_description"
   },
   {
-    "index": 156,
-    "poolIndex": 55,
+    "index": 155,
+    "poolIndex": 52,
     "name": "Gambit_Squirrel",
     "id": "squirrel",
     "rarity": "COMMON",
@@ -2446,8 +2434,8 @@
     "descKey": "squirrel_description"
   },
   {
-    "index": 157,
-    "poolIndex": 34,
+    "index": 156,
+    "poolIndex": 36,
     "name": "Gambit_Stallion",
     "id": "stallion",
     "rarity": "EPIC",
@@ -2456,12 +2444,12 @@
     ],
     "sprite": "Gambit_Stallion.png",
     "displayName": "Black Stallion's Gambit",
-    "description": "Capturing with a <sprite=7> <color=|>KNIGHT</color> on a <color=~>BLACK</color> tile skips the enemy\u2019s turn.",
+    "description": "Capturing with a <sprite=7> <color=|>KNIGHT</color> on a <color=~>BLACK</color> tile skips the enemy’s turn.",
     "nameKey": "stallion_name",
     "descKey": "stallion_description"
   },
   {
-    "index": 158,
+    "index": 157,
     "poolIndex": 49,
     "name": "Gambit_SteelJawTrap",
     "id": "steel-jaw-trap",
@@ -2471,13 +2459,13 @@
     ],
     "sprite": "Gambit_SteelJawTrap.png",
     "displayName": "Bear Trap's Gambit",
-    "description": "<color=\u25ca>TRAPPING</color> an enemy piece <color=\u25ca>TRAPS</color> another random one.",
+    "description": "<color=◊>TRAPPING</color> an enemy piece <color=◊>TRAPS</color> another random one.",
     "nameKey": "steel-jaw-trap_name",
     "descKey": "steel-jaw-trap_description"
   },
   {
-    "index": 159,
-    "poolIndex": 56,
+    "index": 158,
+    "poolIndex": 53,
     "name": "Gambit_StockClearance",
     "id": "stock",
     "rarity": "COMMON",
@@ -2491,7 +2479,7 @@
     "descKey": "stock_description"
   },
   {
-    "index": 160,
+    "index": 159,
     "poolIndex": 50,
     "name": "Gambit_Sun",
     "id": "sun",
@@ -2502,13 +2490,13 @@
     ],
     "sprite": "Gambit_Sun.png",
     "displayName": "Sun's Gambit",
-    "description": "Earning a <sprite=9> <color=\u00a3>KING</color> creates a <sprite=1> <color=\u221e>GOLDEN TILE</color> on a random tile.",
+    "description": "Earning a <sprite=9> <color=£>KING</color> creates a <sprite=1> <color=∞>GOLDEN TILE</color> on a random tile.",
     "nameKey": "sun_name",
     "descKey": "sun_description"
   },
   {
-    "index": 161,
-    "poolIndex": 35,
+    "index": 160,
+    "poolIndex": 37,
     "name": "Gambit_SuperHeroCape",
     "id": "superhero-cape",
     "rarity": "EPIC",
@@ -2524,7 +2512,7 @@
     "descKey": "superhero-cape_description"
   },
   {
-    "index": 162,
+    "index": 161,
     "poolIndex": 51,
     "name": "Gambit_SuperHeroLanding",
     "id": "superHeroLanding",
@@ -2535,12 +2523,12 @@
     ],
     "sprite": "Gambit_SuperHeroLanding.png",
     "displayName": "Super Landing's Gambit",
-    "description": "After <color=\u00a9>LANDING</color> a piece, <color=\u00e6>PROTECTS</color> all neighbouring pieces.",
+    "description": "After <color=©>LANDING</color> a piece, <color=æ>PROTECT</color> all <color=≠><bounce>ADJACENT</color></bounce> pieces.",
     "nameKey": "superHeroLanding_name",
     "descKey": "superHeroLanding_description"
   },
   {
-    "index": 163,
+    "index": 162,
     "poolIndex": 52,
     "name": "Gambit_SupplyBox",
     "id": "supplyBox",
@@ -2550,13 +2538,13 @@
     ],
     "sprite": "Gambit_SupplyBox.png",
     "displayName": "Supply Box's Gambit",
-    "description": "<color=\u00a9>LANDING</color> on a modified tile triggers it.<br>(<sprite=0> <sprite=1> <sprite=2> <sprite=12>)",
+    "description": "<color=©>LANDING</color> on a modified tile triggers it.<br>(<sprite=0> <sprite=1> <sprite=2> <sprite=12>)",
     "nameKey": "supplyBox_name",
     "descKey": "supplyBox_description"
   },
   {
-    "index": 164,
-    "poolIndex": 57,
+    "index": 163,
+    "poolIndex": 54,
     "name": "Gambit_Survivor",
     "id": "survivor",
     "rarity": "COMMON",
@@ -2571,8 +2559,8 @@
     "descKey": "survivor_description"
   },
   {
-    "index": 165,
-    "poolIndex": 36,
+    "index": 164,
+    "poolIndex": 38,
     "name": "Gambit_Templar",
     "id": "templar",
     "rarity": "EPIC",
@@ -2582,13 +2570,13 @@
     ],
     "sprite": "Gambit_Templar.png",
     "displayName": "Templar's Gambit",
-    "description": "Earning a <sprite=6> <color=\u00b0>ROOK</color> creates a <sprite=2> <color=\u00e6>PROTECTIVE TILE</color> on a random tile.",
+    "description": "Earning a <sprite=6> <color=°>ROOK</color> has a <color=Ø>1/3 chance</color> to create a <sprite=2> <color=æ>PROTECTIVE TILE</color> on a random tile.",
     "nameKey": "templar_name",
     "descKey": "templar_description"
   },
   {
-    "index": 166,
-    "poolIndex": 58,
+    "index": 165,
+    "poolIndex": 55,
     "name": "Gambit_Throne",
     "id": "throne",
     "rarity": "COMMON",
@@ -2598,12 +2586,12 @@
     ],
     "sprite": "Gambit_Throne.png",
     "displayName": "Throne's Gambit",
-    "description": "On <rainb l=0.5>PROMOTION</rainb>, earn a <sprite=9> <color=\u00a3>KING</color>.",
+    "description": "On <rainb l=0.5>PROMOTION</rainb>, add a <sprite=9> <color=£>KING</color> in your Stock.",
     "nameKey": "throne_name",
     "descKey": "throne_description"
   },
   {
-    "index": 167,
+    "index": 166,
     "poolIndex": 18,
     "name": "Gambit_Thunder",
     "id": "thunder",
@@ -2618,8 +2606,8 @@
     "descKey": "thunder_description"
   },
   {
-    "index": 168,
-    "poolIndex": 59,
+    "index": 167,
+    "poolIndex": 56,
     "name": "Gambit_ToySoldier",
     "id": "toy-soldier",
     "rarity": "COMMON",
@@ -2629,13 +2617,13 @@
     ],
     "sprite": "Gambit_ToySoldier.png",
     "displayName": "Backup's Gambit",
-    "description": "<color=*>+$2</color> when <color=\u00a9>LANDING</color> a piece.<br>",
+    "description": "<color=*>+$2</color> when <color=©>LANDING</color> a piece.<br>",
     "nameKey": "toy-soldier_name",
     "descKey": "toy-soldier_description"
   },
   {
-    "index": 169,
-    "poolIndex": 37,
+    "index": 168,
+    "poolIndex": 39,
     "name": "Gambit_Trampoline",
     "id": "trampoline",
     "rarity": "EPIC",
@@ -2644,12 +2632,12 @@
     ],
     "sprite": "Gambit_Trampoline.png",
     "displayName": "Trampoline's Gambit",
-    "description": "After <color=\u00a9>LANDING</color> a piece, <color=\u00d8>1/4 chance</color> to get a copy of this piece.",
+    "description": "After <color=©>LANDING</color> a piece, <color=Ø>1/2 chance</color> to get a copy of this piece.",
     "nameKey": "trampoline_name",
     "descKey": "trampoline_description"
   },
   {
-    "index": 170,
+    "index": 169,
     "poolIndex": 53,
     "name": "Gambit_Trapper",
     "id": "trapper",
@@ -2659,29 +2647,29 @@
     ],
     "sprite": "Gambit_Trapper.png",
     "displayName": "Trapper's Gambit",
-    "description": "<color=\u25ca>TRAPPING</color> an enemy piece grants <color=*>+$2</color>.",
+    "description": "<color=◊>TRAPPING</color> an enemy piece grants <color=*>+$2</color>.",
     "nameKey": "trapper_name",
     "descKey": "trapper_description"
   },
   {
-    "index": 171,
-    "poolIndex": 54,
-    "name": "Gambit_Trojan",
-    "id": "trojan",
-    "rarity": "RARE",
+    "index": 170,
+    "poolIndex": 40,
+    "name": "Gambit_Graal",
+    "id": "graal",
+    "rarity": "EPIC",
     "focus": [
-      "KNIGHT",
-      "SACRIFICE"
+      "GAMBIT_SELLER",
+      "BLESS"
     ],
-    "sprite": "Gambit_Trojan.png",
-    "displayName": "Trojan Horse's Gambit",
-    "description": "When one of your <sprite=7> <color=|>KNIGHTS</color> is captured, <color=\u00d8>1/2 chance</color> to earn a <sprite=5> <color=&>PAWN</color>, and a <color=\u00d8>1/3 chance</color> to earn a <sprite=9> <color=\u00a3>KING</color>.",
-    "nameKey": "trojan_name",
-    "descKey": "trojan_description"
+    "sprite": "Gambit_Graal.png",
+    "displayName": "Graal's Gambit",
+    "description": "After getting a Gambit, creates a <sprite=0> <color=ƒ>BLESSING TILE</color> on a non modified tile.",
+    "nameKey": "graal_name",
+    "descKey": "graal_description"
   },
   {
-    "index": 172,
-    "poolIndex": 60,
+    "index": 171,
+    "poolIndex": 57,
     "name": "Gambit_Twister",
     "id": "twister",
     "rarity": "COMMON",
@@ -2700,8 +2688,8 @@
     "descKey": "twister_description"
   },
   {
-    "index": 173,
-    "poolIndex": 38,
+    "index": 172,
+    "poolIndex": 41,
     "name": "Gambit_Valhalla",
     "id": "valhalla",
     "rarity": "EPIC",
@@ -2711,13 +2699,13 @@
     ],
     "sprite": "Gambit_Valhalla.png",
     "displayName": "Valhalla's Gambit",
-    "description": "Earn a <color=\u00df>PHANTOM</color> copy of every falling piece.",
+    "description": "Earn a <color=ß>PHANTOM</color> copy of every falling piece.",
     "nameKey": "valhalla_name",
     "descKey": "valhalla_description"
   },
   {
-    "index": 174,
-    "poolIndex": 61,
+    "index": 173,
+    "poolIndex": 58,
     "name": "Gambit_Valkyrie",
     "id": "valkyrie",
     "rarity": "COMMON",
@@ -2727,13 +2715,13 @@
     ],
     "sprite": "Gambit_Valkyrie.png",
     "displayName": "Valkyrie's Gambit",
-    "description": "<color=\u00a9>LANDING</color> a <sprite=10> <color=^>QUEEN</color> turns one of your <sprite=5> <color=&>PAWNS</color> into another random piece.",
+    "description": "<color=©>LANDING</color> a <sprite=10> <color=^>QUEEN</color> turns one of your <sprite=5> <color=&>PAWNS</color> into another random piece.",
     "nameKey": "valkyrie_name",
     "descKey": "valkyrie_description"
   },
   {
-    "index": 175,
-    "poolIndex": 55,
+    "index": 174,
+    "poolIndex": 54,
     "name": "Gambit_Violet",
     "id": "violet",
     "rarity": "RARE",
@@ -2743,13 +2731,13 @@
     ],
     "sprite": "Gambit_Violet.png",
     "displayName": "Violet's Gambit",
-    "description": "<color=\u00b5>WAITING</color> grants a <color=\u00df>PHANTOM</color> copy of the last piece captured by the opponent.",
+    "description": "<color=µ>WAITING</color> grants a <color=ß>PHANTOM</color> copy of the last piece captured by the opponent.",
     "nameKey": "violet_name",
     "descKey": "violet_description"
   },
   {
-    "index": 176,
-    "poolIndex": 62,
+    "index": 175,
+    "poolIndex": 59,
     "name": "Gambit_WarHorse",
     "id": "war-horse",
     "rarity": "COMMON",
@@ -2760,13 +2748,13 @@
     ],
     "sprite": "Gambit_WarHorse.png",
     "displayName": "War Horse's Gambit",
-    "description": "<rainb l=0.5>PROMOTING </rainb> into a <sprite=7> <color=|>KNIGHT</color> <color=\u00e6>PROTECTS</color> it.",
+    "description": "<rainb l=0.5>PROMOTING </rainb> into a <sprite=7> <color=|>KNIGHT</color> <color=æ>PROTECTS</color> it.",
     "nameKey": "war-horse_name",
     "descKey": "war-horse_description"
   },
   {
-    "index": 177,
-    "poolIndex": 39,
+    "index": 176,
+    "poolIndex": 42,
     "name": "Gambit_Warlock",
     "id": "warlock",
     "rarity": "EPIC",
@@ -2776,13 +2764,13 @@
     ],
     "sprite": "Gambit_Warlock.png",
     "displayName": "Warlock's Gambit",
-    "description": "<color=\u00a9>LANDING</color> on a <color=~>BLACK</color> tile creates a <sprite=0> <color=\u0192>BLESS TILE</color> on a random <color=~>BLACK</color> tile.",
+    "description": "<color=©>LANDING</color> on a <color=~>BLACK</color> tile creates a <sprite=0> <color=ƒ>BLESS TILE</color> on a random <color=~>BLACK</color> tile.",
     "nameKey": "warlock_name",
     "descKey": "warlock_description"
   },
   {
-    "index": 178,
-    "poolIndex": 63,
+    "index": 177,
+    "poolIndex": 60,
     "name": "Gambit_WeirdPot",
     "id": "weird-pot",
     "rarity": "COMMON",
@@ -2792,13 +2780,13 @@
     ],
     "sprite": "Gambit_WeirdPot.png",
     "displayName": "Weird Pot's Gambit",
-    "description": "When a piece is <color=\u0192>BLESSED</color>, <color=\u00d8>1/3 chance</color> to earn its <color=*>sell value</color>.",
+    "description": "When a piece is <color=ƒ>BLESSED</color>, <color=Ø>1/3 chance</color> to earn its <color=*>sell value</color>.",
     "nameKey": "weird-pot_name",
     "descKey": "weird-pot_description"
   },
   {
-    "index": 179,
-    "poolIndex": 40,
+    "index": 178,
+    "poolIndex": 43,
     "name": "Gambit_Whip",
     "id": "whip",
     "rarity": "EPIC",
@@ -2808,12 +2796,12 @@
     ],
     "sprite": "Gambit_Whip.png",
     "displayName": "Whip's Gambit",
-    "description": "Capturing with a <sprite=7> <color=|>KNIGHT</color> has a <color=\u00d8>1/2 chance</color> to turn a <sprite=5> <color=&>PAWN</color> in your Stock into a <sprite=7> <color=|>KNIGHT</color>.",
+    "description": "Capturing with a <sprite=7> <color=|>KNIGHT</color> turns a <sprite=5> <color=&>PAWN</color> in your Stock into a <sprite=7> <color=|>KNIGHT</color>.",
     "nameKey": "whip_name",
     "descKey": "whip_description"
   },
   {
-    "index": 180,
+    "index": 179,
     "poolIndex": 19,
     "name": "Gambit_WhiteCrown",
     "id": "white-crown",
@@ -2823,13 +2811,13 @@
     ],
     "sprite": "Gambit_WhiteCrown.png",
     "displayName": "White Crown's Gambit",
-    "description": "When a <sprite=10> <color=^>QUEEN</color> captures on a <color=\u20ac>WHITE</color> tile, get a copy of a random piece you have in your stock.",
+    "description": "When a <sprite=10> <color=^>QUEEN</color> captures on a <color=€>WHITE</color> tile, get a copy of a random piece you have in your stock.",
     "nameKey": "white-crown_name",
     "descKey": "white-crown_description"
   },
   {
-    "index": 181,
-    "poolIndex": 64,
+    "index": 180,
+    "poolIndex": 61,
     "name": "Gambit_Whitelighter",
     "id": "whitelighter",
     "rarity": "COMMON",
@@ -2838,13 +2826,13 @@
     ],
     "sprite": "Gambit_Whitelighter.png",
     "displayName": "Whitelighter's Gambit",
-    "description": "At the start of a game,<br>earn <color=*>+$7</color> if all your pieces are on a <color=\u20ac>WHITE</color> tile.",
+    "description": "At the start of a game,<br>earn <color=*>+$7</color> if all your pieces are on a <color=€>WHITE</color> tile.",
     "nameKey": "whitelighter_name",
     "descKey": "whitelighter_description"
   },
   {
-    "index": 182,
-    "poolIndex": 41,
+    "index": 181,
+    "poolIndex": 44,
     "name": "Gambit_WillOWisp",
     "id": "willOwisp",
     "rarity": "EPIC",
@@ -2853,13 +2841,13 @@
     ],
     "sprite": "Gambit_WillOWisp.png",
     "displayName": "Will O Wisp's Gambit",
-    "description": "Capturing on a <color=\u20ac>WHITE</color> tile has a <color=\u00d8>1/3 chance</color> to create a <sprite=12> <color=\u00df>PHANTOM TILE</color>.",
+    "description": "Capturing on a <color=€>WHITE</color> tile has a <color=Ø>1/3 chance</color> to create a <sprite=12> <color=ß>PHANTOM TILE</color>.",
     "nameKey": "willOwisp_name",
     "descKey": "willOwisp_description"
   },
   {
-    "index": 183,
-    "poolIndex": 56,
+    "index": 182,
+    "poolIndex": 55,
     "name": "Gambit_WinterHelmet",
     "id": "winterHelmet",
     "rarity": "RARE",
@@ -2870,13 +2858,13 @@
     ],
     "sprite": "Gambit_WinterHelmet.png",
     "displayName": "Winter Helmet's Gambit",
-    "description": "Turns your <color=\u00df>PHANTOM</color> pieces into DEFAULT after a <rainb l=0.5>PROMOTION</rainb>.",
+    "description": "Turns your <color=ß>PHANTOM</color> pieces into DEFAULT after a <rainb l=0.5>PROMOTION</rainb>.",
     "nameKey": "winterHelmet_name",
     "descKey": "winterHelmet_description"
   },
   {
-    "index": 184,
-    "poolIndex": 57,
+    "index": 183,
+    "poolIndex": 56,
     "name": "Gambit_Witch",
     "id": "witch",
     "rarity": "RARE",
@@ -2890,8 +2878,8 @@
     "descKey": "witch_description"
   },
   {
-    "index": 185,
-    "poolIndex": 65,
+    "index": 184,
+    "poolIndex": 62,
     "name": "Gambit_WreckingBall",
     "id": "wrecking",
     "rarity": "COMMON",
@@ -2902,13 +2890,13 @@
     ],
     "sprite": "Gambit_WreckingBall.png",
     "displayName": "Wrecking Ball's Gambit",
-    "description": "When one of your <sprite=6> <color=\u00b0>ROOKS</color> is captured, earn a <sprite=9> <color=\u00a3>KING</color>.",
+    "description": "When one of your <sprite=6> <color=°>ROOKS</color> is captured, earn a <sprite=9> <color=£>KING</color>.",
     "nameKey": "wrecking_name",
     "descKey": "wrecking_description"
   },
   {
-    "index": 186,
-    "poolIndex": 42,
+    "index": 185,
+    "poolIndex": 45,
     "name": "Gambit_Yang",
     "id": "yin",
     "rarity": "EPIC",
@@ -2917,13 +2905,13 @@
     ],
     "sprite": "Gambit_Yang.png",
     "displayName": "Yin's Gambit",
-    "description": "<color=\u20ac>WHITE</color> tiles have a <color=\u00d8>1/3 chance</color> of being considered as <color=~>BLACK</color> tiles.",
+    "description": "<color=€>WHITE</color> tiles have a <color=Ø>1/3 chance</color> to count as <color=~>BLACK</color> tiles.",
     "nameKey": "yin_name",
     "descKey": "yang_description"
   },
   {
-    "index": 187,
-    "poolIndex": 43,
+    "index": 186,
+    "poolIndex": 46,
     "name": "Gambit_Yin",
     "id": "yang",
     "rarity": "EPIC",
@@ -2932,13 +2920,13 @@
     ],
     "sprite": "Gambit_Yin.png",
     "displayName": "Yang's Gambit",
-    "description": "<color=~>BLACK</color> tiles have a <color=\u00d8>1/3 chance</color> of being considered as <color=\u20ac>WHITE</color> tiles.",
+    "description": "<color=~>BLACK</color> tiles have a <color=Ø>1/3 chance</color> to count as <color=€>WHITE</color> tiles.",
     "nameKey": "yang_name",
     "descKey": "yin_description"
   },
   {
-    "index": 188,
-    "poolIndex": 58,
+    "index": 187,
+    "poolIndex": 57,
     "name": "Gambit_Zen",
     "id": "zen",
     "rarity": "RARE",
@@ -2948,13 +2936,13 @@
     ],
     "sprite": "Gambit_Zen.png",
     "displayName": "Zen's Gambit",
-    "description": "<color=\u00b5>WAITING</color> during <shake>Crumble Mode</shake> grants a random piece.",
+    "description": "<color=µ>WAITING</color> during <shake>Crumble Mode</shake> grants a random piece.",
     "nameKey": "zen_name",
     "descKey": "zen_description"
   },
   {
-    "index": 189,
-    "poolIndex": 59,
+    "index": 188,
+    "poolIndex": 58,
     "name": "Gambit_ZocmanTax",
     "id": "zocman-tax",
     "rarity": "RARE",
@@ -2964,13 +2952,13 @@
     ],
     "sprite": "Gambit_ZocmanTax.png",
     "displayName": "Zocman Tax's Gambit",
-    "description": "<color=\u00b5>WAITING</color> grants <color=*>+$1</color> per <sprite=9> <color=\u00a3>KING</color> on your board.",
+    "description": "<color=µ>WAITING</color> grants <color=*>+$1</color> per <sprite=9> <color=£>KING</color> on your board.",
     "nameKey": "zocman-tax_name",
     "descKey": "zocman-tax_description"
   },
   {
-    "index": 190,
-    "poolIndex": 60,
+    "index": 189,
+    "poolIndex": 59,
     "name": "Gambit_Bullet",
     "id": "bullet",
     "rarity": "RARE",
@@ -2984,23 +2972,24 @@
     "descKey": "bullet_description"
   },
   {
-    "index": 191,
-    "poolIndex": 44,
+    "index": 190,
+    "poolIndex": 47,
     "name": "Gambit_ChineseOpening",
     "id": "cn_opening",
     "rarity": "EPIC",
     "focus": [
-      "PAWN"
+      "PAWN",
+      "GAMBIT_SELLER"
     ],
     "sprite": "Gambit_ChineseOpening.png",
     "displayName": "Chinese Opening's Gambit",
-    "description": "If the first piece you play is a <sprite=5> <color=&>PAWN</color>, <color=\u00d8>1/5 chance</color> to earn a random Gambit.",
+    "description": "If the first piece you play is a <sprite=5> <color=&>PAWN</color> earn a random Gambit.",
     "nameKey": "cn_opening_name",
     "descKey": "cn_opening_description"
   },
   {
-    "index": 192,
-    "poolIndex": 66,
+    "index": 191,
+    "poolIndex": 63,
     "name": "Gambit_TheROOOOOK",
     "id": "TheRook",
     "rarity": "COMMON",
@@ -3010,13 +2999,13 @@
     ],
     "sprite": "Gambit_TheROOOOOK.png",
     "displayName": "THE ROOOOOK's Gambit",
-    "description": "When one of your <sprite=6> <color=\u00b0>ROOKS</color> is captured, earn <color=*>+$1</color>.",
+    "description": "When one of your <sprite=6> <color=°>ROOKS</color> is captured, earn <color=*>+$1</color>.",
     "nameKey": "TheRook_name",
     "descKey": "TheRook_description"
   },
   {
-    "index": 193,
-    "poolIndex": 61,
+    "index": 192,
+    "poolIndex": 60,
     "name": "Gambit_Enigma",
     "id": "enigma",
     "rarity": "RARE",
@@ -3025,13 +3014,13 @@
     ],
     "sprite": "Gambit_Enigma.png",
     "displayName": "Enigma's Gambit",
-    "description": "<color=~>BLACK</color> tiles are considered <color=\u20ac>WHITE</color> and <color=\u20ac>WHITE</color> tiles are considered <color=~>BLACK</color>.",
+    "description": "<color=~>BLACK</color> tiles are considered <color=€>WHITE</color> and <color=€>WHITE</color> tiles are considered <color=~>BLACK</color>.",
     "nameKey": "enigma_name",
     "descKey": "enigma_description"
   },
   {
-    "index": 194,
-    "poolIndex": 67,
+    "index": 193,
+    "poolIndex": 64,
     "name": "Gambit_SavageMat",
     "id": "savageMat",
     "rarity": "COMMON",
@@ -3045,8 +3034,8 @@
     "descKey": "savageMat_description"
   },
   {
-    "index": 195,
-    "poolIndex": 62,
+    "index": 194,
+    "poolIndex": 61,
     "name": "Gambit_Beth",
     "id": "beth",
     "rarity": "RARE",
@@ -3061,8 +3050,8 @@
     "descKey": "beth_description"
   },
   {
-    "index": 196,
-    "poolIndex": 45,
+    "index": 195,
+    "poolIndex": 48,
     "name": "Gambit_Goat",
     "id": "goat",
     "rarity": "EPIC",
@@ -3072,28 +3061,29 @@
     ],
     "sprite": "Gambit_Goat.png",
     "displayName": "Chess GOAT's Gambit",
-    "description": "Moving a <sprite=7> <color=|>KNIGHT</color> has a <color=\u00d8>1/4 chance</color> to grant <color=*>+$1</color>.",
+    "description": "Moving a <sprite=7> <color=|>KNIGHT</color> grants <color=*>+$1</color>.",
     "nameKey": "goat_name",
     "descKey": "goat_description"
   },
   {
-    "index": 197,
-    "poolIndex": 46,
+    "index": 196,
+    "poolIndex": 49,
     "name": "Gambit_Nemo",
     "id": "nemo",
     "rarity": "EPIC",
     "focus": [
-      "PAWN"
+      "PAWN",
+      "GAMBIT_SELLER"
     ],
     "sprite": "Gambit_Nemo.png",
     "displayName": "Nemo's Pawns Gambit",
-    "description": "At the start of a game, if your formation contains only<sprite=5> <color=&>PAWNS</color>, <color=\u00d8>1/2 chance</color> to grant a random Gambit.",
+    "description": "At the start of a game, if your formation contains only<sprite=5> <color=&>PAWNS</color>, grants 2 random Gambit.",
     "nameKey": "nemo_name",
     "descKey": "nemo_description"
   },
   {
-    "index": 198,
-    "poolIndex": 47,
+    "index": 197,
+    "poolIndex": 50,
     "name": "Gambit_Anna",
     "id": "annaFamily",
     "rarity": "EPIC",
@@ -3102,13 +3092,13 @@
     ],
     "sprite": "Gambit_Anna.png",
     "displayName": "Anna's family Gambit",
-    "description": "<rainb l=0.5>PROMOTING</rainb> has <color=\u00d8>1/3 chance</color> to grant a copy of the <rainb l=0.5>PROMOTED</rainb> piece.",
+    "description": "<rainb l=0.5>PROMOTING</rainb> grants a copy of the <rainb l=0.5>PROMOTED</rainb> piece.",
     "nameKey": "annaFamily_name",
     "descKey": "annaFamily_description"
   },
   {
-    "index": 199,
-    "poolIndex": 63,
+    "index": 198,
+    "poolIndex": 62,
     "name": "Gambit_Dina",
     "id": "dina",
     "rarity": "RARE",
@@ -3117,8 +3107,24 @@
     ],
     "sprite": "Gambit_Dina.png",
     "displayName": "Dina's Gaze Gambit",
-    "description": "After a capture, <color=\u00d8>1/4 chance</color> to <color=\u25ca>TRAP</color> a random enemy piece.",
+    "description": "After a capture, <color=Ø>1/4 chance</color> to <color=◊>TRAP</color> a random enemy piece.",
     "nameKey": "dina_name",
     "descKey": "dina_description"
+  },
+  {
+    "index": 199,
+    "poolIndex": 65,
+    "name": "Gambit_Missigno",
+    "id": "missigno",
+    "rarity": "COMMON",
+    "focus": [
+      "UTILITY",
+      "GAMBIT_SELLER"
+    ],
+    "sprite": "Gambit_Missigno.png",
+    "displayName": "MissingNo.'s Gambit",
+    "description": "Selling this Gambit turns all your pieces into random pieces.<br><color=≠><i>(Gambit made by the community)</color></i>.",
+    "nameKey": "missigno_name",
+    "descKey": "missigno_description"
   }
 ]

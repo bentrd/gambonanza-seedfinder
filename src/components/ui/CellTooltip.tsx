@@ -3,12 +3,12 @@ import type { PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 interface CellTooltipProps {
-  /** Tooltip body — already styled however you want. */
+  /** Tooltip body - already styled however you want. */
   content: ReactNode;
   children: ReactNode;
   /** Approx width hint for clamping math. Defaults to 200. */
   width?: number;
-  /** Override the wrapper element's classes — useful when the trigger
+  /** Override the wrapper element's classes - useful when the trigger
    *  needs to be a block-level element (e.g. a CSS Grid cell). Defaults
    *  to `inline-flex` which works for inline triggers. */
   triggerClassName?: string;
@@ -20,7 +20,7 @@ const OFFSET = 8;
 /**
  * Lightweight portal-based tooltip for small UI elements (table cells,
  * chips, etc). Same measure-then-clamp positioning approach as
- * `GambitTooltip` but generic — the caller supplies the content.
+ * `GambitTooltip` but generic - the caller supplies the content.
  *
  * Renders into `document.body` so it escapes parent `overflow: hidden`
  * / `overflow: auto` containers.

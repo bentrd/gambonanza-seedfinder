@@ -6,7 +6,7 @@ import type {
 } from "./types";
 
 interface ManagerOptions {
-  /** Batch size — added to the running target each time `requestNext` is called. */
+  /** Batch size - added to the running target each time `requestNext` is called. */
   batchSize?: number;
   onResult: (seeds: number[]) => void;
   /** Fires on in-batch progress AND when a batch resolves (paused/exhausted). */
@@ -34,7 +34,7 @@ export interface ManagerProgress {
  * begins from seed 1.
  *
  * We dropped the previous 4-way parallel partitioning when we moved to
- * pagination — running 4 workers in parallel made the result order
+ * pagination - running 4 workers in parallel made the result order
  * non-deterministic AND made resuming a cursor-per-worker mess. Single
  * worker, single cursor, results in strict seed order.
  */
@@ -93,7 +93,7 @@ export class SearchManager {
       try {
         this.worker.postMessage({ cmd: "stop" } satisfies WorkerCommand);
       } catch {
-        // ignore — terminating anyway
+        // ignore - terminating anyway
       }
       this.worker.terminate();
       this.worker = null;

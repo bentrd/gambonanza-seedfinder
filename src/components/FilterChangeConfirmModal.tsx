@@ -17,7 +17,7 @@ interface FilterChangeConfirmModalProps {
  * matches are filter-dependent), so we ask before discarding.
  *
  * If the user ticks "never show again" we persist that to localStorage
- * (handled by the parent) — bypassing the modal entirely on future
+ * (handled by the parent) - bypassing the modal entirely on future
  * filter changes. Hosted in a portal so it sits above everything else
  * (including the gambit unlocks modal).
  */

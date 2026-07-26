@@ -56,7 +56,7 @@ describe("WASM search_range end-to-end", () => {
       gambits: NO_GAMBITS,
     };
     const hits = runSearch(filters, 1, 2_000_000, 32);
-    // Just check we get hits — specific seeds depend on the trajectory
+    // Just check we get hits - specific seeds depend on the trajectory
     // model and shift whenever the token simulation changes. The
     // reachability filter (only seeds whose shop 1 offers a GAMBIT
     // token) is exercised here as a side-effect.
@@ -66,7 +66,7 @@ describe("WASM search_range end-to-end", () => {
   // Verifies the trajectory-aware gambit filter. For seed 26 the
   // "spin every GAMBIT slot" trajectory's 5th spin lands at shop 14
   // (counter=4) with rarity LEGENDARY (roll=95) and picks [12, 14, 5]
-  // — poolIndex 14 = LuckyCoin. Found via predict_gambits.py with the
+  // - poolIndex 14 = LuckyCoin. Found via predict_gambits.py with the
   // corrected token model (wave = shop - 1).
   it("matches a known seed via gambit filter (LuckyCoin within 5 trajectory spins)", async () => {
     await loadWasm();

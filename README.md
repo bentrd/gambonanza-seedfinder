@@ -1,7 +1,7 @@
 # Gambonanza Seed Finder
 
 Brute-force search for run seeds with chosen starter pieces and gachapon
-rarity rolls. Everything runs in the browser — Rust → WebAssembly hot loop,
+rarity rolls. Everything runs in the browser - Rust → WebAssembly hot loop,
 fanned out across 4 Web Workers.
 
 ## Develop
@@ -46,6 +46,27 @@ helpers that wrap the wasm-bindgen exports. There is no second TS port.
 Sprite art and the `VCRosdNEUE` font in `public/game/` are extracted from
 the Gambonanza install and used here as a fan-made companion tool. They
 remain the property of their respective authors.
+
+To browse the game's full art set, see
+[GambonanzaAssets](https://bentrd.github.io/GambonanzaAssets/).
+
+## After a game update
+
+Regenerate the gambit data. A patch that adds, removes or reclassifies one
+gambit shifts every `poolIndex` after it, and gachapon rolls resolve by
+`(rarity, poolIndex)`, so stale data produces confidently wrong predictions
+rather than visible errors.
+
+```bash
+python3 -m pip install UnityPy Pillow
+python3 tools/extract_gambits.py            # rewrites gambits.json + sprites
+python3 tools/extract_gambits.py --check    # report only, writes nothing
+```
+
+Then update the pool-size constants at the top of `rng-wasm/src/lib.rs` to
+match what the script prints, and run `npm run test:wasm && npm test`. The
+vectors in `GAMBIT_VECTORS` are pool-size dependent and will need regenerating
+if the sizes moved.
 
 ## Layout
 

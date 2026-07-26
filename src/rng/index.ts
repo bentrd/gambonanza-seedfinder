@@ -24,7 +24,7 @@ export {
 
 let ready: Promise<void> | null = null;
 
-/** Idempotent — call before any RNG function. main.tsx awaits this once. */
+/** Idempotent - call before any RNG function. main.tsx awaits this once. */
 export function initRng(): Promise<void> {
   if (!ready) ready = init().then(() => undefined);
   return ready;
@@ -78,8 +78,8 @@ export interface GachaponPick {
 
 /**
  * Predict the 3 gambits offered by the Nth gachapon (0-indexed). The
- * pool can be filtered by passing `excludedIds` — gambits the player
- * hasn't unlocked, currently has equipped, etc. — encoded by
+ * pool can be filtered by passing `excludedIds` - gambits the player
+ * hasn't unlocked, currently has equipped, etc. - encoded by
  * `encodeExcludedIds` (see `src/search/encode.ts`). Requires
  * `loadGambits()` to have resolved.
  */
@@ -159,7 +159,7 @@ export const SHOP_TOKEN_SLOTS = 3;
 export interface ShopTokens {
   /** 1-indexed wave / shop visit. */
   wave: number;
-  /** Token slot contents — `SHOP_TOKEN_SLOTS` entries. */
+  /** Token slot contents - `SHOP_TOKEN_SLOTS` entries. */
   slots: TokenType[];
   /** Convenience: true if at least one slot is a GAMBIT. */
   hasGambit: boolean;
@@ -173,7 +173,7 @@ export interface ShopTokens {
  * Predict the tokens offered in every shop from wave 1 up to and
  * including `maxWave`. Mirrors `ShopCanvas.ComputeToken` for the
  * post-tutorial path; assumes 3 token slots (no `TokenGambit` bonus
- * slot). Sequential simulation — the alternatives counters are shared
+ * slot). Sequential simulation - the alternatives counters are shared
  * across all shops, so you can't ask about wave 5 in isolation.
  */
 export function predictShopTokens(seed: number, maxWave: number): ShopTokens[] {

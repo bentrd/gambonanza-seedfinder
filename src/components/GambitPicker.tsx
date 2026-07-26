@@ -32,7 +32,7 @@ export function GambitPicker({
 
   const selectedSet = useMemo(() => new Set(value.targets), [value.targets]);
 
-  // Filter by query — match name, display name, ID, focus tag, or description.
+  // Filter by query - match name, display name, ID, focus tag, or description.
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return all;
@@ -72,8 +72,8 @@ export function GambitPicker({
 
   return (
     // `h-full` makes the picker fill whatever row height the grid gives
-    // it (the row is sized by the tallest sibling — usually StarterPicker
-    // — under the default `items-stretch` grid behaviour). The scroll
+    // it (the row is sized by the tallest sibling - usually StarterPicker
+    // - under the default `items-stretch` grid behaviour). The scroll
     // area below uses `flex-1 min-h-0` to absorb the remaining vertical
     // space, so the picker matches its row height instead of dictating it.
     <section className="flex h-full flex-col gap-3">
@@ -162,7 +162,7 @@ export function GambitPicker({
         <span>gachapons</span>
       </div>
 
-      {/* `pr-3` instead of using `p-2` symmetrically — the right padding
+      {/* `pr-3` instead of using `p-2` symmetrically - the right padding
           has to clear the 10px scrollbar so the toggles don't sit flush
           against it. */}
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto rounded-md bg-[var(--color-cream-soft)]/30 p-2 pr-3">
@@ -209,7 +209,10 @@ function RaritySection({
           {gambits.length}
         </span>
       </div>
-      <div className="grid grid-cols-7 gap-1.5 sm:grid-cols-8">
+      {/* items-start stops the grid stretching each tooltip wrapper to the row
+          height, which would override the toggle's aspect-square and render
+          the gambit icons as tall pills instead of squares. */}
+      <div className="grid grid-cols-7 items-start gap-1.5 sm:grid-cols-8">
         {gambits.map((g) => (
           <GambitToggle
             key={g.id}
@@ -232,18 +235,21 @@ interface GambitToggleProps {
 function GambitToggle({ gambit, active, onClick }: GambitToggleProps) {
   const sprite = gambitSpriteUrl(gambit);
   return (
-    <GambitTooltip gambit={gambit}>
+    <GambitTooltip gambit={gambit} className="inline-flex w-full">
       <PixelToggle
         active={active}
         onClick={onClick}
         aria-label={`${gambitDisplayName(gambit)} (${gambit.rarity.toLowerCase()})`}
-        className="flex aspect-square w-full items-center justify-center p-1"
+        className="relative flex aspect-square w-full items-center justify-center p-1"
       >
         {sprite ? (
+          // Absolutely positioned so the icon can never drive the tile's height.
+          // A fixed h-9 icon inside a narrower grid column forced the button to
+          // grow past its aspect-square, which is what made the tiles tall pills.
           <img
             src={sprite}
             alt={gambit.name}
-            className="pixel block h-7 w-7 object-contain sm:h-9 sm:w-9"
+            className="pixel absolute inset-1 object-contain"
             draggable={false}
           />
         ) : (

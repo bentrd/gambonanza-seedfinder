@@ -1,10 +1,10 @@
 /**
- * Cloudflare Web Analytics beacon — privacy-friendly, cookieless visit
+ * Cloudflare Web Analytics beacon - privacy-friendly, cookieless visit
  * counter. Loads only in production builds and only when a token has
  * been provided via `VITE_CF_ANALYTICS_TOKEN` (set by the GitHub Pages
  * deploy workflow; absent locally, so dev pages don't ping CF).
  *
- * The token is a public site identifier, not a secret — Cloudflare's
+ * The token is a public site identifier, not a secret - Cloudflare's
  * dashboard issues one per site you configure. See
  * https://developers.cloudflare.com/web-analytics/get-started/ .
  */

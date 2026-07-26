@@ -25,12 +25,15 @@ const GACHAPON_NAMES: [u32; 4] = [
     NAME_GACHAPON_LEGENDARY,
 ];
 
-// Size of each Gambits_<R> pool, baked from extract_gambits.py output.
-// Update both these constants and the JS GAMBIT_POOL_SIZES if the game ever
-// adds new gambits.
-const POOL_SIZE_COMMON: u8 = 68;
-const POOL_SIZE_RARE: u8 = 64;
-const POOL_SIZE_EPIC: u8 = 48;
+// Size of each Gambits_<R> pool, i.e. how many entries `GambitLibrary.Initialize`
+// drops into each rarity bucket while walking `GambitsInfo` in order.
+// These MUST stay in sync with `public/game/gambits.json`, which is the same
+// data extracted from the game build (the TS side derives its pools from that
+// file, so a mismatch here silently desynchronises predictions from the UI).
+// The `gambit_pool_sizes_match_extracted_data` test pins them.
+const POOL_SIZE_COMMON: u8 = 66;
+const POOL_SIZE_RARE: u8 = 63;
+const POOL_SIZE_EPIC: u8 = 51;
 const POOL_SIZE_LEGENDARY: u8 = 20;
 const POOL_SIZES: [u8; 4] = [
     POOL_SIZE_COMMON,
@@ -38,7 +41,23 @@ const POOL_SIZES: [u8; 4] = [
     POOL_SIZE_EPIC,
     POOL_SIZE_LEGENDARY,
 ];
-const MAX_POOL_SIZE: usize = POOL_SIZE_COMMON as usize;
+
+/// Widest rarity pool - sizes the fixed-capacity `FilteredPools::idx` rows.
+/// Computed as a real max rather than aliasing one tier, so re-balancing the
+/// pools can never silently overflow those arrays.
+const MAX_POOL_SIZE: usize = max_pool_size();
+
+const fn max_pool_size() -> usize {
+    let mut max = 0usize;
+    let mut i = 0;
+    while i < POOL_SIZES.len() {
+        if (POOL_SIZES[i] as usize) > max {
+            max = POOL_SIZES[i] as usize;
+        }
+        i += 1;
+    }
+    max
+}
 
 const fn stable_string_hash_bytes(s: &[u8]) -> u32 {
     let mut h = FNV_OFFSET;
@@ -200,7 +219,7 @@ fn build_filtered_pools(excluded: &[u32]) -> FilteredPools {
 /// Simulate the 3-pick gambit selection a single gachapon performs once
 /// `rarity_tier` is known. Mirrors `GambitLibrary.SelectGambits` with
 /// `canBeDamped=false`. The initial pool comes from `pools` (which has
-/// account-locked gambits stripped) — within that, each pick removes by
+/// account-locked gambits stripped) - within that, each pick removes by
 /// index, preserving order to match C# `List<T>.RemoveAt`.
 ///
 /// `counter_base` is the per-rarity counter BEFORE this gachapon's first
@@ -236,10 +255,10 @@ fn simulate_gambit_picks(
  *
  * Each shop offers `m_TokenAvailableToBuy = 3` token slots (the C# field
  * default `= 2` is stale dev-time data; the serialized scene value is 3).
- * We ignore the +1 fourth slot from the `TokenGambit` gambit — bare
+ * We ignore the +1 fourth slot from the `TokenGambit` gambit - bare
  * fresh-run assumption.
  *
- * Two subtleties worth flagging — both bugs in our first port that the
+ * Two subtleties worth flagging - both bugs in our first port that the
  * decompiled code does *not* match the obvious reading of:
  *
  *  1. The saved & spawned tokens come from the FIRST pass (`array3`),
@@ -247,13 +266,13 @@ fn simulate_gambit_picks(
  *     locally, but `DataManager.Data.Tokens = array3` at the end and
  *     `SpawnToken` instantiates `m_TokenToBuy[array3[i]]`. So second
  *     pass + alternatives are essentially counter-advancing dead code
- *     w.r.t. the visible result — we still simulate them to keep the
+ *     w.r.t. the visible result - we still simulate them to keep the
  *     downstream counters in sync, but only the first pass populates
  *     `types`.
  *
  *  2. `GetRandomOccurrence` reads `DataManager.Data.CurrentWave` (the
  *     saved field), not the live `ChessDataManager.m_CurrentWave`.
- *     `HandleShopSave` syncs the saved field from the live one — but
+ *     `HandleShopSave` syncs the saved field from the live one - but
  *     it runs *after* `ComputeToken` in `ShopCanvas.OnEnable`. So shop
  *     N's `ComputeToken` reads the previous shop's saved wave value,
  *     i.e. `wave = N − 1` for the hash. The gachapon hash (which fires
@@ -271,7 +290,7 @@ fn simulate_gambit_picks(
  *       array[slot_to_replace] = filtered[ GetRandomOccurrence("SHOP_TOKEN_NEW_TILE_ALTERNATIVE", 0, filtered.len) ]
  *
  * The `m_TokenToBuy` array (length 6) was extracted from the ShopCanvas
- * MonoBehaviour body — see extract_gambits.py / docs. Tutorial branch's
+ * MonoBehaviour body - see extract_gambits.py / docs. Tutorial branch's
  * hard-coded `[0, 3, 5]` indices serve as a sanity check that index 0
  * is GAMBIT, 3 is CHESS_PIECE, 5 is TILE.
  */
@@ -365,7 +384,7 @@ struct ShopCounters {
 /// `HandleShopSave` syncs the saved CurrentWave.
 ///
 /// `counters` is updated in place so the caller can chain shops
-/// sequentially — the alternatives counters in particular advance
+/// sequentially - the alternatives counters in particular advance
 /// conditionally on the second-pass result of each shop.
 #[inline(always)]
 fn simulate_shop_tokens(
@@ -375,7 +394,7 @@ fn simulate_shop_tokens(
 ) -> ShopTokens {
     let rng_wave = shop_index - 1;
 
-    // First pass: results SAVED to Data.Tokens (array3) — these are the
+    // First pass: results SAVED to Data.Tokens (array3) - these are the
     // tokens the player actually sees in the shop.
     let mut types = [0u8; SHOP_TOKEN_SLOTS as usize];
     for slot in 0..SHOP_TOKEN_SLOTS as usize {
@@ -404,7 +423,7 @@ fn simulate_shop_tokens(
         second_pass_types[slot] = TOKEN_PREFAB_TYPES[pick as usize];
     }
 
-    // Alternatives — also doesn't touch the visible tokens, but
+    // Alternatives - also doesn't touch the visible tokens, but
     // advances `alts_slot` + `alts_replacement` counters conditionally.
     let mut alts_consumed = false;
     let all_same = (1..SHOP_TOKEN_SLOTS as usize)
@@ -541,7 +560,7 @@ fn matches_gachapons(seed: u32, filters: &[u32], num: usize) -> bool {
 
 /// True if any of the target (rarity, poolIndex) pairs appears in one of
 /// the first `max_gach` gachapons the player can ACTUALLY spin. We
-/// walk the "spin every GAMBIT slot in order" trajectory — i.e., the
+/// walk the "spin every GAMBIT slot in order" trajectory - i.e., the
 /// player's k-th spin happens at the wave of the k-th GAMBIT slot in
 /// chronological order. A wave with 0 GAMBIT slots contributes no
 /// spins; a wave with 2 GAMBIT slots (max after the alternatives swap)
@@ -695,10 +714,10 @@ fn matches_gambit_filter(
 /// Inner search loop, shared by `search_range` and `search_paginated`.
 /// Iterates seeds in [seed_start, seed_end), writes matches to `out_buf`
 /// up to the per-call `match_cap`, and returns `(matches_written,
-/// next_seed_to_scan)` — the second value is the resume cursor for the
+/// next_seed_to_scan)` - the second value is the resume cursor for the
 /// paginated entry point.
 ///
-/// `seed_end == 0` is a sentinel meaning "no upper bound" — keep
+/// `seed_end == 0` is a sentinel meaning "no upper bound" - keep
 /// scanning until the cursor wraps off the top of the u32 space.
 /// (Necessary because the seed space is 2^32 which doesn't fit in u32,
 /// so JS can't pass the true upper bound through wasm-bindgen.)
@@ -770,7 +789,7 @@ fn search_inner(
         }
         seed = seed.wrapping_add(1);
         if seed == 0 && seed_start != 0 {
-            // u32 wraparound — we've finished the entire seed space.
+            // u32 wraparound - we've finished the entire seed space.
             return (written, 0);
         }
     }
@@ -791,7 +810,7 @@ pub fn search_range(
     written
 }
 
-/// Paginated scan — stops once either `out_buf` fills OR `match_cap`
+/// Paginated scan - stops once either `out_buf` fills OR `match_cap`
 /// matches have been written, whichever comes first. Returns a 2-element
 /// vec `[matches_written, resume_cursor]`. `resume_cursor` is the next
 /// seed to scan (== `seed_end` if the range was exhausted; == `0` if the
@@ -810,7 +829,7 @@ pub fn search_paginated(
     vec![written, cursor]
 }
 
-/// Per-seed inspector for an arbitrary `(wave, counter)` cell — using
+/// Per-seed inspector for an arbitrary `(wave, counter)` cell - using
 /// the actual "spin every GAMBIT slot in order" trajectory for prior
 /// spins (so the per-rarity counter accumulation matches what the
 /// search kernel uses). This keeps cell-hover picks consistent with
@@ -873,7 +892,7 @@ pub fn predict_gachapon_at_js(
 /// Per-seed inspector: returns the 3 gambit pool indices for the gachapon
 /// at index `gach_idx` (0-based), under the same simplified wave model
 /// used by `matches_gambit_filter`. `excluded` is the same packed-word
-/// list the search kernel consumes — pass an empty slice for the full
+/// list the search kernel consumes - pass an empty slice for the full
 /// "all unlocked" pool.
 ///
 /// Output layout: `[rarity, pick0, pick1, pick2, rarityRoll]`. `rarity`
@@ -940,7 +959,7 @@ pub fn gachapon_roll_js(seed: u32, wave: i32, counter: u32) -> i32 {
 
 /// Per-seed shop-token inspector. Returns the token TokenTypes for
 /// every shop from wave 1 up to and including `max_wave`. Output layout:
-/// `[wave1_slot0, wave1_slot1, wave2_slot0, wave2_slot1, …]` — values
+/// `[wave1_slot0, wave1_slot1, wave2_slot0, wave2_slot1, …]` - values
 /// are `0 = GAMBIT`, `1 = CHESS_PIECE`, `2 = TILE`.
 #[wasm_bindgen(js_name = inspectShopTokens)]
 pub fn inspect_shop_tokens_js(seed: u32, max_wave: u32) -> Vec<i32> {
@@ -992,7 +1011,7 @@ mod tests {
 
     // Reproduce predict_gachapon_gambits_js without the wasm wrapper so we
     // can call it from a native cargo test. Uses the full (all-unlocked)
-    // pool — exclusion behaviour is covered by `excludes_reduce_pool_size`.
+    // pool - exclusion behaviour is covered by `excludes_reduce_pool_size`.
     fn predict_native(seed: u32, gach_idx: u32) -> (u8, [u8; 3], i32) {
         let mut per_rarity_counter = [0u32; 4];
         for g in 0..gach_idx {
@@ -1013,14 +1032,23 @@ mod tests {
         (tier, picks, rr)
     }
 
-    // Vectors generated from predict_gambits.py (the Python reference,
-    // which threads through the verified gambonanza_rng.py port).
+    // Vectors cross-checked against an independent Python port of the game's
+    // own RNG (SeedUtils.Hash + LehmerRandom.Range + GambitLibrary.SelectGambits,
+    // transcribed from the decompiled C#).
+    //
+    // The rarity roll and tier depend only on the seed, so they are identical
+    // to the previous revision of this table. The pick indices are drawn with
+    // `hi = remaining pool size`, so they moved when POOL_SIZE_COMMON 68->66,
+    // POOL_SIZE_RARE 64->63 and POOL_SIZE_EPIC 48->51 were corrected against
+    // the shipped build. LEGENDARY was unchanged (20), hence the 8308 vector is
+    // untouched; the seed=1 RARE draw happens to land on the same three indices
+    // either way.
     //   (seed, gach_idx, expected_tier, expected_picks, expected_roll)
     const GAMBIT_VECTORS: &[(u32, u32, u8, [u8; 3], i32)] = &[
         (1,    0, 1, [35, 0, 17], 44),     // seed=1   gach#1 RARE
-        (1,    1, 0, [6, 7, 50],  11),     // seed=1   gach#2 COMMON
-        (1,    4, 0, [33, 16, 9], 10),     // seed=1   gach#5 COMMON
-        (798,  3, 2, [1, 46, 45], 87),     // seed=798 gach#4 EPIC
+        (1,    1, 0, [6, 5, 48],  11),     // seed=1   gach#2 COMMON
+        (1,    4, 0, [32, 16, 9], 10),     // seed=1   gach#5 COMMON
+        (798,  3, 2, [1, 49, 48], 87),     // seed=798 gach#4 EPIC
         (8308, 4, 3, [12, 14, 5], 96),     // seed=8308 gach#5 LEGENDARY (LuckyCoin)
     ];
 
@@ -1072,12 +1100,15 @@ mod tests {
             false,
         ));
 
-        // Seed 1 has reachable spin #1 with rare poolIdx 35 and spin #2
-        // with common poolIdx 39, so these can both be picked.
+        // Seed 1 has reachable spin #1 with rare poolIdx 35 (Pendant) and
+        // spin #2 with common poolIdx 38 (OldIdol), so these can both be
+        // picked. OldIdol was common poolIdx 39 before Gambit_Shield - an
+        // earlier COMMON - was dropped from the build; same gambit, shifted
+        // index.
         assert!(matches_gambit_filter(
             1,
             2,
-            &[pack_target(1, 35), pack_target(0, 39)],
+            &[pack_target(1, 35), pack_target(0, 38)],
             &FULL_POOLS,
             true,
         ));
@@ -1085,7 +1116,7 @@ mod tests {
 
     #[test]
     fn excludes_reduce_pool_size() {
-        // Lock 5 legendaries — the remaining pool should be 15 and never
+        // Lock 5 legendaries - the remaining pool should be 15 and never
         // contain those poolIndices, regardless of seed.
         let excluded = [
             pack_target(3, 0),  // legendary poolIdx 0 (Apocalypse)
@@ -1101,9 +1132,26 @@ mod tests {
             assert!(!blocked.contains(&pools.idx[3][i as usize]));
         }
         // Other pools keep their current game sizes.
-        assert_eq!(pools.len[0], 68);
-        assert_eq!(pools.len[1], 64);
-        assert_eq!(pools.len[2], 48);
+        assert_eq!(pools.len[0], 66);
+        assert_eq!(pools.len[1], 63);
+        assert_eq!(pools.len[2], 51);
+    }
+
+    /// Pins the pool sizes to the data extracted from the game build and keeps
+    /// `MAX_POOL_SIZE` an honest maximum. If a rebalance ever makes a non-COMMON
+    /// tier the largest, this fails instead of overflowing `FilteredPools::idx`.
+    #[test]
+    fn gambit_pool_sizes_match_extracted_data() {
+        // GambitLibrary.GambitsInfo (level0) has 200 entries; Initialize walks
+        // it in order and buckets by SO_Gambit.Rarity.
+        assert_eq!(POOL_SIZES, [66, 63, 51, 20]);
+        assert_eq!(POOL_SIZES.iter().map(|&n| n as u32).sum::<u32>(), 200);
+
+        let true_max = POOL_SIZES.iter().copied().max().unwrap() as usize;
+        assert_eq!(MAX_POOL_SIZE, true_max);
+        for &n in POOL_SIZES.iter() {
+            assert!(n as usize <= MAX_POOL_SIZE);
+        }
     }
 
     fn simulate_shop_sequence(seed: u32, up_to_wave: i32) -> Vec<[u8; 3]> {
@@ -1121,11 +1169,11 @@ mod tests {
     // (seed, shop_index, [slot0, slot1, slot2]).
     // TokenType: 0=GAMBIT, 1=CHESS_PIECE, 2=TILE.
     const TOKEN_VECTORS: &[(u32, i32, [u8; 3])] = &[
-        // seed 2107291 shop 1 = [TILE,TILE,TILE] — the user-reported
+        // seed 2107291 shop 1 = [TILE,TILE,TILE] - the user-reported
         // in-game observation that exposed the off-by-one fix.
         (2107291, 1, [2, 2, 2]),
         (2107291, 3, [1, 0, 1]),  // CHESS/GAMBIT/CHESS
-        (798,     1, [0, 1, 0]),  // GAMBIT/CHESS/GAMBIT — 2 gambits
+        (798,     1, [0, 1, 0]),  // GAMBIT/CHESS/GAMBIT - 2 gambits
         (798,     7, [0, 1, 1]),  // GAMBIT/CHESS/CHESS
         (8308,    1, [0, 2, 2]),  // GAMBIT/TILE/TILE
         (8308,    2, [1, 2, 0]),  // CHESS/TILE/GAMBIT
@@ -1167,7 +1215,7 @@ mod tests {
         assert!(!picks.contains(&14u8), "LuckyCoin (14) leaked into picks: {picks:?}");
     }
 
-    // Vectors generated from gambonanza_rng.py — see seedfinder/.
+    // Vectors generated from gambonanza_rng.py - see seedfinder/.
     // (seed, hash[0..3], starter_rolls[0..3], pieces[0..3], gach[1..5])
     const VECTORS: &[(u32, [u32; 3], [i32; 3], [&str; 3], [i32; 5])] = &[
         (1, [735603344, 404471571, 742229161], [14, 16, 61], ["PAWN", "PAWN", "KING"], [44, 11, 47, 4, 10]),

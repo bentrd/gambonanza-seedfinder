@@ -5,7 +5,7 @@ const STORAGE_KEY = "gambonanza.crt.intensity";
 const DEFAULT_INTENSITY = 0.6;
 const MOBILE_DEFAULT_INTENSITY = 0;
 
-/** True on touch/phone-class viewports — used to default the CRT off so
+/** True on touch/phone-class viewports - used to default the CRT off so
  *  it doesn't drain battery or fight with limited screen real estate.
  *  Users can still re-enable from the chip. */
 function isMobileTouch(): boolean {

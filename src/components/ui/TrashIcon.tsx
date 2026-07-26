@@ -3,7 +3,7 @@ interface TrashIconProps {
   className?: string;
 }
 
-// Lucide "trash-2" — ISC licensed, https://lucide.dev/icons/trash-2
+// Lucide "trash-2" - ISC licensed, https://lucide.dev/icons/trash-2
 export function TrashIcon({ size = 14, className = "" }: TrashIconProps) {
   return (
     <svg

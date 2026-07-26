@@ -23,7 +23,7 @@ interface ResultsTableProps {
   gambitFilter: GambitFilter;
   /** Worker is currently scanning a batch. Disables the sentinel trigger. */
   fetching: boolean;
-  /** No more seeds left to scan — sentinel becomes terminal. */
+  /** No more seeds left to scan - sentinel becomes terminal. */
   exhausted: boolean;
   /** Whether any search has been initiated yet (empty results before first run vs after). */
   hasSearched: boolean;
@@ -59,7 +59,7 @@ export function ResultsTable({
   // Two render paths: a compact `<table>` for `sm+` (the dense desktop
   // layout) and a vertical card list for narrower viewports (each result
   // becomes its own card, no horizontal scroll). They share `ResultRow`
-  // sub-components — the wrapper element changes, not the cell contents.
+  // sub-components - the wrapper element changes, not the cell contents.
   return (
     <>
       {/* Mobile: stacked card list. */}
@@ -277,13 +277,13 @@ function SentinelBlock({
 
   const label = exhausted
     ? hasResults
-      ? "scanned every seed — no more matches"
+      ? "scanned every seed - no more matches"
       : "no matches anywhere in the seed space"
     : fetching
       ? "scanning for more matches…"
       : hasResults
         ? "scroll for more"
-        : "halted — refine filters or scroll to retry";
+        : "halted - refine filters or scroll to retry";
 
   return (
     <div
@@ -463,7 +463,7 @@ function Inspector({
       {/* Two-column layout: starter rolls stack vertically on the left,
           the gachapon roll grid takes the bulk of the width on the
           right. `items-stretch` + `flex-1` on each piece card makes
-          the starter column match the grid's height — pieces share
+          the starter column match the grid's height - pieces share
           the vertical space evenly. Stacks on small screens. */}
       <div className="flex flex-col gap-4 md:flex-row md:items-stretch">
         <div className="flex flex-col gap-2 md:w-56">
@@ -520,7 +520,7 @@ interface SentinelRowProps {
 }
 
 /**
- * Bottom row of the results table — drives the "infinite scroll"
+ * Bottom row of the results table - drives the "infinite scroll"
  * pagination. An IntersectionObserver watches the row; when it scrolls
  * into view AND we're idle (not fetching) AND there's more seed space
  * to scan, it requests the next batch.
@@ -528,7 +528,7 @@ interface SentinelRowProps {
  * Also acts as the status line at the bottom of the table:
  *   - fetching   → "scanning for more…" with a subtle pulse
  *   - exhausted  → "no more matches in the seed space"
- *   - empty + ¬exhausted → "halted — refine filters or scroll to retry"
+ *   - empty + ¬exhausted → "halted - refine filters or scroll to retry"
  *   - empty + exhausted  → "no matches anywhere"
  */
 function SentinelRow({
@@ -571,13 +571,13 @@ function SentinelRow({
 
   const label = exhausted
     ? hasResults
-      ? "scanned every seed — no more matches"
+      ? "scanned every seed - no more matches"
       : "no matches anywhere in the seed space"
     : fetching
       ? "scanning for more matches…"
       : hasResults
         ? "scroll for more"
-        : "halted — refine filters or scroll to retry";
+        : "halted - refine filters or scroll to retry";
 
   return (
     <tr
@@ -677,7 +677,7 @@ function buildComboHighlights(
 /**
  * Inline trajectory preview rendered in each result row. Shows the
  * first `count` reachable gachapon spins as tier-coloured roll chips
- * — gives the user a quick visual quality scan without expanding the
+ * - gives the user a quick visual quality scan without expanding the
  * row. Empty placeholder slots fill the column when the trajectory
  * has fewer than `count` spins.
  */
@@ -742,7 +742,7 @@ function TrajectoryPreview({
           className="inline-flex h-5 w-9 items-center justify-center rounded-md border-2 border-[var(--color-cream-soft)] font-mono text-[10px] text-[var(--color-wine-dark)]/30"
           title="no spin reachable"
         >
-          —
+          -
         </span>
       ))}
     </div>
@@ -750,7 +750,7 @@ function TrajectoryPreview({
 }
 
 /**
- * Gachapon roll-grid display — rebuilt as a CSS Grid so every cell is
+ * Gachapon roll-grid display - rebuilt as a CSS Grid so every cell is
  * guaranteed to be the same size (the old `<table>` auto-sized columns
  * to their text content, which made "100" wider than "4").
  *
@@ -761,11 +761,11 @@ function TrajectoryPreview({
  *  - **Shop number header** is faded for shops with no GAMBIT token.
  *  - **Unreachable cells** (wave has no GAMBIT, or counter exceeds the
  *    prior spin budget) are dimmed to opacity-30 with neutral tint.
- *  - **Trajectory cells** — the actual `(shop, counter)` pairs the
- *    player reaches under spin-every — get a chunky outer ring so the
+ *  - **Trajectory cells** - the actual `(shop, counter)` pairs the
+ *    player reaches under spin-every - get a chunky outer ring so the
  *    user can read off "this is what would actually happen".
- *  - **Target hits** — trajectory cells whose picks include one of the
- *    user's selected gambits — get an extra yellow inset accent.
+ *  - **Target hits** - trajectory cells whose picks include one of the
+ *    user's selected gambits - get an extra yellow inset accent.
  */
 interface RollGridProps {
   seed: number;
@@ -851,7 +851,7 @@ function RollGrid({
               title={
                 hasGambit
                   ? `shop ${w}: gachapon token offered`
-                  : `shop ${w}: no gachapon token — unreachable`
+                  : `shop ${w}: no gachapon token - unreachable`
               }
             >
               {w}
@@ -859,7 +859,7 @@ function RollGrid({
           );
         })}
 
-        {/* Body rows — one per counter value */}
+        {/* Body rows - one per counter value */}
           {counters.map((c) => (
             <Fragment key={c}>
               <div className="flex items-center justify-center font-display text-[10px] uppercase tracking-wider text-[var(--color-wine-dark)]/60">
@@ -907,7 +907,7 @@ interface RollCellProps {
   /** Total GAMBIT slots in shops 1..(wave-1). The player can reach
    *  `counter = C` at this wave only if `C ≤ priorMax`. */
   priorMax: number;
-  /** Filter exclusion bytes — passed through to `predictGachaponAt`
+  /** Filter exclusion bytes - passed through to `predictGachaponAt`
    *  so the cell's picks reflect the user's locked pool. */
   excludedBytes: Uint32Array;
   /** Gambit IDs the user is searching for. Cells whose picks include
@@ -957,7 +957,7 @@ function RollCell({
   const counterReachable = counter <= priorMax;
   const reachable = waveHasGambit && counterReachable;
 
-  // Only compute picks for reachable cells — unreachable cells have
+  // Only compute picks for reachable cells - unreachable cells have
   // no meaningful gambit data to show, and skipping the wasm call
   // keeps the grid cheap to render.
   const prediction = useMemo(
@@ -977,7 +977,7 @@ function RollCell({
   const reason = !waveHasGambit
     ? "✕ no gachapon token in this wave's shop"
     : !counterReachable
-      ? `✕ counter ${counter} unreachable — only ${priorMax} prior spins possible`
+      ? `✕ counter ${counter} unreachable - only ${priorMax} prior spins possible`
       : "✓ reachable at this wave / counter";
 
   const tooltipBody = shop ? (
@@ -986,7 +986,7 @@ function RollCell({
         wave {wave} · counter {counter}
       </div>
 
-      {/* Shop tokens — 3 slots. */}
+      {/* Shop tokens - 3 slots. */}
       <div>
         <div className="text-[10px] uppercase tracking-wider text-[var(--color-wine-dark)]/60">
           shop tokens
@@ -1044,7 +1044,7 @@ function RollCell({
                 </li>
               ) : (
                 <li key={i} className="text-[var(--color-wine-dark)]/40">
-                  —
+                  -
                 </li>
               ),
             )}
@@ -1071,11 +1071,11 @@ function RollCell({
   // 1px border so widths align exactly; visual difference comes from
   // box-shadow / background only.
   //
-  //   base       — tier-tinted background (faded if unreachable)
-  //   trajectory — subtle 1px wine inset shadow ("the player would
+  //   base       - tier-tinted background (faded if unreachable)
+  //   trajectory - subtle 1px wine inset shadow ("the player would
   //                reach this cell"). No outer border change so the
   //                cell can't be confused with a hit.
-  //   hit        — chunky 2px ink ring + 2px drop shadow + bold. No
+  //   hit        - chunky 2px ink ring + 2px drop shadow + bold. No
   //                inset tint: the cell stays its own tier colour so
   //                the highlight reads as "stand out" without falsely
   //                implying legendary (yellow) or any other rarity.

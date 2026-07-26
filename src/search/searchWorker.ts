@@ -9,10 +9,10 @@ import type { SearchEvent, WorkerCommand } from "./types";
  * each kernel call rather than scanning a giant chunk.
  */
 const RESULT_CAPACITY = 128;
-/** 2^32 — the size of the u32 seed space. Not the value we pass to wasm
+/** 2^32 - the size of the u32 seed space. Not the value we pass to wasm
  *  (it doesn't fit in u32); used only for "scanned"/`cursor` math here. */
 const U32_RANGE = 0x100000000;
-/** Sentinel passed as `seed_end` to mean "no upper bound — scan to the
+/** Sentinel passed as `seed_end` to mean "no upper bound - scan to the
  *  end of the u32 space". The Rust kernel handles this explicitly. */
 const NO_END: number = 0;
 const PROGRESS_INTERVAL_MS = 150;
@@ -82,7 +82,7 @@ ctx.addEventListener("message", (e: MessageEvent<WorkerCommand>) => {
  * alive so a subsequent `resume` can pick up the cursor.
  */
 async function runBatch(targetTotal: number): Promise<void> {
-  if (running) return; // resume race — caller should never overlap, but guard anyway.
+  if (running) return; // resume race - caller should never overlap, but guard anyway.
   if (!session) return;
   running = true;
 

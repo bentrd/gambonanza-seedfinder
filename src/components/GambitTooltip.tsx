@@ -8,6 +8,14 @@ import { RarityBadge } from "./ui/RarityBadge";
 interface GambitTooltipProps {
   gambit: Gambit;
   children: ReactNode;
+  /**
+   * Classes for the wrapper span. Defaults to a shrink-to-fit inline-flex,
+   * which is right for inline text mentions. Grid cells must pass
+   * "inline-flex w-full" instead: the wrapper, not the toggle, is the grid
+   * item, so without an explicit width it shrinks to its content and the
+   * toggle's `aspect-square` resolves against the wrong box.
+   */
+  className?: string;
 }
 
 const TOOLTIP_W = 240;
@@ -21,10 +29,14 @@ const VIEWPORT_MARGIN = 8;
  * The tooltip is rendered into a portal at `document.body` so it can
  * escape any `overflow:auto` ancestor (the gambit picker scrolls), and
  * its final position is clamped to the viewport after measuring its
- * real bounding rect — so it's always fully visible regardless of where
+ * real bounding rect - so it's always fully visible regardless of where
  * the trigger sits.
  */
-export function GambitTooltip({ gambit, children }: GambitTooltipProps) {
+export function GambitTooltip({
+  gambit,
+  children,
+  className = "inline-flex",
+}: GambitTooltipProps) {
   const triggerRef = useRef<HTMLSpanElement | null>(null);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
@@ -45,7 +57,7 @@ export function GambitTooltip({ gambit, children }: GambitTooltipProps) {
   };
   const handlePointerDown = (e: ReactPointerEvent) => {
     if (e.pointerType !== "touch") return;
-    // Don't preventDefault — the underlying button (gambit toggle) still
+    // Don't preventDefault - the underlying button (gambit toggle) still
     // needs its click to fire. We're only toggling the tooltip.
     setOpen((prev) => {
       stickyTouchRef.current = !prev;
@@ -95,7 +107,7 @@ export function GambitTooltip({ gambit, children }: GambitTooltipProps) {
       if (below + th <= vh - VIEWPORT_MARGIN) {
         top = below;
       } else {
-        // Neither fully fits — pin to whichever side has more room.
+        // Neither fully fits - pin to whichever side has more room.
         const spaceAbove = tr.top;
         const spaceBelow = vh - tr.bottom;
         top =
@@ -125,7 +137,7 @@ export function GambitTooltip({ gambit, children }: GambitTooltipProps) {
   return (
     <span
       ref={triggerRef}
-      className="inline-flex"
+      className={className}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
       onPointerDown={handlePointerDown}
@@ -197,14 +209,14 @@ function renderUnityRichText(src: string): ReactNode[] {
       out.push("\n");
       i = tag.end;
     } else if (tag.kind === "sprite") {
-      // <sprite=N> — render the matching TMP atlas icon (extracted to
+      // <sprite=N> - render the matching TMP atlas icon (extracted to
       // public/game/tmp-icons/<N>.png by extract_gambits.py).
       const idxMatch = src.slice(tag.start, tag.end).match(/sprite=(\d+)/i);
       const idx = idxMatch ? parseInt(idxMatch[1], 10) : -1;
       out.push(<SpriteIcon key={`s${key++}`} idx={idx} />);
       i = tag.end;
     } else {
-      // paired tag — find matching `</name>` and recurse on the inner.
+      // paired tag - find matching `</name>` and recurse on the inner.
       const closeTag = `</${tag.name}>`;
       const close = src.toLowerCase().indexOf(closeTag, tag.end);
       if (close === -1) {
@@ -245,7 +257,7 @@ function nextTag(src: string, from: number): Tag | null {
     if (name === "br") return { kind: "br", start, end };
     if (name === "sprite") return { kind: "sprite", start, end };
     if (PAIRED_TAGS.has(name)) return { kind: "paired", name, start, end };
-    // Unknown tag — skip silently and keep scanning so we don't render the
+    // Unknown tag - skip silently and keep scanning so we don't render the
     // literal text. Closing tags (e.g. </color>) fall here too; the matching
     // paired branch above eats them via indexOf on the close-tag string.
     re.lastIndex = end;
@@ -340,7 +352,7 @@ function RainbowBop({ children }: { children: ReactNode }) {
 
 // Native pixel dimensions of each TMP atlas sprite (from the extracted
 // PNGs). Used to compute the inline icon's width while pinning its
-// height — same approach as PieceIcon — so nothing renders stretched.
+// height - same approach as PieceIcon - so nothing renders stretched.
 const TMP_SPRITE_DIMS: Record<number, { w: number; h: number }> = {
   0:  { w: 250, h: 273 },  // BLESS tile
   1:  { w: 250, h: 273 },  // GOLDEN tile

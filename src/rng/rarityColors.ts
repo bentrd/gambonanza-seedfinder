@@ -2,7 +2,7 @@ import type { Rarity } from "./types";
 
 export type Tier = Rarity | "ANY";
 
-/** Background-color class only — pair with an explicit text color where used. */
+/** Background-color class only - pair with an explicit text color where used. */
 export const TIER_BG: Record<Tier, string> = {
   ANY: "bg-[var(--color-cream-light)]",
   COMMON: "bg-[var(--color-common)]",
@@ -20,7 +20,7 @@ export const TIER_TEXT: Record<Tier, string> = {
   LEGENDARY: "text-[var(--color-ink)]",
 };
 
-/** Inclusive [min, max] roll bounds for each tier — single source of truth. */
+/** Inclusive [min, max] roll bounds for each tier - single source of truth. */
 export const TIER_BANDS: Record<Tier, readonly [number, number]> = {
   ANY: [0, 100],
   COMMON: [0, 39],

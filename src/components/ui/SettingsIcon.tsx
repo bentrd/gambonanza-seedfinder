@@ -3,7 +3,7 @@ interface SettingsIconProps {
   className?: string;
 }
 
-// Lucide "settings" — ISC licensed, https://lucide.dev/icons/settings
+// Lucide "settings" - ISC licensed, https://lucide.dev/icons/settings
 export function SettingsIcon({ size = 14, className = "" }: SettingsIconProps) {
   return (
     <svg

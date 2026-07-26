@@ -8,14 +8,14 @@ type Font = "display" | "mono";
 
 interface RarityBadgeProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> {
-  /** Rarity tier — drives the background colour. Pass `"ANY"` for a neutral chip. */
+  /** Rarity tier - drives the background colour. Pass `"ANY"` for a neutral chip. */
   rarity: Tier;
   /** Visual scale.
    *  - `xs` 9px (tooltip header)
-   *  - `sm` 10px (default — section labels, in-text tags)
+   *  - `sm` 10px (default - section labels, in-text tags)
    *  - `md` 11px (row chips with compound content)
    *  - `cell` fixed 28×36 grid cell used by the help-card MiniGrid
-   *  - `track` fixed 20×36 chip used by trajectory rows — every chip
+   *  - `track` fixed 20×36 chip used by trajectory rows - every chip
    *    has the same footprint regardless of digit count so the row
    *    stays a clean grid. */
   size?: Size;
@@ -23,11 +23,11 @@ interface RarityBadgeProps
   variant?: Variant;
   /** `display` = uppercase + tracked (default), `mono` = monospace label for compound content like `LEG 91`. */
   font?: Font;
-  /** Forces button mode — also implicit when `onClick` is passed. Selected styling. */
+  /** Forces button mode - also implicit when `onClick` is passed. Selected styling. */
   active?: boolean;
   /** Cell-mode highlight outline (chunky border + drop shadow). */
   highlight?: boolean;
-  /** Greyed out — used for "skipped" cells in scenario grids. */
+  /** Greyed out - used for "skipped" cells in scenario grids. */
   ghost?: boolean;
   children?: ReactNode;
   className?: string;
@@ -52,20 +52,20 @@ const FONT_CLASSES: Record<Font, string> = {
 };
 
 /**
- * Unified rarity badge — every "colored tier label" in the app routes
+ * Unified rarity badge - every "colored tier label" in the app routes
  * through this component so size/border/font/state changes happen in
  * one place. Three behaviours:
  *
  *  - **Static label** (default): `<span>` with rarity tint, used by the
  *    tooltip header, picker section labels, help-card tag list, etc.
  *  - **Interactive chip** (pass `onClick` or `active`): `<button>` with
- *    hover/active/disabled affordances — used by the gachapon-grid tier
+ *    hover/active/disabled affordances - used by the gachapon-grid tier
  *    selector.
  *  - **Grid cell** (pass `size="cell"`): fixed-size colored square used
  *    by the help-card walk-through scenarios. Supports `highlight` and
  *    `ghost` modifiers.
  *
- * The colour palette comes from `TIER_BG` / `TIER_TEXT` — both this
+ * The colour palette comes from `TIER_BG` / `TIER_TEXT` - both this
  * file and the rest of the app share that single source of truth, so
  * adding a new rarity is one map entry, not six call sites.
  */

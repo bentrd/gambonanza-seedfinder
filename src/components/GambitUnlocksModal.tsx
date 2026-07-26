@@ -21,13 +21,13 @@ interface GambitUnlocksModalProps {
 
 /**
  * "My unlocked gambits" modal. Each toggle represents a gambit's
- * unlocked state — active means "you have it unlocked", inactive means
+ * unlocked state - active means "you have it unlocked", inactive means
  * "locked on your save" (added to the exclusion list). Defaults to all
  * unlocked.
  *
  * Why a separate modal rather than reusing GambitPicker: the picker
  * encodes "match these" (additive), while this encodes "don't simulate
- * these" (subtractive). Same data, opposite semantic — clearer to give
+ * these" (subtractive). Same data, opposite semantic - clearer to give
  * each its own surface.
  */
 export function GambitUnlocksModal({
@@ -169,7 +169,7 @@ export function GambitUnlocksModal({
 
         <div className="mt-3 flex items-center justify-between gap-3">
           <span className="text-[10px] uppercase tracking-wider text-[var(--color-wine-dark)]/60">
-            stored locally — only affects gachapon predictions in this browser
+            stored locally - only affects gachapon predictions in this browser
           </span>
           <button
             type="button"
@@ -207,7 +207,9 @@ function RaritySection({
           {unlockedHere} / {gambits.length}
         </span>
       </div>
-      <div className="grid grid-cols-6 gap-1.5 sm:grid-cols-8 md:grid-cols-10">
+      {/* items-start: see the note in GambitPicker. Without it the wrapper
+          stretches and the tiles render as tall pills. */}
+      <div className="grid grid-cols-6 items-start gap-1.5 sm:grid-cols-8 md:grid-cols-10">
         {gambits.map((g) => (
           <UnlockToggle
             key={g.id}
@@ -230,7 +232,7 @@ interface UnlockToggleProps {
 function UnlockToggle({ gambit, unlocked, onClick }: UnlockToggleProps) {
   const sprite = gambitSpriteUrl(gambit);
   return (
-    <GambitTooltip gambit={gambit}>
+    <GambitTooltip gambit={gambit} className="inline-flex w-full">
       <PixelToggle
         active={unlocked}
         onClick={onClick}
@@ -239,10 +241,12 @@ function UnlockToggle({ gambit, unlocked, onClick }: UnlockToggleProps) {
         className="relative flex aspect-square w-full items-center justify-center p-1"
       >
         {sprite ? (
+          // Absolutely positioned: see the note in GambitPicker. A fixed-size
+          // icon would push the tile past its aspect-square in narrow columns.
           <img
             src={sprite}
             alt={gambit.name}
-            className={`pixel block h-9 w-9 object-contain transition ${
+            className={`pixel absolute inset-1 object-contain transition ${
               unlocked ? "" : "grayscale opacity-30"
             }`}
             draggable={false}

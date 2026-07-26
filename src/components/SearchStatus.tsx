@@ -1,7 +1,7 @@
 interface SearchStatusProps {
   /** Worker is currently scanning a batch (between requestNext and paused). */
   fetching: boolean;
-  /** Worker has hit the u32 seed-space ceiling — no more matches anywhere. */
+  /** Worker has hit the u32 seed-space ceiling - no more matches anywhere. */
   exhausted: boolean;
   /** Cumulative matches found across all batches so far. */
   matched: number;
@@ -14,7 +14,7 @@ interface SearchStatusProps {
   onCancel: () => void;
 }
 
-/** Compact short-scale formatter — 8,129,179 → "8.1M", 4.3 B → "4.3B".
+/** Compact short-scale formatter - 8,129,179 → "8.1M", 4.3 B → "4.3B".
  *  Below 1k stays as-is. Intl handles locale-specific suffix mapping. */
 const COMPACT = new Intl.NumberFormat("en", {
   notation: "compact",
@@ -58,11 +58,11 @@ export function SearchStatus({
   const hint = exhausted
     ? matched === 0
       ? "no matches in any seed"
-      : "scanned every seed — no more matches"
+      : "scanned every seed - no more matches"
     : fetching
       ? "scanning for more…"
       : matched < target
-        ? "halted — refine filters or scroll to retry"
+        ? "halted - refine filters or scroll to retry"
         : "scroll the results to load more";
 
   const barColor = exhausted

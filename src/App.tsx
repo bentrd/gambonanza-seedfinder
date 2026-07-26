@@ -39,7 +39,7 @@ function persistExcluded(ids: readonly string[]): void {
   try {
     localStorage.setItem(EXCLUDED_LS_KEY, JSON.stringify(ids));
   } catch {
-    // quota / private mode — silently ignore
+    // quota / private mode - silently ignore
   }
 }
 
@@ -189,7 +189,7 @@ export function App() {
       if (!hasState || skipResetWarning) {
         apply();
         if (managerRef.current) {
-          // A search was running or finished — drop it so the user gets a
+          // A search was running or finished - drop it so the user gets a
           // fresh batch on next "Search!" click.
           stopSearch();
           setHasSearched(false);
@@ -281,7 +281,7 @@ export function App() {
               button below, both at the same ~1/3 panel width. Stacked
               instead of side-by-side because each card has its own
               natural height (the status is information-dense; the
-              button is chunky) — forcing them to share a row meant one
+              button is chunky) - forcing them to share a row meant one
               always looked stretched or cramped. */}
           <div className="mx-auto flex w-full max-w-md flex-col gap-3 md:w-1/3">
             {hasSearched ? (
